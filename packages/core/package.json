@@ -1,0 +1,13 @@
+{
+    "name": "@trydecember/tui-core",
+    "version": "0.1.0",
+    "description": "shared types and utilities for @trydecember/tui",
+    "type": "module",
+    "main": "./src/index.ts",
+    "scripts": {
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "typescript": "^5.8.2"
+    }
+}

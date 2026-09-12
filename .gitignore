@@ -1,0 +1,42 @@
+# Dependency directories
+node_modules/
+**/node_modules/
+
+# Build & compiled directories
+**/dist/
+**/bin/
+**/build/
+**/out/
+**/.next/
+**/.turbo/
+*.tsbuildinfo
+
+# Tool & Cache directories
+**/.eslintcache
+**/.prettiercache
+**/.cache/
+**/.tmp/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environments & secrets
+.env
+.env.*
+.env*.local
+!.env.example
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/

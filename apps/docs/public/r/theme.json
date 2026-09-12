@@ -1,0 +1,19 @@
+{
+    "$schema": "https://tui.trydecember.com/schema.json",
+    "name": "theme",
+    "type": "theme",
+    "title": "Theme Tokens",
+    "description": "Central design tokens for terminal agents (colors, glyphs, padding).",
+    "dependencies": [],
+    "devDependencies": [],
+    "registryDependencies": [],
+    "files": [
+        {
+            "name": "theme.ts",
+            "path": "theme.ts",
+            "target": "theme.ts",
+            "content": "// Centralized theme tokens for terminal agent components.\n// All components consume these tokens instead of hardcoded hex or named color strings.\n\nexport const THEME = {\n    colors: {\n        brand: '#89B4F8',\n        text: 'white',\n        muted: '#AAAAAA',\n        dim: '#666666',\n        border: '#333333',\n        success: '#6EE7B7',\n        error: '#FCA5A5',\n        warning: '#FDD663',\n        diffAddBg: '#122f1e',\n        diffDeleteBg: '#3f1316',\n    },\n    padding: {\n        paddingX: 2,\n        paddingLeft: 2,\n        paddingRight: 4,\n    },\n    glyphs: {\n        prompt: '❭',\n        selector: '❭',\n        bullet: '•',\n        status: '●',\n        branch: '⌥',\n        check: '✔',\n        cross: '✖',\n        arrowRight: '→',\n        arrowDown: '↓',\n        foldClosed: '▸',\n        foldOpen: '▾',\n    },\n} as const\n\nexport const COLORS = {\n    ...THEME.colors,\n    primary: THEME.colors.text,\n    info: THEME.colors.muted,\n} as const\n\nexport type Theme = typeof THEME\nexport type Colors = typeof COLORS\n",
+            "type": "theme"
+        }
+    ]
+}

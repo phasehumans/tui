@@ -1,0 +1,22 @@
+{
+    "name": "@trydecember/tui",
+    "version": "0.1.0",
+    "description": "a ui library for terminal agents.",
+    "type": "module",
+    "bin": {
+        "tui": "./dist/index.js"
+    },
+    "main": "./dist/index.js",
+    "scripts": {
+        "build": "bun build ./src/index.ts --target=node --outfile=./dist/index.js",
+        "dev": "bun run --watch ./src/index.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@clack/prompts": "^0.11.0",
+        "picocolors": "^1.1.1"
+    },
+    "devDependencies": {
+        "@types/node": "^22.13.9"
+    }
+}

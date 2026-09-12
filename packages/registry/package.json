@@ -1,0 +1,19 @@
+{
+    "name": "@trydecember/tui-registry",
+    "version": "0.1.0",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "build": "bun scripts/build.ts",
+        "build:registry": "bun scripts/build.ts",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "ink": "^7.1.0",
+        "ink-spinner": "^5.0.0",
+        "react": "^19.2.7"
+    },
+    "devDependencies": {
+        "@types/react": "^19.2.14"
+    }
+}
