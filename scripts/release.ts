@@ -21,7 +21,9 @@ console.log(`\n🚀 Preparing release v${version}...\n`)
 // 1. Check git working directory status
 const status = await $`git status --porcelain`.text()
 if (status.trim() && !force) {
-    console.error('Git working tree has uncommitted changes. Commit or stash them first, or pass --force.')
+    console.error(
+        'Git working tree has uncommitted changes. Commit or stash them first, or pass --force.'
+    )
     process.exit(1)
 }
 

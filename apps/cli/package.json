@@ -1,6 +1,6 @@
 {
     "name": "@trydecember/tui",
-    "version": "0.1.0",
+    "version": "0.0.1",
     "description": "an unbundled, copy-paste terminal ui component library for react & ink ai agents.",
     "type": "module",
     "bin": {
