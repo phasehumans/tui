@@ -1245,6 +1245,29 @@ export function App() {
 
 render(<App />)`,
         },
+        {
+            id: 'action-chips-and-links',
+            title: 'Action Chips & Terminal Links',
+            description: 'Bracketed action chip format [ Retry ] and underlined terminal links.',
+            terminalLines: [
+                '  \x1b[38;2;251;146;60m\x1b[1m[ Approve ]\x1b[0m   \x1b[38;2;102;102;102m[ Retry ]\x1b[0m   \x1b[4m\x1b[38;2;137;180;248mDocs Link\x1b[0m',
+            ],
+            codeSnippet: `import { Button } from '@/components/tui/button'
+import { Box, render } from 'ink'
+import React from 'react'
+
+export function App() {
+  return (
+    <Box padding={1} gap={2}>
+      <Button variant="bracket" isFocused={true}>Approve</Button>
+      <Button variant="bracket">Retry</Button>
+      <Button variant="link">Docs Link</Button>
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
     ],
 
     tabs: [
@@ -1676,6 +1699,62 @@ export function App() {
   return (
     <Box padding={1}>
       <Table data={logs} borderStyle="none" />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+    ],
+    switch: [
+        {
+            id: 'glyph-toggle',
+            title: 'Glyph Toggle (On vs Off)',
+            description: 'Compact terminal toggle using arrow glyph indicators (─●) and (●─).',
+            terminalLines: [
+                '  \x1b[1;38;2;74;222;128m(─●)\x1b[0m Auto-run tools',
+                '  \x1b[38;2;92;92;92m(●─) Debug mode\x1b[0m',
+            ],
+            codeSnippet: `import { Switch } from '@/components/tui/switch'
+import { Box, render } from 'ink'
+import React, { useState } from 'react'
+
+export function App() {
+  const [enabled, setEnabled] = useState(true)
+  return (
+    <Box padding={1} flexDirection="column" gap={1}>
+      <Switch checked={enabled} onChange={setEnabled} label="Auto-run tools" />
+      <Switch checked={false} label="Debug mode" />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+        {
+            id: 'badge-variant',
+            title: 'Badge Variant [ ON ] and [ OFF ]',
+            description: 'Boxed badge style switch for prominent state toggles.',
+            terminalLines: [
+                '  \x1b[1;38;2;74;222;128m[ ON ]\x1b[0m  Stream reasoning \x1b[38;2;92;92;92m(Live tokens)\x1b[0m',
+                '  \x1b[38;2;92;92;92m[ OFF ]\x1b[0m Verbose logs',
+            ],
+            codeSnippet: `import { Switch } from '@/components/tui/switch'
+import { Box, render } from 'ink'
+import React, { useState } from 'react'
+
+export function App() {
+  const [stream, setStream] = useState(true)
+  return (
+    <Box padding={1} flexDirection="column" gap={1}>
+      <Switch
+        checked={stream}
+        onChange={setStream}
+        variant="badge"
+        label="Stream reasoning"
+        description="Live tokens"
+      />
+      <Switch checked={false} variant="badge" label="Verbose logs" />
     </Box>
   )
 }

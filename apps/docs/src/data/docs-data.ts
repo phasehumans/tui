@@ -54,6 +54,7 @@ export interface DocItem {
         | 'skeleton'
         | 'toast'
         | 'table'
+        | 'switch'
     codeSnippet?: string
     variations?: ComponentVariation[]
     props?: PropItem[]
@@ -1296,7 +1297,7 @@ render(<App />)`,
         title: 'Button',
         badge: 'primitive',
         description:
-            'interactive terminal button with variants (default, secondary, destructive, outline, ghost) and keyboard focus.',
+            'interactive terminal button and action chip with variants (default, secondary, destructive, outline, ghost, link, bracket) and keyboard focus.',
         terminalMode: 'button',
         installCmd: 'npx @trydecember/tui add button',
         codeSnippet: `import { Button } from '@/components/tui/button'
@@ -1309,6 +1310,8 @@ export function App() {
       <Button isFocused variant="default" onSelect={() => console.log('deployed')}>Deploy</Button>
       <Button variant="secondary">Review</Button>
       <Button variant="destructive">Rollback</Button>
+      <Button variant="bracket">Retry</Button>
+      <Button variant="link">Documentation</Button>
     </Box>
   )
 }
@@ -1317,9 +1320,15 @@ render(<App />)`,
         props: [
             {
                 prop: 'variant',
-                type: "'default' | 'secondary' | 'destructive' | 'outline' | 'ghost'",
+                type: "'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link' | 'bracket'",
                 default: "'default'",
                 desc: 'visual styling preset',
+            },
+            {
+                prop: 'size',
+                type: "'sm' | 'default' | 'lg'",
+                default: "'default'",
+                desc: 'horizontal padding sizing',
             },
             {
                 prop: 'isFocused',
@@ -1338,6 +1347,24 @@ render(<App />)`,
                 type: '() => void',
                 default: 'undefined',
                 desc: 'callback triggered on return/enter when focused',
+            },
+            {
+                prop: 'prefix',
+                type: 'React.ReactNode',
+                default: 'undefined',
+                desc: 'leading icon or glyph rendered before label',
+            },
+            {
+                prop: 'suffix',
+                type: 'React.ReactNode',
+                default: 'undefined',
+                desc: 'trailing badge or glyph rendered after label',
+            },
+            {
+                prop: 'shortcut',
+                type: 'string',
+                default: 'undefined',
+                desc: 'single key hotkey accelerator that triggers onSelect immediately',
             },
         ],
         toc: [
@@ -1873,6 +1900,96 @@ render(<App />)`,
                 type: "'left' | 'center' | 'right'",
                 default: "'left'",
                 desc: 'text alignment inside column cell',
+            },
+        ],
+        toc: [
+            { id: 'overview', label: 'overview' },
+            { id: 'install-cmd', label: 'installation' },
+            { id: 'preview', label: 'terminal preview' },
+            { id: 'usage', label: 'usage' },
+            { id: 'props', label: 'api reference' },
+        ],
+    },
+    {
+        id: 'switch',
+        category: 'components',
+        navLabel: 'switch',
+        title: 'Switch',
+        badge: 'primitive',
+        description:
+            'accessible binary state toggle for terminal settings with glyph track and badge display modes.',
+        terminalMode: 'switch',
+        installCmd: 'npx @trydecember/tui add switch',
+        codeSnippet: `import { Switch } from '@/components/tui/switch'
+import { Box, render } from 'ink'
+import React, { useState } from 'react'
+
+export function App() {
+  const [autoRun, setAutoRun] = useState(true)
+  const [verbose, setVerbose] = useState(false)
+
+  return (
+    <Box flexDirection="column" padding={1} gap={1}>
+      <Switch
+        label="Auto-run tool calls"
+        description="immediate execution"
+        checked={autoRun}
+        isFocused
+        onChange={setAutoRun}
+      />
+      <Switch
+        label="Verbose telemetry"
+        variant="badge"
+        checked={verbose}
+        onChange={setVerbose}
+      />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        props: [
+            {
+                prop: 'checked',
+                type: 'boolean',
+                default: 'false',
+                desc: 'whether the switch is active/toggled on',
+            },
+            {
+                prop: 'onChange',
+                type: '(checked: boolean) => void',
+                default: 'undefined',
+                desc: 'callback fired when the switch state changes',
+            },
+            {
+                prop: 'label',
+                type: 'string',
+                default: 'undefined',
+                desc: 'text label displayed alongside the switch',
+            },
+            {
+                prop: 'description',
+                type: 'string',
+                default: 'undefined',
+                desc: 'secondary explanation hint text in dim style',
+            },
+            {
+                prop: 'variant',
+                type: "'glyph' | 'badge'",
+                default: "'glyph'",
+                desc: 'glyph track (●─)/(─●) or high-contrast badge [ON]/[OFF]',
+            },
+            {
+                prop: 'isFocused',
+                type: 'boolean',
+                default: 'false',
+                desc: 'whether keyboard input is captured (space/return/arrows)',
+            },
+            {
+                prop: 'disabled',
+                type: 'boolean',
+                default: 'false',
+                desc: 'disables keyboard triggers and dims text',
             },
         ],
         toc: [
