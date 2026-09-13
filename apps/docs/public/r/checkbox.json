@@ -1,21 +1,19 @@
 {
-  "$schema": "https://tui.trydecember.com/schema.json",
-  "name": "checkbox",
-  "type": "ui",
-  "title": "Checkbox",
-  "description": "A control that allows the user to toggle between checked and not-checked states via space or enter.",
-  "dependencies": [],
-  "devDependencies": [],
-  "registryDependencies": [
-    "theme"
-  ],
-  "files": [
-    {
-      "name": "checkbox.tsx",
-      "path": "components/checkbox.tsx",
-      "target": "checkbox.tsx",
-      "content": "import { Box, Text, useInput } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface CheckboxProps {\n    label: string\n    checked: boolean\n    onChange?: (checked: boolean) => void\n    isFocused?: boolean\n    disabled?: boolean\n}\n\nexport function Checkbox({\n    label,\n    checked,\n    onChange,\n    isFocused = false,\n    disabled = false,\n}: CheckboxProps) {\n    useInput((input, key) => {\n        if (!isFocused || disabled) return\n        if (input === ' ' || key.return) {\n            if (onChange) {\n                onChange(!checked)\n            }\n        }\n    })\n\n    const boxGlyph = checked ? '[✔]' : '[ ]'\n    const color = disabled\n        ? THEME.colors.dim\n        : checked\n          ? THEME.colors.success\n          : isFocused\n            ? THEME.colors.brand\n            : THEME.colors.muted\n\n    return (\n        <Box flexDirection=\"row\" alignItems=\"center\" gap={1}>\n            <Text bold color={color}>\n                {boxGlyph}\n            </Text>\n            <Text\n                color={disabled ? THEME.colors.dim : isFocused ? THEME.colors.text : THEME.colors.muted}\n                bold={isFocused}\n            >\n                {label}\n            </Text>\n        </Box>\n    )\n}\n",
-      "type": "ui"
-    }
-  ]
+    "$schema": "https://tui.trydecember.com/schema.json",
+    "name": "checkbox",
+    "type": "ui",
+    "title": "Checkbox",
+    "description": "A control that allows the user to toggle between checked and not-checked states via space or enter.",
+    "dependencies": [],
+    "devDependencies": [],
+    "registryDependencies": ["theme"],
+    "files": [
+        {
+            "name": "checkbox.tsx",
+            "path": "components/checkbox.tsx",
+            "target": "checkbox.tsx",
+            "content": "import { Box, Text, useInput } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface CheckboxProps {\n    label: string\n    checked: boolean\n    onChange?: (checked: boolean) => void\n    isFocused?: boolean\n    disabled?: boolean\n}\n\nexport function Checkbox({\n    label,\n    checked,\n    onChange,\n    isFocused = false,\n    disabled = false,\n}: CheckboxProps) {\n    useInput((input, key) => {\n        if (!isFocused || disabled) return\n        if (input === ' ' || key.return) {\n            if (onChange) {\n                onChange(!checked)\n            }\n        }\n    })\n\n    const boxGlyph = checked ? '[✔]' : '[ ]'\n    const color = disabled\n        ? THEME.colors.dim\n        : checked\n          ? THEME.colors.success\n          : isFocused\n            ? THEME.colors.brand\n            : THEME.colors.muted\n\n    return (\n        <Box flexDirection=\"row\" alignItems=\"center\" gap={1}>\n            <Text bold color={color}>\n                {boxGlyph}\n            </Text>\n            <Text\n                color={disabled ? THEME.colors.dim : isFocused ? THEME.colors.text : THEME.colors.muted}\n                bold={isFocused}\n            >\n                {label}\n            </Text>\n        </Box>\n    )\n}\n",
+            "type": "ui"
+        }
+    ]
 }

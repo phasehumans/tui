@@ -62,9 +62,7 @@ export function RadioGroup<T = string>({
                         <Text color={isSelected ? THEME.colors.text : THEME.colors.muted}>
                             {item.label}
                         </Text>
-                        {item.hint && (
-                            <Text color={THEME.colors.dim}>({item.hint})</Text>
-                        )}
+                        {item.hint && <Text color={THEME.colors.dim}>({item.hint})</Text>}
                     </Box>
                 )
             })}

@@ -41,7 +41,9 @@ export function CommandMenu({
     const [selectedIndex, setSelectedIndex] = useState(0)
     const [windowStart, setWindowStart] = useState(0)
 
-    const cleanQuery = query.startsWith('/') ? query.slice(1).toLowerCase().trim() : query.toLowerCase().trim()
+    const cleanQuery = query.startsWith('/')
+        ? query.slice(1).toLowerCase().trim()
+        : query.toLowerCase().trim()
 
     const filtered = useMemo(() => {
         if (!cleanQuery) return commands

@@ -91,14 +91,8 @@ export function TabsTrigger({ value, children }: TabsTriggerProps) {
     const isSelected = ctx?.value === value
 
     return (
-        <Box
-            backgroundColor={isSelected ? THEME.colors.border : undefined}
-            paddingX={1}
-        >
-            <Text
-                bold={isSelected}
-                color={isSelected ? THEME.colors.brand : THEME.colors.muted}
-            >
+        <Box backgroundColor={isSelected ? THEME.colors.border : undefined} paddingX={1}>
+            <Text bold={isSelected} color={isSelected ? THEME.colors.brand : THEME.colors.muted}>
                 {children}
             </Text>
         </Box>

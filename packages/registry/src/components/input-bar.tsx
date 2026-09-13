@@ -220,10 +220,7 @@ export const InputBar = React.memo(function InputBar({
 
             {/* Shortcuts help menu */}
             {showShortcuts && (
-                <ShortcutsMenu
-                    shortcuts={shortcuts}
-                    onClose={() => setShowShortcuts(false)}
-                />
+                <ShortcutsMenu shortcuts={shortcuts} onClose={() => setShowShortcuts(false)} />
             )}
         </Box>
     )

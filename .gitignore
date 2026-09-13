@@ -40,3 +40,4 @@ Thumbs.db
 !.vscode/settings.json
 !.vscode/extensions.json
 .idea/
+/docs/

@@ -22,9 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     rel="stylesheet"
                 />
             </head>
-            <body className="min-h-screen bg-[#141414] text-[#e2e2e2] antialiased">
-                {children}
-            </body>
+            <body className="min-h-screen bg-[#141414] text-[#e2e2e2] antialiased">{children}</body>
         </html>
     )
 }

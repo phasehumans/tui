@@ -69,7 +69,11 @@ export function SelectMenu<T = string>({
     if (items.length === 0) {
         return (
             <Box flexDirection="column" paddingY={1}>
-                {title && <Text color={THEME.colors.brand} bold>{title}</Text>}
+                {title && (
+                    <Text color={THEME.colors.brand} bold>
+                        {title}
+                    </Text>
+                )}
                 <Text color={THEME.colors.muted}>No options available</Text>
             </Box>
         )
@@ -109,12 +113,8 @@ export function SelectMenu<T = string>({
                             <Text color={isSelected ? THEME.colors.brand : THEME.colors.text}>
                                 {item.label}
                             </Text>
-                            {item.active && (
-                                <Text color={THEME.colors.success}>(Active)</Text>
-                            )}
-                            {item.hint && (
-                                <Text color={THEME.colors.muted}>— {item.hint}</Text>
-                            )}
+                            {item.active && <Text color={THEME.colors.success}>(Active)</Text>}
+                            {item.hint && <Text color={THEME.colors.muted}>— {item.hint}</Text>}
                         </Box>
                     )
                 })}

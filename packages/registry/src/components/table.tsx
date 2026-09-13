@@ -29,9 +29,7 @@ export function TableHeader({ children }: { children: React.ReactNode }) {
         <Box flexDirection="column">
             {children}
             <Box height={1} overflow="hidden">
-                <Text color={THEME.colors.border}>
-                    {'─'.repeat(64)}
-                </Text>
+                <Text color={THEME.colors.border}>{'─'.repeat(64)}</Text>
             </Box>
         </Box>
     )
@@ -73,9 +71,7 @@ export interface TableCellProps {
 export function TableCell({ children, width = 16, color }: TableCellProps) {
     return (
         <Box width={width}>
-            <Text color={color ?? THEME.colors.muted}>
-                {children}
-            </Text>
+            <Text color={color ?? THEME.colors.muted}>{children}</Text>
         </Box>
     )
 }

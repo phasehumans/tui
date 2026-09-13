@@ -51,11 +51,7 @@ export function CardTitle({ children }: { children: React.ReactNode }) {
 }
 
 export function CardDescription({ children }: { children: React.ReactNode }) {
-    return (
-        <Text color={THEME.colors.muted}>
-            {children}
-        </Text>
-    )
+    return <Text color={THEME.colors.muted}>{children}</Text>
 }
 
 export function CardContent({ children }: { children: React.ReactNode }) {

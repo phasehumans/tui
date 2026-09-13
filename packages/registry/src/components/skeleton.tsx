@@ -9,11 +9,7 @@ export interface SkeletonProps {
     char?: string
 }
 
-export function Skeleton({
-    width = 24,
-    height = 1,
-    char = '░',
-}: SkeletonProps) {
+export function Skeleton({ width = 24, height = 1, char = '░' }: SkeletonProps) {
     const row = char.repeat(width)
     const rows = Array.from({ length: height }, (_, i) => i)
 

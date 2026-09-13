@@ -54,20 +54,14 @@ export function Dialog({
 
             {description && (
                 <Box marginBottom={children ? 1 : 0}>
-                    <Text color={THEME.colors.muted}>
-                        {description}
-                    </Text>
+                    <Text color={THEME.colors.muted}>{description}</Text>
                 </Box>
             )}
 
             {children && <Box marginY={1}>{children}</Box>}
 
             <Box marginTop={1} justifyContent="flex-end" gap={2}>
-                {onCancel && (
-                    <Text color={THEME.colors.dim}>
-                        [esc] {cancelLabel}
-                    </Text>
-                )}
+                {onCancel && <Text color={THEME.colors.dim}>[esc] {cancelLabel}</Text>}
                 {onConfirm && (
                     <Text bold color={THEME.colors.brand}>
                         [enter] {confirmLabel}

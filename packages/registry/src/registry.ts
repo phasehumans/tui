@@ -153,7 +153,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'text-area',
         type: 'ui',
         title: 'Text Area',
-        description: 'Multiline terminal input with inverse block cursor, history navigation, slash commands, and @file mentions.',
+        description:
+            'Multiline terminal input with inverse block cursor, history navigation, slash commands, and @file mentions.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -169,7 +170,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'header',
         type: 'ui',
         title: 'Header Banner',
-        description: 'Session status banner with Git branch detection, current directory path, and actionable tips.',
+        description:
+            'Session status banner with Git branch detection, current directory path, and actionable tips.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -201,7 +203,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'markdown',
         type: 'ui',
         title: 'Markdown Renderer',
-        description: 'Terminal markdown parser supporting tables, lists, syntax-highlighted codeblocks, and inline diagrams.',
+        description:
+            'Terminal markdown parser supporting tables, lists, syntax-highlighted codeblocks, and inline diagrams.',
         dependencies: ['marked', 'cli-highlight'],
         devDependencies: ['@types/marked'],
         registryDependencies: ['theme', 'mermaid'],
@@ -233,7 +236,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'error-message',
         type: 'ui',
         title: 'Error Message',
-        description: 'Formatted terminal error display with automatic hint extraction and clickable link styling.',
+        description:
+            'Formatted terminal error display with automatic hint extraction and clickable link styling.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -249,7 +253,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'select-menu',
         type: 'ui',
         title: 'Select Menu',
-        description: 'Keyboard-navigable terminal selection list with active state, hints, and keybinding footer.',
+        description:
+            'Keyboard-navigable terminal selection list with active state, hints, and keybinding footer.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme', 'menu-footer'],
@@ -270,7 +275,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'command-menu',
         type: 'ui',
         title: 'Command Menu',
-        description: 'Slash command palette with real-time fuzzy filtering, pagination window, and tab completion.',
+        description:
+            'Slash command palette with real-time fuzzy filtering, pagination window, and tab completion.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme', 'menu-footer'],
@@ -291,7 +297,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'shortcuts-menu',
         type: 'ui',
         title: 'Shortcuts Menu',
-        description: 'Interactive terminal keyboard shortcuts overlay menu with navigation and pagination.',
+        description:
+            'Interactive terminal keyboard shortcuts overlay menu with navigation and pagination.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme', 'menu-footer'],
@@ -312,7 +319,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'plan-approve-menu',
         type: 'ui',
         title: 'Plan Approval Menu',
-        description: 'Agent workflow action menu for reviewing, refining, approving, or rejecting execution plans.',
+        description:
+            'Agent workflow action menu for reviewing, refining, approving, or rejecting execution plans.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme', 'menu-footer'],
@@ -333,10 +341,17 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'input-bar',
         type: 'ui',
         title: 'Input Bar',
-        description: 'Complete terminal agent input bar with multiline prompt, slash commands, file mentions, and status display.',
+        description:
+            'Complete terminal agent input bar with multiline prompt, slash commands, file mentions, and status display.',
         dependencies: [],
         devDependencies: [],
-        registryDependencies: ['theme', 'text-area', 'command-menu', 'shortcuts-menu', 'menu-footer'],
+        registryDependencies: [
+            'theme',
+            'text-area',
+            'command-menu',
+            'shortcuts-menu',
+            'menu-footer',
+        ],
         files: [
             {
                 path: 'components/input-bar.tsx',
@@ -349,7 +364,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'card',
         type: 'ui',
         title: 'Card',
-        description: 'Displays a boxed card container with optional header, title, description, content, and footer.',
+        description:
+            'Displays a boxed card container with optional header, title, description, content, and footer.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -365,7 +381,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'button',
         type: 'ui',
         title: 'Button',
-        description: 'Interactive terminal button with variants (default, secondary, destructive, outline, ghost) and keyboard focus.',
+        description:
+            'Interactive terminal button and action chip with variants (default, secondary, destructive, outline, ghost, link, bracket) and keyboard focus.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -381,7 +398,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'tabs',
         type: 'ui',
         title: 'Tabs',
-        description: 'A set of layered sections of content—known as tab panels—that are displayed one at a time via keyboard arrows.',
+        description:
+            'A set of layered sections of content—known as tab panels—that are displayed one at a time via keyboard arrows.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -397,7 +415,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'dialog',
         type: 'ui',
         title: 'Dialog',
-        description: 'A modal dialog overlay that interrupts the user with important content and expects a response (confirm or cancel).',
+        description:
+            'A modal dialog overlay that interrupts the user with important content and expects a response (confirm or cancel).',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -413,7 +432,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'progress',
         type: 'ui',
         title: 'Progress',
-        description: 'Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.',
+        description:
+            'Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -429,7 +449,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'checkbox',
         type: 'ui',
         title: 'Checkbox',
-        description: 'A control that allows the user to toggle between checked and not-checked states via space or enter.',
+        description:
+            'A control that allows the user to toggle between checked and not-checked states via space or enter.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -445,7 +466,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'radio-group',
         type: 'ui',
         title: 'Radio Group',
-        description: 'A set of checkable buttons—known as radio buttons—where no more than one can be checked at a time.',
+        description:
+            'A set of checkable buttons—known as radio buttons—where no more than one can be checked at a time.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -477,7 +499,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'toast',
         type: 'ui',
         title: 'Toast',
-        description: 'A succinct message that is displayed temporarily to provide feedback about an operation.',
+        description:
+            'A succinct message that is displayed temporarily to provide feedback about an operation.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -493,7 +516,8 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'table',
         type: 'ui',
         title: 'Table',
-        description: 'A responsive terminal data grid component supporting structured column headers, rows, and cells.',
+        description:
+            'A responsive terminal data grid component supporting structured column headers, rows, and cells.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -505,5 +529,21 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
             },
         ],
     },
+    {
+        name: 'switch',
+        type: 'ui',
+        title: 'Switch',
+        description:
+            'A binary state toggle switch for terminal interfaces with glyph track and badge display variants.',
+        dependencies: [],
+        devDependencies: [],
+        registryDependencies: ['theme'],
+        files: [
+            {
+                path: 'components/switch.tsx',
+                target: 'switch.tsx',
+                type: 'ui',
+            },
+        ],
+    },
 ]
-

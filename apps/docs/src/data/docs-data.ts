@@ -1,3 +1,7 @@
+import { COMPONENT_VARIATIONS, type ComponentVariation } from './component-variations'
+
+export type { ComponentVariation }
+
 export type DocCategory = 'getting-started' | 'components'
 
 export interface PropItem {
@@ -51,12 +55,13 @@ export interface DocItem {
         | 'toast'
         | 'table'
     codeSnippet?: string
+    variations?: ComponentVariation[]
     props?: PropItem[]
     points?: string[]
     toc: TocItem[]
 }
 
-export const DOC_ITEMS: DocItem[] = [
+const BASE_DOC_ITEMS: DocItem[] = [
     {
         id: 'introduction',
         category: 'getting-started',
@@ -1879,3 +1884,31 @@ render(<App />)`,
         ],
     },
 ]
+
+export const DOC_ITEMS: DocItem[] = BASE_DOC_ITEMS.map((item) => {
+    if (item.category === 'components') {
+        const variations = item.variations || COMPONENT_VARIATIONS[item.id]
+        if (variations && variations.length > 0) {
+            const hasExamples = item.toc.some((t) => t.id === 'examples')
+            const usageIdx = item.toc.findIndex((t) => t.id === 'usage')
+            let toc = item.toc
+            if (!hasExamples) {
+                if (usageIdx !== -1) {
+                    toc = [
+                        ...item.toc.slice(0, usageIdx + 1),
+                        { id: 'examples', label: 'examples' },
+                        ...item.toc.slice(usageIdx + 1),
+                    ]
+                } else {
+                    toc = [...item.toc, { id: 'examples', label: 'examples' }]
+                }
+            }
+            return {
+                ...item,
+                variations,
+                toc,
+            }
+        }
+    }
+    return item
+})

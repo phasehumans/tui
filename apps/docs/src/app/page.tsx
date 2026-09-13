@@ -255,8 +255,13 @@ export default function DocsPage() {
             .join(' ')
             .toLowerCase()
         const normPoints = item.points?.join(' ').toLowerCase() || ''
+        const normVariations =
+            item.variations
+                ?.map((v) => `${v.title} ${v.description || ''} ${v.codeSnippet}`)
+                .join(' ')
+                .toLowerCase() || ''
 
-        const combinedSearchable = `${item.title.toLowerCase()} ${normTitle} ${item.navLabel.toLowerCase()} ${normNav} ${normDesc} ${normBadge} ${normProps} ${normToc} ${normPoints}`
+        const combinedSearchable = `${item.title.toLowerCase()} ${normTitle} ${item.navLabel.toLowerCase()} ${normNav} ${normDesc} ${normBadge} ${normProps} ${normToc} ${normPoints} ${normVariations}`
 
         return searchTerms.every((term) => combinedSearchable.includes(term))
     }).sort((a, b) => {
@@ -668,6 +673,108 @@ export default function DocsPage() {
                             </div>
                             <div className="rounded-[4px] bg-[#181818] p-4 text-[0.84rem] overflow-x-auto">
                                 <CodeBlock code={activeItem.codeSnippet} language="tsx" />
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Component Variations / Examples Section */}
+                    {activeItem.variations && activeItem.variations.length > 0 && (
+                        <section id="examples" className="flex flex-col gap-5">
+                            <div className="flex items-center justify-between pb-1">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
+                                        examples
+                                    </span>
+                                    <span className="text-[0.75rem] font-mono text-[#fb923c] px-1.5 py-0.5 rounded bg-[#fb923c]/10">
+                                        {activeItem.variations.length} variations
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-6">
+                                {activeItem.variations.map((variation, vIdx) => {
+                                    const copyKey = `var-${activeItem.id}-${variation.id}`
+                                    return (
+                                        <div
+                                            key={variation.id}
+                                            id={`example-${variation.id}`}
+                                            className="flex flex-col gap-3 rounded-[4px] border border-[#222222] bg-[#141414] p-4 transition-colors hover:border-[#2e2e2e]"
+                                        >
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="flex flex-col gap-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[0.78rem] font-mono text-[#fb923c]">
+                                                            0{vIdx + 1}
+                                                        </span>
+                                                        <h3 className="text-[0.95rem] font-semibold text-white tracking-[-0.01em]">
+                                                            {variation.title}
+                                                        </h3>
+                                                    </div>
+                                                    {variation.description && (
+                                                        <p className="text-[0.84rem] text-[#8c8c8c] pl-6">
+                                                            {variation.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    onClick={() =>
+                                                        handleCopy(variation.codeSnippet, copyKey)
+                                                    }
+                                                    className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1 shrink-0 px-2 py-1 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors"
+                                                    title="copy code snippet"
+                                                >
+                                                    {copiedKey === copyKey ? (
+                                                        <>
+                                                            <Check className="h-3 w-3 text-[#fb923c]" />
+                                                            <span className="text-[#fb923c]">
+                                                                copied
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Copy className="h-3 w-3" />
+                                                            <span>copy code</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+
+                                            {/* Variation Terminal Preview */}
+                                            {(variation.terminalLines ||
+                                                variation.terminalMode) && (
+                                                <div className="rounded-[4px] bg-[#111111] overflow-hidden border border-[#1f1f1f]">
+                                                    <div className="flex items-center justify-between px-3 py-1 bg-[#181818] text-[0.75rem] text-[#8c8c8c]">
+                                                        <div className="flex items-center gap-1.5 font-mono">
+                                                            <span className="text-[#fb923c]">
+                                                                ✱
+                                                            </span>
+                                                            <span>preview · {variation.id}</span>
+                                                        </div>
+                                                        <div className="text-[#5c5c5c] font-mono text-[0.7rem]">
+                                                            tui terminal
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-3 bg-[#111111]">
+                                                        <TerminalPreview
+                                                            mode={variation.terminalMode}
+                                                            lines={variation.terminalLines}
+                                                            heightClass="h-28 sm:h-32"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Variation Code Snippet */}
+                                            <div className="rounded-[4px] bg-[#181818] p-3 text-[0.82rem] overflow-x-auto border border-[#222222]">
+                                                <CodeBlock
+                                                    code={variation.codeSnippet}
+                                                    language="tsx"
+                                                />
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </section>
                     )}

@@ -15,7 +15,9 @@
     --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -30,7 +32,8 @@
     height: 0 !important;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     width: 100%;
     margin: 0;
@@ -55,7 +58,9 @@ html, body {
 a.link {
     color: var(--text-muted);
     border-bottom: 1px dotted var(--text-dim);
-    transition: color 0.15s, border-color 0.15s;
+    transition:
+        color 0.15s,
+        border-color 0.15s;
     text-decoration: none;
 }
 

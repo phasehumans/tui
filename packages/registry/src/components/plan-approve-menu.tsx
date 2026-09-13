@@ -88,7 +88,12 @@ export function PlanApproveMenu({
                             <Text color={isSelected ? THEME.colors.brand : THEME.colors.dim}>
                                 {isSelected ? `${THEME.glyphs.selector}` : ' '}
                             </Text>
-                            <Text color={opt.color ?? (isSelected ? THEME.colors.brand : THEME.colors.text)}>
+                            <Text
+                                color={
+                                    opt.color ??
+                                    (isSelected ? THEME.colors.brand : THEME.colors.text)
+                                }
+                            >
                                 {opt.label}
                             </Text>
                         </Box>

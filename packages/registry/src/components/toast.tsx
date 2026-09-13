@@ -11,11 +11,7 @@ export interface ToastProps {
     variant?: ToastVariant
 }
 
-export function Toast({
-    title,
-    description,
-    variant = 'info',
-}: ToastProps) {
+export function Toast({ title, description, variant = 'info' }: ToastProps) {
     const icon =
         variant === 'success'
             ? THEME.glyphs.check
@@ -50,11 +46,7 @@ export function Toast({
                 <Text bold color={THEME.colors.text}>
                     {title}
                 </Text>
-                {description && (
-                    <Text color={THEME.colors.muted}>
-                        {description}
-                    </Text>
-                )}
+                {description && <Text color={THEME.colors.muted}>{description}</Text>}
             </Box>
         </Box>
     )

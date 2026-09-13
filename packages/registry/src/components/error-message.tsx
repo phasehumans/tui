@@ -43,13 +43,23 @@ export function parseTuiError(message: string, cause?: string, hint?: string): F
                     : 'Please upgrade your API key tier or check your provider quota.',
             }
         }
-        if (firstLine.includes('credits exhausted') || firstLine.includes('Insufficient credits') || firstLine.includes('Insufficient balance')) {
-            const hintMatch = firstLine.match(/Please (?:add credits|top up|check|upgrade|switch).*$/i)
-            const summary = firstLine.replace(/Please (?:add credits|top up|check|upgrade|switch).*$/i, '').trim()
+        if (
+            firstLine.includes('credits exhausted') ||
+            firstLine.includes('Insufficient credits') ||
+            firstLine.includes('Insufficient balance')
+        ) {
+            const hintMatch = firstLine.match(
+                /Please (?:add credits|top up|check|upgrade|switch).*$/i
+            )
+            const summary = firstLine
+                .replace(/Please (?:add credits|top up|check|upgrade|switch).*$/i, '')
+                .trim()
             return {
                 message: summary || firstLine,
                 cause: rest,
-                hint: hintMatch ? hintMatch[0] : 'Please add credits or check your account balance.',
+                hint: hintMatch
+                    ? hintMatch[0]
+                    : 'Please add credits or check your account balance.',
             }
         }
         if (firstLine.includes('Authentication failed') || firstLine.includes('session expired')) {

@@ -42,7 +42,9 @@ export function Checkbox({
                 {boxGlyph}
             </Text>
             <Text
-                color={disabled ? THEME.colors.dim : isFocused ? THEME.colors.text : THEME.colors.muted}
+                color={
+                    disabled ? THEME.colors.dim : isFocused ? THEME.colors.text : THEME.colors.muted
+                }
                 bold={isFocused}
             >
                 {label}

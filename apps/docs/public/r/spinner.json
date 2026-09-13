@@ -1,23 +1,19 @@
 {
-  "$schema": "https://tui.trydecember.com/schema.json",
-  "name": "spinner",
-  "type": "ui",
-  "title": "Spinner",
-  "description": "Animated terminal dot spinner with an optional status label.",
-  "dependencies": [
-    "ink-spinner"
-  ],
-  "devDependencies": [],
-  "registryDependencies": [
-    "theme"
-  ],
-  "files": [
-    {
-      "name": "spinner.tsx",
-      "path": "components/spinner.tsx",
-      "target": "spinner.tsx",
-      "content": "import { Text, Box } from 'ink'\nimport InkSpinner from 'ink-spinner'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type SpinnerProps = {\n    label?: string\n}\n\nexport function Spinner({ label }: SpinnerProps) {\n    return (\n        <Box gap={1} alignItems=\"center\">\n            <Text color={THEME.colors.muted}>\n                <InkSpinner type=\"dots\" />\n            </Text>\n            {label && <Text color={THEME.colors.muted}>{label}</Text>}\n        </Box>\n    )\n}\n",
-      "type": "ui"
-    }
-  ]
+    "$schema": "https://tui.trydecember.com/schema.json",
+    "name": "spinner",
+    "type": "ui",
+    "title": "Spinner",
+    "description": "Animated terminal dot spinner with an optional status label.",
+    "dependencies": ["ink-spinner"],
+    "devDependencies": [],
+    "registryDependencies": ["theme"],
+    "files": [
+        {
+            "name": "spinner.tsx",
+            "path": "components/spinner.tsx",
+            "target": "spinner.tsx",
+            "content": "import { Text, Box } from 'ink'\nimport InkSpinner from 'ink-spinner'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type SpinnerProps = {\n    label?: string\n}\n\nexport function Spinner({ label }: SpinnerProps) {\n    return (\n        <Box gap={1} alignItems=\"center\">\n            <Text color={THEME.colors.muted}>\n                <InkSpinner type=\"dots\" />\n            </Text>\n            {label && <Text color={THEME.colors.muted}>{label}</Text>}\n        </Box>\n    )\n}\n",
+            "type": "ui"
+        }
+    ]
 }
