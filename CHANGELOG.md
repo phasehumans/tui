@@ -1,3 +1,9 @@
+## [0.0.2] - 2026-09-13
+
+### Miscellaneous Tasks
+
+- Update cli description
+
 ## [0.0.1] - 2026-09-13
 
 ### Features
@@ -17,3 +23,4 @@
 
 - Untrack root docs folder
 - Fix publish workflow working-directory and remove redundant wrangler action
+- _(release)_ V0.0.1
