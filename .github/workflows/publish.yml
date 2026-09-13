@@ -35,7 +35,7 @@ jobs:
               run: bun run build
 
             - name: Publish @trydecember/tui to npm
-              cwd: apps/cli
+              working-directory: apps/cli
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npm publish --tag ${{ github.event.inputs.tag || 'latest' }} --access public
