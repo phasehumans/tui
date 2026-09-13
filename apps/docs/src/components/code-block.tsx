@@ -29,7 +29,7 @@ export function CodeBlock({ code, language = 'tsx' }: CodeBlockProps) {
     }, [code, language])
 
     return (
-        <pre className="text-[#e2e2e2] leading-[1.65] font-mono text-[0.88rem] overflow-x-auto">
+        <pre className="text-[#e2e2e2] leading-[1.65] font-mono text-[0.84rem] sm:text-[0.88rem] overflow-x-auto code-scroll touch-scroll">
             <code dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
         </pre>
     )

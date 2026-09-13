@@ -50,6 +50,29 @@ export default function DocsPage() {
         return () => window.removeEventListener('hashchange', handleHashChange)
     }, [])
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                setMobileSidebarOpen(false)
+            }
+        }
+        if (mobileSidebarOpen) {
+            window.addEventListener('keydown', handleKeyDown)
+            return () => window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [mobileSidebarOpen])
+
+    useEffect(() => {
+        if (mobileSidebarOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = ''
+        }
+        return () => {
+            document.body.style.overflow = ''
+        }
+    }, [mobileSidebarOpen])
+
     const selectDocItem = useCallback((id: string) => {
         setActiveId(id)
         window.location.hash = id
@@ -148,14 +171,16 @@ export default function DocsPage() {
     const componentItems = DOC_ITEMS.filter((item) => item.category === 'components')
 
     return (
-        <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#141414] text-[#e2e2e2] font-mono text-[14px]">
+        <div className="h-dvh w-full overflow-hidden flex flex-col bg-[#141414] text-[#e2e2e2] font-mono text-[14px]">
             {/* Header: Clean, borderless, compact typography */}
-            <header className="shrink-0 bg-[#141414] px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between z-30 max-w-[1300px] w-full mx-auto">
+            <header className="shrink-0 bg-[#141414] px-4 sm:px-6 py-3.5 sm:py-5 flex items-center justify-between z-30 max-w-[1300px] w-full mx-auto">
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-                        className="lg:hidden p-1 text-[#8c8c8c] hover:text-white"
+                        className="lg:hidden -ml-2 p-2.5 rounded text-[#8c8c8c] hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
                         aria-label="Toggle navigation"
+                        aria-expanded={mobileSidebarOpen}
+                        aria-controls="sidebar-nav"
                     >
                         {mobileSidebarOpen ? (
                             <X className="h-4 w-4" />
@@ -170,7 +195,7 @@ export default function DocsPage() {
                             e.preventDefault()
                             selectDocItem('introduction')
                         }}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 py-1"
                     >
                         <span className="text-[#fb923c] font-bold text-[1.35rem] leading-none">
                             ✱
@@ -189,7 +214,7 @@ export default function DocsPage() {
                         href="https://github.com/phasehumans/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="link flex items-center gap-1.5"
+                        className="link flex items-center gap-1.5 py-1 px-1"
                     >
                         <span>github</span>
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -198,7 +223,7 @@ export default function DocsPage() {
                         href="https://npmjs.com/package/@trydecember/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="link accent-link hidden sm:inline"
+                        className="link accent-link hidden sm:inline py-1"
                     >
                         @trydecember/tui
                     </a>
@@ -206,15 +231,36 @@ export default function DocsPage() {
             </header>
 
             {/* Main Area: Borderless layout with independent scrolling */}
-            <div className="flex-1 min-h-0 flex overflow-hidden w-full max-w-[1300px] mx-auto px-4 sm:px-6 pt-5 sm:pt-6 pb-6">
-                {/* Left Sidebar: content shifted to left side */}
+            <div className="flex-1 min-h-0 flex overflow-hidden w-full max-w-[1300px] mx-auto px-0 sm:px-6 pt-2 sm:pt-6 pb-4 sm:pb-6">
+                {/* Left Sidebar: Drawer on mobile, column on desktop */}
                 <aside
+                    id="sidebar-nav"
                     className={`
-                        fixed inset-y-16 left-0 z-20 w-52 bg-[#141414] py-2 pr-4 pl-0 overflow-y-auto flex flex-col gap-6 transition-transform duration-150
-                        lg:static lg:h-full lg:translate-x-0 shrink-0 lg:-ml-3
-                        ${mobileSidebarOpen ? 'translate-x-0 shadow-2xl bg-[#141414] pl-4' : '-translate-x-full lg:translate-x-0'}
+                        fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#141414] border-r border-[#222222] p-5 flex flex-col gap-6 overflow-y-auto shadow-2xl transition-transform duration-200 ease-in-out touch-scroll
+                        lg:static lg:z-auto lg:h-full lg:w-52 lg:max-w-none lg:border-r-0 lg:p-0 lg:py-2 lg:pr-4 lg:shadow-none lg:translate-x-0 shrink-0 lg:-ml-3 lg:transition-none
+                        ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
                     `}
                 >
+                    {/* Mobile Drawer Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-[#222222] lg:hidden shrink-0">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[#fb923c] font-bold text-[1.2rem] leading-none">
+                                ✱
+                            </span>
+                            <span className="font-bold text-white text-[1.1rem] tracking-[-0.02em] leading-none">
+                                tui
+                            </span>
+                            <span className="text-[0.8rem] text-[#8c8c8c] ml-1">docs</span>
+                        </div>
+                        <button
+                            onClick={() => setMobileSidebarOpen(false)}
+                            className="p-2 -mr-2 text-[#8c8c8c] hover:text-white rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            aria-label="Close navigation"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+
                     {/* Getting Started */}
                     <div className="flex flex-col gap-1.5">
                         <span className="text-[12px] font-semibold text-[#5c5c5c] uppercase tracking-wider px-1.5">
@@ -228,7 +274,7 @@ export default function DocsPage() {
                                         key={item.id}
                                         onClick={() => selectDocItem(item.id)}
                                         className={`
-                                            flex items-center justify-between px-2 py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer
+                                            flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer min-h-[38px] sm:min-h-0
                                             ${isActive ? 'bg-white/[0.06] text-white font-semibold' : 'text-[#8c8c8c] hover:text-white hover:bg-white/[0.02]'}
                                         `}
                                     >
@@ -253,7 +299,7 @@ export default function DocsPage() {
                                         key={item.id}
                                         onClick={() => selectDocItem(item.id)}
                                         className={`
-                                            flex items-center justify-between px-2 py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer
+                                            flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer min-h-[38px] sm:min-h-0
                                             ${isActive ? 'bg-white/[0.06] text-white font-semibold' : 'text-[#8c8c8c] hover:text-white hover:bg-white/[0.02]'}
                                         `}
                                     >
@@ -269,7 +315,8 @@ export default function DocsPage() {
                 {mobileSidebarOpen && (
                     <div
                         onClick={() => setMobileSidebarOpen(false)}
-                        className="fixed inset-0 z-10 bg-black/60 backdrop-blur-xs lg:hidden"
+                        className="fixed inset-0 z-40 bg-black/75 backdrop-blur-xs lg:hidden"
+                        aria-hidden="true"
                     />
                 )}
 
@@ -277,7 +324,7 @@ export default function DocsPage() {
                 <main
                     ref={mainRef}
                     onScroll={handleMainScroll}
-                    className="flex-1 h-full min-h-0 overflow-y-auto py-2 pl-4 sm:pl-8 pr-4 sm:pr-8 flex flex-col gap-8"
+                    className="flex-1 h-full min-h-0 overflow-y-auto touch-scroll py-2 px-4 sm:px-8 flex flex-col gap-6 sm:gap-8"
                 >
                     {/* Overview Header */}
                     <section id="overview" className="flex flex-col gap-2">
@@ -288,6 +335,31 @@ export default function DocsPage() {
                         <p className="text-[0.88rem] text-[#8c8c8c] leading-[1.6] max-w-2xl">
                             {activeItem.description}
                         </p>
+
+                        {/* Mobile On-This-Page Section Navigator */}
+                        {activeItem.toc.length > 1 && (
+                            <nav
+                                aria-label="On this page navigation"
+                                className="xl:hidden flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 -mx-1 px-1 no-scrollbar touch-scroll"
+                            >
+                                <span className="text-[11px] uppercase tracking-wider text-[#5c5c5c] shrink-0 mr-1">
+                                    jump to:
+                                </span>
+                                {activeItem.toc.map((t) => (
+                                    <button
+                                        key={t.id}
+                                        onClick={() => scrollToSection(t.id)}
+                                        className={`shrink-0 px-2.5 py-1 text-[12px] rounded border transition-colors cursor-pointer min-h-[30px] flex items-center ${
+                                            activeTocId === t.id
+                                                ? 'bg-[#222222] border-[#fb923c]/50 text-[#fb923c] font-medium'
+                                                : 'bg-[#181818] border-[#222222] text-[#8c8c8c] hover:text-white'
+                                        }`}
+                                    >
+                                        {t.label}
+                                    </button>
+                                ))}
+                            </nav>
+                        )}
                     </section>
 
                     {/* Installation Block */}
@@ -303,7 +375,7 @@ export default function DocsPage() {
                                         <button
                                             key={mgr}
                                             onClick={() => handleSelectPm(mgr)}
-                                            className={`px-2 py-0.5 rounded-[3px] transition-colors cursor-pointer ${
+                                            className={`px-2.5 py-1 sm:py-0.5 rounded-[3px] text-xs transition-colors cursor-pointer min-h-[28px] sm:min-h-0 ${
                                                 pm === mgr
                                                     ? 'bg-[#282828] text-[#fb923c] font-semibold'
                                                     : 'hover:text-white'
@@ -325,13 +397,13 @@ export default function DocsPage() {
                                 className="cmd-box cursor-pointer"
                                 title="click to copy command"
                             >
-                                <div className="cmd-code">
+                                <div className="cmd-code code-scroll">
                                     <span className="tok-pfx">$</span>
                                     <span>{formatInstallCmd(activeItem.installCmd!, pm)}</span>
                                 </div>
                                 <button
                                     aria-label="copy command"
-                                    className="text-[#5c5c5c] hover:text-white p-0.5 cursor-pointer"
+                                    className="text-[#5c5c5c] hover:text-white p-1 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center shrink-0"
                                 >
                                     {copiedKey === 'install-top' ? (
                                         <Check className="h-3.5 w-3.5 text-[#fb923c]" />
@@ -353,15 +425,15 @@ export default function DocsPage() {
 
                                 <button
                                     onClick={() => setReplayKey((k) => k + 1)}
-                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1 px-2 py-0.5 rounded hover:bg-[#202020] transition-colors"
+                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-[#202020] transition-colors min-h-[32px]"
                                     title="replay terminal animation"
                                 >
-                                    <RotateCcw className="h-3 w-3 text-[#8c8c8c]" />
+                                    <RotateCcw className="h-3.5 w-3.5 text-[#8c8c8c]" />
                                     <span>replay</span>
                                 </button>
                             </div>
 
-                            <div className="rounded-[4px] bg-[#111111] p-3 overflow-hidden border border-[#222222]">
+                            <div className="rounded-[4px] bg-[#111111] p-3 overflow-x-auto code-scroll border border-[#222222]">
                                 <TerminalPreview
                                     mode={activeItem.terminalMode}
                                     replayKey={replayKey}
@@ -379,22 +451,22 @@ export default function DocsPage() {
                                 </span>
                                 <button
                                     onClick={() => handleCopy(activeItem.codeSnippet!, 'usage-btn')}
-                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1"
+                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/[0.04] transition-colors min-h-[32px]"
                                 >
                                     {copiedKey === 'usage-btn' ? (
                                         <>
-                                            <Check className="h-3 w-3 text-[#fb923c]" />
+                                            <Check className="h-3.5 w-3.5 text-[#fb923c]" />
                                             <span className="text-[#fb923c]">copied</span>
                                         </>
                                     ) : (
                                         <>
-                                            <Copy className="h-3 w-3" />
+                                            <Copy className="h-3.5 w-3.5" />
                                             <span>copy code</span>
                                         </>
                                     )}
                                 </button>
                             </div>
-                            <div className="rounded-[4px] bg-[#181818] p-4 text-[0.84rem] overflow-x-auto">
+                            <div className="rounded-[4px] bg-[#181818] p-3 sm:p-4 text-[0.84rem] overflow-x-auto code-scroll border border-[#222222]">
                                 <CodeBlock code={activeItem.codeSnippet} language="tsx" />
                             </div>
                         </section>
@@ -421,9 +493,9 @@ export default function DocsPage() {
                                         <div
                                             key={variation.id}
                                             id={`example-${variation.id}`}
-                                            className="flex flex-col gap-3 rounded-[4px] border border-[#222222] bg-[#141414] p-4 transition-colors hover:border-[#2e2e2e]"
+                                            className="flex flex-col gap-3 rounded-[4px] border border-[#222222] bg-[#141414] p-3.5 sm:p-4 transition-colors hover:border-[#2e2e2e]"
                                         >
-                                            <div className="flex items-start justify-between gap-4">
+                                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-4">
                                                 <div className="flex flex-col gap-1">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-[0.78rem] font-mono text-[#fb923c]">
@@ -444,19 +516,19 @@ export default function DocsPage() {
                                                     onClick={() =>
                                                         handleCopy(variation.codeSnippet, copyKey)
                                                     }
-                                                    className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1 shrink-0 px-2 py-1 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors"
+                                                    className="self-start sm:self-auto text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors min-h-[32px] cursor-pointer"
                                                     title="copy code snippet"
                                                 >
                                                     {copiedKey === copyKey ? (
                                                         <>
-                                                            <Check className="h-3 w-3 text-[#fb923c]" />
+                                                            <Check className="h-3.5 w-3.5 text-[#fb923c]" />
                                                             <span className="text-[#fb923c]">
                                                                 copied
                                                             </span>
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Copy className="h-3 w-3" />
+                                                            <Copy className="h-3.5 w-3.5" />
                                                             <span>copy code</span>
                                                         </>
                                                     )}
@@ -466,7 +538,7 @@ export default function DocsPage() {
                                             {/* Variation Terminal Preview */}
                                             {(variation.terminalLines ||
                                                 variation.terminalMode) && (
-                                                <div className="rounded-[4px] bg-[#111111] p-3 overflow-hidden border border-[#1f1f1f]">
+                                                <div className="rounded-[4px] bg-[#111111] p-3 overflow-x-auto code-scroll border border-[#1f1f1f]">
                                                     <TerminalPreview
                                                         mode={variation.terminalMode}
                                                         lines={variation.terminalLines}
@@ -476,7 +548,7 @@ export default function DocsPage() {
                                             )}
 
                                             {/* Variation Code Snippet */}
-                                            <div className="rounded-[4px] bg-[#181818] p-3 text-[0.82rem] overflow-x-auto border border-[#222222]">
+                                            <div className="rounded-[4px] bg-[#181818] p-3 text-[0.82rem] overflow-x-auto code-scroll border border-[#222222]">
                                                 <CodeBlock
                                                     code={variation.codeSnippet}
                                                     language="tsx"
@@ -553,7 +625,7 @@ export default function DocsPage() {
                                     )}
 
                                     {section.codeSnippet && (
-                                        <div className="rounded-[4px] bg-[#181818] p-4 text-[0.84rem] overflow-x-auto border border-[#222222]">
+                                        <div className="rounded-[4px] bg-[#181818] p-3 sm:p-4 text-[0.84rem] overflow-x-auto code-scroll border border-[#222222]">
                                             <CodeBlock
                                                 code={section.codeSnippet}
                                                 language={section.language || 'tsx'}
@@ -568,9 +640,9 @@ export default function DocsPage() {
                                                 return (
                                                     <div
                                                         key={itemIdx}
-                                                        className="rounded-[4px] border border-[#222222] bg-[#141414] p-4 flex flex-col gap-2.5 transition-colors hover:border-[#2e2e2e]"
+                                                        className="rounded-[4px] border border-[#222222] bg-[#141414] p-3.5 sm:p-4 flex flex-col gap-2.5 transition-colors hover:border-[#2e2e2e]"
                                                     >
-                                                        <div className="flex items-start justify-between gap-4">
+                                                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-4">
                                                             <h3 className="text-[0.95rem] font-semibold text-white tracking-[-0.01em]">
                                                                 {item.title}
                                                             </h3>
@@ -582,7 +654,7 @@ export default function DocsPage() {
                                                                             itemCopyKey
                                                                         )
                                                                     }
-                                                                    className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1 shrink-0 px-2 py-1 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors cursor-pointer"
+                                                                    className="self-start sm:self-auto text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors min-h-[32px] cursor-pointer"
                                                                     title="copy code snippet"
                                                                 >
                                                                     {copiedKey === itemCopyKey ? (
@@ -607,7 +679,7 @@ export default function DocsPage() {
                                                             </p>
                                                         )}
                                                         {item.codeSnippet && (
-                                                            <div className="rounded-[4px] bg-[#181818] p-3 text-[0.82rem] overflow-x-auto border border-[#222222] mt-1">
+                                                            <div className="rounded-[4px] bg-[#181818] p-3 text-[0.82rem] overflow-x-auto code-scroll border border-[#222222] mt-1">
                                                                 <CodeBlock
                                                                     code={item.codeSnippet}
                                                                     language={
@@ -654,10 +726,10 @@ export default function DocsPage() {
                             <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
                                 api reference
                             </span>
-                            <div className="w-full overflow-x-auto">
-                                <table className="w-full text-left text-[0.84rem]">
+                            <div className="w-full overflow-x-auto code-scroll rounded-[4px] border border-[#222222]">
+                                <table className="w-full min-w-[500px] text-left text-[0.84rem]">
                                     <thead>
-                                        <tr className="bg-[#181818]/60 text-[#5c5c5c] text-[0.78rem]">
+                                        <tr className="bg-[#181818]/80 text-[#5c5c5c] text-[0.78rem] border-b border-[#222222]">
                                             <th className="py-2.5 px-3 font-semibold">prop</th>
                                             <th className="py-2.5 px-3 font-semibold">type</th>
                                             <th className="py-2.5 px-3 font-semibold">default</th>
@@ -666,22 +738,22 @@ export default function DocsPage() {
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody className="divide-y divide-[#1f1f1f]">
                                         {activeItem.props.map((p, idx) => (
                                             <tr
                                                 key={idx}
                                                 className="hover:bg-white/[0.025] transition-colors"
                                             >
-                                                <td className="py-2 px-3 text-white font-medium whitespace-nowrap">
+                                                <td className="py-2.5 px-3 text-white font-medium whitespace-nowrap">
                                                     {p.prop}
                                                 </td>
-                                                <td className="py-2 px-3 text-[#8c8c8c] whitespace-nowrap font-mono text-[0.8rem]">
+                                                <td className="py-2.5 px-3 text-[#8c8c8c] whitespace-nowrap font-mono text-[0.8rem]">
                                                     {p.type}
                                                 </td>
-                                                <td className="py-2 px-3 text-[#5c5c5c] whitespace-nowrap">
+                                                <td className="py-2.5 px-3 text-[#5c5c5c] whitespace-nowrap">
                                                     {p.default || '-'}
                                                 </td>
-                                                <td className="py-2 px-3 text-[#e2e2e2]">
+                                                <td className="py-2.5 px-3 text-[#e2e2e2]">
                                                     {p.desc}
                                                 </td>
                                             </tr>
@@ -693,11 +765,11 @@ export default function DocsPage() {
                     )}
 
                     {/* Pagination (Prev / Next) */}
-                    <div className="pt-4 pb-2 flex items-center justify-between text-[0.85rem]">
+                    <div className="pt-4 pb-2 flex items-center justify-between text-[0.85rem] gap-2">
                         {prevItem ? (
                             <button
                                 onClick={() => selectDocItem(prevItem.id)}
-                                className="flex flex-col items-start gap-0.5 p-1 rounded hover:text-white transition-colors"
+                                className="flex flex-col items-start gap-0.5 p-2 rounded hover:bg-white/[0.04] text-left transition-colors min-h-[44px] justify-center"
                             >
                                 <span className="text-[#5c5c5c] text-[0.75rem]">← previous</span>
                                 <span className="text-[#8c8c8c] hover:text-white">
@@ -711,7 +783,7 @@ export default function DocsPage() {
                         {nextItem && (
                             <button
                                 onClick={() => selectDocItem(nextItem.id)}
-                                className="flex flex-col items-end gap-0.5 p-1 rounded hover:text-white transition-colors"
+                                className="flex flex-col items-end gap-0.5 p-2 rounded hover:bg-white/[0.04] text-right transition-colors min-h-[44px] justify-center"
                             >
                                 <span className="text-[#5c5c5c] text-[0.75rem]">next →</span>
                                 <span className="text-[#8c8c8c] hover:text-white">

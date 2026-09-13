@@ -57,6 +57,8 @@ export function TerminalInner({
     useEffect(() => {
         if (!containerRef.current) return
 
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+
         const term = new Terminal({
             theme: {
                 background: '#141414',
@@ -74,7 +76,7 @@ export function TerminalInner({
                 white: '#ffffff',
             },
             fontFamily: "'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace",
-            fontSize: 13.5,
+            fontSize: isMobile ? 12 : 13.5,
             lineHeight: 1.45,
             cursorBlink: true,
             convertEol: true,
@@ -740,8 +742,11 @@ export function TerminalInner({
     }, [mode, lines, replayKey, heightClass])
 
     return (
-        <div className="w-full">
-            <div ref={containerRef} className={`${heightClass || 'h-64 sm:h-72'} w-full`} />
+        <div className="w-full overflow-x-auto code-scroll touch-scroll">
+            <div
+                ref={containerRef}
+                className={`${heightClass || 'h-64 sm:h-72'} w-full min-w-[500px] sm:min-w-0`}
+            />
         </div>
     )
 }

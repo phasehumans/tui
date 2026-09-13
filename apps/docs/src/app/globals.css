@@ -22,14 +22,6 @@
     margin: 0;
     padding: 0;
     min-width: 0;
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-*::-webkit-scrollbar {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
 }
 
 html,
@@ -45,7 +37,49 @@ body {
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     text-transform: lowercase;
-    overflow: hidden;
+    overflow-x: hidden;
+}
+
+/* Hide scrollbars utility */
+.no-scrollbar {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Touch momentum scroll for mobile */
+.touch-scroll {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Sleek horizontal scrollbar for code blocks & wide tables */
+.code-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #2e2e2e transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+.code-scroll::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+}
+
+.code-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.code-scroll::-webkit-scrollbar-thumb {
+    background: #2e2e2e;
+    border-radius: 2px;
+}
+
+.code-scroll::-webkit-scrollbar-thumb:hover {
+    background: #444444;
 }
 
 /* Monospace Selection */

@@ -1,6 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import '@xterm/xterm/css/xterm.css'
+
+export const viewport: Viewport = {
+    themeColor: '#141414',
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+}
 
 export const metadata: Metadata = {
     title: '@trydecember/tui',
