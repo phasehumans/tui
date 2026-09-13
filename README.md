@@ -1,10 +1,8 @@
 <p align="center">
-  <img src="apps/cli/assets/logo.png" alt="@trydecember/tui" height="30" />
+  <img src="https://raw.githubusercontent.com/phasehumans/tui/main/apps/cli/assets/logo.png" alt="@trydecember/tui" height="30" />
 </p>
 
-<h4 align="center">a ui library for terminal agents</h4>
-
-@trydecember/tui is a terminal UI library for AI agents built with React and Ink. Add customizable components directly into your codebase so you own the code.
+@trydecember/tui is a ui library for terminal agents. add customizable components directly into your codebase so you own the code.
 
 [tui.trydecember.com](https://tui.trydecember.com)
 

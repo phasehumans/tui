@@ -1,39 +1,39 @@
 {
     "name": "@trydecember/tui",
     "version": "0.0.3",
-    "description": "a ui library for terminal agents",
-    "type": "module",
-    "bin": {
-        "tui": "dist/index.js"
+    "description": "a ui library for terminal agents.",
+    "homepage": "https://tui.trydecember.com",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/phasehumans/tui",
+        "directory": "apps/cli"
     },
-    "main": "./dist/index.js",
+    "bugs": {
+        "url": "https://github.com/phasehumans/tui/issues"
+    },
+    "module": "src/index.ts",
+    "type": "module",
+    "private": false,
+    "author": "December <founders@trydecember.com>",
+    "license": "MIT",
+    "keywords": [
+        "tui"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
     "publishConfig": {
         "access": "public"
     },
+    "main": "./dist/index.js",
+    "bin": {
+        "tui": "dist/index.js"
+    },
     "files": [
         "dist",
-        "assets",
         "README.md",
-        "LICENSE",
-        "package.json"
+        "LICENSE"
     ],
-    "keywords": [
-        "tui",
-        "ink",
-        "react",
-        "terminal",
-        "ai",
-        "agent",
-        "coding-agent",
-        "cli"
-    ],
-    "author": "December <founders@trydecember.com>",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/phasehumans/tui.git"
-    },
-    "homepage": "https://tui.trydecember.com",
     "scripts": {
         "build": "bun build ./src/index.ts --target=node --outfile=./dist/index.js",
         "prepublishOnly": "bun run build",
