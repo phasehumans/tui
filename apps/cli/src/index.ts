@@ -26,6 +26,7 @@ async function main() {
         case 'init': {
             await handleInitCommand({
                 yes: parsedArgs.yes,
+                theme: parsedArgs.theme,
                 cwd: parsedArgs.cwd,
             })
             break

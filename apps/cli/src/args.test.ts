@@ -39,6 +39,20 @@ describe('cli args parser', () => {
         expect(result.positionals).toEqual(['button'])
     })
 
+    it('should parse init command with --theme flag', () => {
+        const result = parseCliArgs(['init', '--theme', 'amber'])
+        expect(result.command).toBe('init')
+        expect(result.theme).toBe('amber')
+
+        const shortResult = parseCliArgs(['init', '-t', 'emerald'])
+        expect(shortResult.command).toBe('init')
+        expect(shortResult.theme).toBe('emerald')
+
+        const eqResult = parseCliArgs(['init', '--theme=cyan'])
+        expect(eqResult.command).toBe('init')
+        expect(eqResult.theme).toBe('cyan')
+    })
+
     it('should generate help text containing commands and options', () => {
         const help = getHelpText('0.1.0')
         expect(help).toContain('init')
@@ -46,5 +60,6 @@ describe('cli args parser', () => {
         expect(help).toContain('diff')
         expect(help).toContain('--all')
         expect(help).toContain('--overwrite')
+        expect(help).toContain('--theme')
     })
 })

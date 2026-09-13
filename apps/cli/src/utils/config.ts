@@ -4,6 +4,9 @@ import path from 'node:path'
 export interface TuiConfig {
     $schema?: string
     tsx: boolean
+    framework?: string
+    packageManager?: string
+    theme?: string
     aliases: {
         components: string
         ui: string
@@ -14,6 +17,7 @@ export interface TuiConfig {
 export const DEFAULT_CONFIG: TuiConfig = {
     $schema: 'https://tui.trydecember.com/schema.json',
     tsx: true,
+    theme: 'default',
     aliases: {
         components: '@/components',
         ui: '@/components/ui',

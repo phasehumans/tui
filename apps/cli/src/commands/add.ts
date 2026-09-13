@@ -5,6 +5,7 @@ import pc from 'picocolors'
 
 import { getTuiConfig } from '../utils/config'
 import { installPackages } from '../utils/pm'
+import { generateThemeFile } from '../utils/theme-generator'
 
 const DEFAULT_REGISTRY_URL = 'https://tui.trydecember.com/r'
 
@@ -82,9 +83,7 @@ export async function handleAddCommand(
             process.exit(1)
         }
 
-        targets = index
-            .filter((item) => item.name !== 'theme')
-            .map((item) => item.name)
+        targets = index.filter((item) => item.name !== 'theme').map((item) => item.name)
     } else if (targets.length === 0) {
         const spinner = p.spinner()
         spinner.start('Fetching component registry...')
@@ -143,11 +142,11 @@ export async function handleAddCommand(
             if (regDep === 'theme') {
                 const themeTarget = path.join(targetDir, 'theme.ts')
                 if (!fs.existsSync(themeTarget)) {
-                    const themePayload = await fetchRegistryItem('theme', registryUrl)
-                    if (themePayload && themePayload.files[0]) {
-                        fs.writeFileSync(themeTarget, themePayload.files[0].content, 'utf8')
-                        p.log.step(`Created ${pc.cyan('theme.ts')}`)
-                    }
+                    const themeContent = generateThemeFile(config.theme ?? 'default')
+                    fs.writeFileSync(themeTarget, themeContent, 'utf8')
+                    p.log.step(
+                        `Created ${pc.cyan('theme.ts')} (palette: ${config.theme ?? 'default'})`
+                    )
                 }
             } else if (!targets.includes(regDep)) {
                 targets.push(regDep)

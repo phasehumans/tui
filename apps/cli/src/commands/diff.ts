@@ -92,10 +92,7 @@ function computeLcsDiff(oldLines: string[], newLines: string[]): DiffLine[] {
     return diff
 }
 
-export async function handleDiffCommand(
-    components: string[],
-    options: { cwd?: string } = {}
-) {
+export async function handleDiffCommand(components: string[], options: { cwd?: string } = {}) {
     const cwd = options.cwd ?? process.cwd()
     const config = getTuiConfig(cwd)
 

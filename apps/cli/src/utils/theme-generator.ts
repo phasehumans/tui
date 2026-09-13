@@ -1,7 +1,31 @@
-// Centralized theme tokens for terminal agent components.
+export type ThemePreset = 'default' | 'amber' | 'emerald' | 'cyan' | 'monochrome' | 'zinc' | 'slate'
+
+export const VALID_THEME_PRESETS: ThemePreset[] = [
+    'default',
+    'amber',
+    'emerald',
+    'cyan',
+    'monochrome',
+    'zinc',
+    'slate',
+]
+
+export function generateThemeFile(preset: string = 'default'): string {
+    const validPreset: ThemePreset = VALID_THEME_PRESETS.includes(preset as ThemePreset)
+        ? (preset as ThemePreset)
+        : 'default'
+
+    return `// Centralized theme tokens for terminal agent components.
 // All components consume these tokens instead of hardcoded hex or named color strings.
 
-export type ThemePreset = 'default' | 'amber' | 'emerald' | 'cyan' | 'monochrome' | 'zinc' | 'slate'
+export type ThemePreset =
+    | 'default'
+    | 'amber'
+    | 'emerald'
+    | 'cyan'
+    | 'monochrome'
+    | 'zinc'
+    | 'slate'
 
 export interface ThemeColors {
     brand: string
@@ -150,7 +174,7 @@ export const DEFAULT_GLYPHS: ThemeGlyphs = {
 }
 
 export function createTheme(
-    presetName: ThemePreset = 'default',
+    presetName: ThemePreset = '${validPreset}',
     customColors?: Partial<ThemeColors>
 ): ThemeDefinition {
     const baseColors = THEME_PRESETS[presetName] || THEME_PRESETS.default
@@ -164,7 +188,7 @@ export function createTheme(
     }
 }
 
-export const THEME = createTheme('default')
+export const THEME = createTheme('${validPreset}')
 
 export const COLORS = {
     ...THEME.colors,
@@ -174,3 +198,5 @@ export const COLORS = {
 
 export type Theme = typeof THEME
 export type Colors = typeof COLORS
+`
+}
