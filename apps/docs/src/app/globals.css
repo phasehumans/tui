@@ -3,14 +3,207 @@
 @tailwind utilities;
 
 :root {
-    --background: #090d16;
-    --foreground: #ededed;
+    --bg: #141414;
+    --border: #2a2a2a;
+    --border-subtle: #202020;
+    --text: #e2e2e2;
+    --text-muted: #8c8c8c;
+    --text-dim: #5c5c5c;
+    --text-bright: #ffffff;
+    --accent: #fb923c;
+    --accent-hover: #fdba74;
+    --font: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
 }
 
-body {
-    color: var(--foreground);
-    background: var(--background);
-    font-family:
-        -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-        'Open Sans', 'Helvetica Neue', sans-serif;
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-transform: lowercase;
+    overflow: hidden;
+}
+
+/* Monospace Selection */
+::selection {
+    background: rgba(251, 146, 60, 0.28);
+    color: #ffffff;
+}
+
+/* Links with spacetime dotted underline */
+a.link {
+    color: var(--text-muted);
+    border-bottom: 1px dotted var(--text-dim);
+    transition: color 0.15s, border-color 0.15s;
+    text-decoration: none;
+}
+
+a.link:hover {
+    color: var(--text-bright);
+    border-color: var(--text-bright);
+}
+
+a.link.accent-link {
+    color: var(--accent);
+    border-bottom: 1px dotted rgba(251, 146, 60, 0.6);
+}
+
+a.link.accent-link:hover {
+    color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+/* Command box */
+.cmd-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #181818;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 0.84rem;
+    cursor: pointer;
+    width: 100%;
+    font-family: var(--font);
+    transition: background 0.15s;
+}
+
+.cmd-box:hover {
+    background: #1f1f1f;
+}
+
+.cmd-code {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: #a1a1aa;
+    white-space: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    transition: color 0.15s ease;
+}
+
+.cmd-code::-webkit-scrollbar {
+    display: none;
+}
+
+.cmd-box:hover .cmd-code {
+    color: #ffffff;
+}
+
+.tok-pfx {
+    color: #52525b;
+    font-weight: 600;
+    user-select: none;
+    transition: color 0.15s ease;
+}
+
+.cmd-box:hover .tok-pfx {
+    color: #8c8c8c;
+}
+
+/* xterm container viewport */
+.xterm .xterm-viewport {
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+}
+
+.xterm .xterm-viewport::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+}
+
+/* VS Code Dark+ Syntax Colors for Code Blocks */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.token.punctuation {
+    color: #d4d4d4;
+}
+
+.token.keyword,
+.token.tag .token.keyword {
+    color: #c586c0; /* VS Code keyword purple */
+}
+
+.token.function,
+.token.function-variable {
+    color: #dcdcaa; /* VS Code function yellow */
+}
+
+.token.class-name,
+.token.class {
+    color: #4ec9b0; /* VS Code class/interface teal */
+}
+
+.token.string,
+.token.char {
+    color: #ce9178; /* VS Code string terracotta */
+}
+
+.token.number,
+.token.constant,
+.token.symbol {
+    color: #b5cea8; /* VS Code number pale green */
+}
+
+.token.boolean {
+    color: #569cd6; /* VS Code boolean blue */
+}
+
+.token.operator {
+    color: #d4d4d4;
+}
+
+.token.property,
+.token.attr-name {
+    color: #9cdcfe; /* VS Code prop light blue */
+}
+
+.token.tag {
+    color: #4ec9b0; /* VS Code JSX tag color */
+}
+
+.token.tag .token.punctuation {
+    color: #808080;
+}
+
+.token.variable {
+    color: #9cdcfe;
+}
+
+.token.deleted {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.token.inserted {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
 }

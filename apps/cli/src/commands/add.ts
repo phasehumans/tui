@@ -56,7 +56,7 @@ async function fetchRegistryIndex(
 
 export async function handleAddCommand(
     components: string[],
-    options: { overwrite?: boolean; yes?: boolean; cwd?: string } = {}
+    options: { overwrite?: boolean; yes?: boolean; all?: boolean; cwd?: string } = {}
 ) {
     const cwd = options.cwd ?? process.cwd()
     const config = getTuiConfig(cwd)
@@ -71,7 +71,21 @@ export async function handleAddCommand(
 
     let targets = [...components]
 
-    if (targets.length === 0) {
+    if (options.all) {
+        const spinner = p.spinner()
+        spinner.start('Fetching all components from registry...')
+        const index = await fetchRegistryIndex(registryUrl)
+        spinner.stop('Registry loaded')
+
+        if (!index || index.length === 0) {
+            p.log.error('Could not reach the component registry.')
+            process.exit(1)
+        }
+
+        targets = index
+            .filter((item) => item.name !== 'theme')
+            .map((item) => item.name)
+    } else if (targets.length === 0) {
         const spinner = p.spinner()
         spinner.start('Fetching component registry...')
         const index = await fetchRegistryIndex(registryUrl)
@@ -124,15 +138,19 @@ export async function handleAddCommand(
             continue
         }
 
-        // Check if theme token file needs to be dropped
-        if (payload.registryDependencies.includes('theme')) {
-            const themeTarget = path.join(targetDir, 'theme.ts')
-            if (!fs.existsSync(themeTarget)) {
-                const themePayload = await fetchRegistryItem('theme', registryUrl)
-                if (themePayload && themePayload.files[0]) {
-                    fs.writeFileSync(themeTarget, themePayload.files[0].content, 'utf8')
-                    p.log.step(`Created ${pc.cyan('theme.ts')}`)
+        // Check if theme or dependent registry components need to be installed
+        for (const regDep of payload.registryDependencies) {
+            if (regDep === 'theme') {
+                const themeTarget = path.join(targetDir, 'theme.ts')
+                if (!fs.existsSync(themeTarget)) {
+                    const themePayload = await fetchRegistryItem('theme', registryUrl)
+                    if (themePayload && themePayload.files[0]) {
+                        fs.writeFileSync(themeTarget, themePayload.files[0].content, 'utf8')
+                        p.log.step(`Created ${pc.cyan('theme.ts')}`)
+                    }
                 }
+            } else if (!targets.includes(regDep)) {
+                targets.push(regDep)
             }
         }
 

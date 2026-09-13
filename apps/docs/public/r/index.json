@@ -1,50 +1,308 @@
 [
-    {
-        "name": "theme",
-        "type": "theme",
-        "title": "Theme Tokens",
-        "description": "Central design tokens for terminal agents (colors, glyphs, padding).",
-        "dependencies": [],
-        "registryDependencies": []
-    },
-    {
-        "name": "collapsible-reasoning",
-        "type": "ui",
-        "title": "Collapsible Reasoning",
-        "description": "Foldable chain-of-thought block with duration and token count.",
-        "dependencies": ["ink-spinner"],
-        "registryDependencies": ["theme"]
-    },
-    {
-        "name": "tool-call-card",
-        "type": "ui",
-        "title": "Tool Call Card",
-        "description": "Execution status card for tool calls with live spinners and expandable stdout.",
-        "dependencies": ["ink-spinner"],
-        "registryDependencies": ["theme"]
-    },
-    {
-        "name": "diff-viewer",
-        "type": "ui",
-        "title": "Diff Viewer",
-        "description": "Red and green chunk diff renderer with line truncation and branch glyphs.",
-        "dependencies": [],
-        "registryDependencies": ["theme"]
-    },
-    {
-        "name": "streaming-text",
-        "type": "ui",
-        "title": "Streaming Text",
-        "description": "Smooth text and markdown stream renderer with terminal cursor indicator.",
-        "dependencies": [],
-        "registryDependencies": ["theme"]
-    },
-    {
-        "name": "token-gauge",
-        "type": "ui",
-        "title": "Token Gauge",
-        "description": "Visual terminal meter for context window and token usage monitoring.",
-        "dependencies": [],
-        "registryDependencies": ["theme"]
-    }
+  {
+    "name": "theme",
+    "type": "theme",
+    "title": "Theme Tokens",
+    "description": "Central design tokens for terminal agents (colors, glyphs, padding).",
+    "dependencies": [],
+    "registryDependencies": []
+  },
+  {
+    "name": "collapsible-reasoning",
+    "type": "ui",
+    "title": "Collapsible Reasoning",
+    "description": "Foldable chain-of-thought block with duration and token count.",
+    "dependencies": [
+      "ink-spinner"
+    ],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "tool-call-card",
+    "type": "ui",
+    "title": "Tool Call Card",
+    "description": "Execution status card for tool calls with live spinners and expandable stdout.",
+    "dependencies": [
+      "ink-spinner"
+    ],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "diff-viewer",
+    "type": "ui",
+    "title": "Diff Viewer",
+    "description": "Red and green chunk diff renderer with line truncation and branch glyphs.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "streaming-text",
+    "type": "ui",
+    "title": "Streaming Text",
+    "description": "Smooth text and markdown stream renderer with terminal cursor indicator.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "token-gauge",
+    "type": "ui",
+    "title": "Token Gauge",
+    "description": "Visual terminal meter for context window and token usage monitoring.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "pill",
+    "type": "ui",
+    "title": "Pill",
+    "description": "Compact badge chip for metadata, tags, and status labels.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "spinner",
+    "type": "ui",
+    "title": "Spinner",
+    "description": "Animated terminal dot spinner with an optional status label.",
+    "dependencies": [
+      "ink-spinner"
+    ],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "text-area",
+    "type": "ui",
+    "title": "Text Area",
+    "description": "Multiline terminal input with inverse block cursor, history navigation, slash commands, and @file mentions.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "header",
+    "type": "ui",
+    "title": "Header Banner",
+    "description": "Session status banner with Git branch detection, current directory path, and actionable tips.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "mermaid",
+    "type": "ui",
+    "title": "Mermaid Diagram",
+    "description": "Pure terminal Unicode renderer for flowchart, sequence, and pie diagrams.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "markdown",
+    "type": "ui",
+    "title": "Markdown Renderer",
+    "description": "Terminal markdown parser supporting tables, lists, syntax-highlighted codeblocks, and inline diagrams.",
+    "dependencies": [
+      "marked",
+      "cli-highlight"
+    ],
+    "registryDependencies": [
+      "theme",
+      "mermaid"
+    ]
+  },
+  {
+    "name": "user-message",
+    "type": "ui",
+    "title": "User Message",
+    "description": "Terminal user prompt message bubble with prompt chevron glyph.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "error-message",
+    "type": "ui",
+    "title": "Error Message",
+    "description": "Formatted terminal error display with automatic hint extraction and clickable link styling.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "select-menu",
+    "type": "ui",
+    "title": "Select Menu",
+    "description": "Keyboard-navigable terminal selection list with active state, hints, and keybinding footer.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme",
+      "menu-footer"
+    ]
+  },
+  {
+    "name": "command-menu",
+    "type": "ui",
+    "title": "Command Menu",
+    "description": "Slash command palette with real-time fuzzy filtering, pagination window, and tab completion.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme",
+      "menu-footer"
+    ]
+  },
+  {
+    "name": "shortcuts-menu",
+    "type": "ui",
+    "title": "Shortcuts Menu",
+    "description": "Interactive terminal keyboard shortcuts overlay menu with navigation and pagination.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme",
+      "menu-footer"
+    ]
+  },
+  {
+    "name": "plan-approve-menu",
+    "type": "ui",
+    "title": "Plan Approval Menu",
+    "description": "Agent workflow action menu for reviewing, refining, approving, or rejecting execution plans.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme",
+      "menu-footer"
+    ]
+  },
+  {
+    "name": "input-bar",
+    "type": "ui",
+    "title": "Input Bar",
+    "description": "Complete terminal agent input bar with multiline prompt, slash commands, file mentions, and status display.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme",
+      "text-area",
+      "command-menu",
+      "shortcuts-menu",
+      "menu-footer"
+    ]
+  },
+  {
+    "name": "card",
+    "type": "ui",
+    "title": "Card",
+    "description": "Displays a boxed card container with optional header, title, description, content, and footer.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "button",
+    "type": "ui",
+    "title": "Button",
+    "description": "Interactive terminal button with variants (default, secondary, destructive, outline, ghost) and keyboard focus.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "tabs",
+    "type": "ui",
+    "title": "Tabs",
+    "description": "A set of layered sections of content—known as tab panels—that are displayed one at a time via keyboard arrows.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "dialog",
+    "type": "ui",
+    "title": "Dialog",
+    "description": "A modal dialog overlay that interrupts the user with important content and expects a response (confirm or cancel).",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "progress",
+    "type": "ui",
+    "title": "Progress",
+    "description": "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "checkbox",
+    "type": "ui",
+    "title": "Checkbox",
+    "description": "A control that allows the user to toggle between checked and not-checked states via space or enter.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "radio-group",
+    "type": "ui",
+    "title": "Radio Group",
+    "description": "A set of checkable buttons—known as radio buttons—where no more than one can be checked at a time.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "skeleton",
+    "type": "ui",
+    "title": "Skeleton",
+    "description": "Use to show a placeholder while content is loading in terminal agents.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "toast",
+    "type": "ui",
+    "title": "Toast",
+    "description": "A succinct message that is displayed temporarily to provide feedback about an operation.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  },
+  {
+    "name": "table",
+    "type": "ui",
+    "title": "Table",
+    "description": "A responsive terminal data grid component supporting structured column headers, rows, and cells.",
+    "dependencies": [],
+    "registryDependencies": [
+      "theme"
+    ]
+  }
 ]

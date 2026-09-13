@@ -1,19 +1,23 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "tool-call-card",
-    "type": "ui",
-    "title": "Tool Call Card",
-    "description": "Execution status card for tool calls with live spinners and expandable stdout.",
-    "dependencies": ["ink-spinner"],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "tool-call-card.tsx",
-            "path": "components/tool-call-card.tsx",
-            "target": "tool-call-card.tsx",
-            "content": "import { Box, Text } from 'ink'\nimport InkSpinner from 'ink-spinner'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type ToolStatus = 'pending' | 'running' | 'completed' | 'failed'\n\nexport interface ToolCallCardProps {\n    /** The identifier or name of the tool (e.g. \"read_file\", \"bash\") */\n    toolName: string\n    /** Short summary or parameter snippet of the invocation */\n    inputSummary?: string\n    /** Current execution status */\n    status: ToolStatus\n    /** Whether the stdout/output block is expanded */\n    isExpanded?: boolean\n    /** Execution output or error message */\n    output?: string\n    /** Execution time in milliseconds */\n    durationMs?: number\n}\n\nexport function ToolCallCard({\n    toolName,\n    inputSummary,\n    status,\n    isExpanded = false,\n    output,\n    durationMs,\n}: ToolCallCardProps) {\n    const formattedDuration = durationMs ? ` ${(durationMs / 1000).toFixed(1)}s` : ''\n\n    const renderStatusBadge = () => {\n        switch (status) {\n            case 'running': {\n                return (\n                    <Text color={THEME.colors.warning}>\n                        <InkSpinner type=\"dots\" />\n                    </Text>\n                )\n            }\n            case 'completed': {\n                return <Text color={THEME.colors.success}>{THEME.glyphs.check}</Text>\n            }\n            case 'failed': {\n                return <Text color={THEME.colors.error}>{THEME.glyphs.cross}</Text>\n            }\n            case 'pending':\n            default: {\n                return <Text color={THEME.colors.dim}>{THEME.glyphs.bullet}</Text>\n            }\n        }\n    }\n\n    const glyph = isExpanded ? THEME.glyphs.foldOpen : THEME.glyphs.foldClosed\n\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            <Box gap={1} alignItems=\"center\">\n                {renderStatusBadge()}\n                <Text color={THEME.colors.brand} bold>\n                    {toolName}\n                </Text>\n                {inputSummary && (\n                    <Text color={THEME.colors.muted} wrap=\"truncate-end\">\n                        {inputSummary}\n                    </Text>\n                )}\n                {durationMs !== undefined && (\n                    <Text color={THEME.colors.dim}>{formattedDuration}</Text>\n                )}\n                {output && (\n                    <Text color={THEME.colors.dim}>{glyph}</Text>\n                )}\n            </Box>\n\n            {isExpanded && output && (\n                <Box\n                    flexDirection=\"column\"\n                    borderStyle=\"round\"\n                    borderColor={THEME.colors.border}\n                    paddingX={1}\n                    marginTop={0}\n                >\n                    <Text color={THEME.colors.text}>{output}</Text>\n                </Box>\n            )}\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "tool-call-card",
+  "type": "ui",
+  "title": "Tool Call Card",
+  "description": "Execution status card for tool calls with live spinners and expandable stdout.",
+  "dependencies": [
+    "ink-spinner"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "tool-call-card.tsx",
+      "path": "components/tool-call-card.tsx",
+      "target": "tool-call-card.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport InkSpinner from 'ink-spinner'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type ToolStatus = 'pending' | 'running' | 'completed' | 'failed'\n\nexport interface ToolCallCardProps {\n    /** The identifier or name of the tool (e.g. \"read_file\", \"bash\") */\n    toolName: string\n    /** Short summary or parameter snippet of the invocation */\n    inputSummary?: string\n    /** Current execution status */\n    status: ToolStatus\n    /** Whether the stdout/output block is expanded */\n    isExpanded?: boolean\n    /** Execution output or error message */\n    output?: string\n    /** Execution time in milliseconds */\n    durationMs?: number\n}\n\nexport function ToolCallCard({\n    toolName,\n    inputSummary,\n    status,\n    isExpanded = false,\n    output,\n    durationMs,\n}: ToolCallCardProps) {\n    const formattedDuration = durationMs ? ` ${(durationMs / 1000).toFixed(1)}s` : ''\n\n    const renderStatusBadge = () => {\n        switch (status) {\n            case 'running': {\n                return (\n                    <Text color={THEME.colors.warning}>\n                        <InkSpinner type=\"dots\" />\n                    </Text>\n                )\n            }\n            case 'completed': {\n                return <Text color={THEME.colors.success}>{THEME.glyphs.check}</Text>\n            }\n            case 'failed': {\n                return <Text color={THEME.colors.error}>{THEME.glyphs.cross}</Text>\n            }\n            case 'pending':\n            default: {\n                return <Text color={THEME.colors.dim}>{THEME.glyphs.bullet}</Text>\n            }\n        }\n    }\n\n    const glyph = isExpanded ? THEME.glyphs.foldOpen : THEME.glyphs.foldClosed\n\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            <Box gap={1} alignItems=\"center\">\n                {renderStatusBadge()}\n                <Text color={THEME.colors.brand} bold>\n                    {toolName}\n                </Text>\n                {inputSummary && (\n                    <Text color={THEME.colors.muted} wrap=\"truncate-end\">\n                        {inputSummary}\n                    </Text>\n                )}\n                {durationMs !== undefined && (\n                    <Text color={THEME.colors.dim}>{formattedDuration}</Text>\n                )}\n                {output && <Text color={THEME.colors.dim}>{glyph}</Text>}\n            </Box>\n\n            {isExpanded && output && (\n                <Box\n                    flexDirection=\"column\"\n                    borderStyle=\"round\"\n                    borderColor={THEME.colors.border}\n                    paddingX={1}\n                    marginTop={0}\n                >\n                    <Text color={THEME.colors.text}>{output}</Text>\n                </Box>\n            )}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "skeleton",
+  "type": "ui",
+  "title": "Skeleton",
+  "description": "Use to show a placeholder while content is loading in terminal agents.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "skeleton.tsx",
+      "path": "components/skeleton.tsx",
+      "target": "skeleton.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface SkeletonProps {\n    width?: number\n    height?: number\n    char?: string\n}\n\nexport function Skeleton({\n    width = 24,\n    height = 1,\n    char = '░',\n}: SkeletonProps) {\n    const row = char.repeat(width)\n    const rows = Array.from({ length: height }, (_, i) => i)\n\n    return (\n        <Box flexDirection=\"column\">\n            {rows.map((r) => (\n                <Text key={r} color={THEME.colors.dim}>\n                    {row}\n                </Text>\n            ))}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
+}

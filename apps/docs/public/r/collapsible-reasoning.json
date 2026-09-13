@@ -1,19 +1,23 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "collapsible-reasoning",
-    "type": "ui",
-    "title": "Collapsible Reasoning",
-    "description": "Foldable chain-of-thought block with duration and token count.",
-    "dependencies": ["ink-spinner"],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "collapsible-reasoning.tsx",
-            "path": "components/collapsible-reasoning.tsx",
-            "target": "collapsible-reasoning.tsx",
-            "content": "import { Box, Text } from 'ink'\nimport InkSpinner from 'ink-spinner'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface CollapsibleReasoningProps {\n    /** The raw reasoning / thinking text content */\n    content: string\n    /** Whether the reasoning block is currently expanded to show details */\n    isExpanded?: boolean\n    /** Whether the agent is actively thinking/streaming thoughts */\n    isThinking?: boolean\n    /** Optional duration in milliseconds */\n    durationMs?: number\n    /** Optional token count consumed by reasoning */\n    tokenCount?: number\n}\n\nexport function formatThought(raw: string): string {\n    if (!raw) return ''\n\n    const lines = raw.split(/\\r?\\n/)\n    const cleanedLines: string[] = []\n\n    for (const line of lines) {\n        let trimmed = line.trim()\n        if (!trimmed) continue\n\n        // Strip section scaffolding labels like Goal Understanding, Analysis, etc.\n        trimmed = trimmed\n            .replace(/^[*•\\-]*\\s*\\*\\*([^*]+)\\*\\*:?\\s*/i, '')\n            .replace(/^#{1,4}\\s*([^:\\n]+):?\\s*/i, '')\n            .replace(\n                /^[*•\\-]*\\s*(?:goal understanding|analysis|next steps|approach|plan|execution plan|thoughts?|reasoning):\\s*/i,\n                ''\n            )\n\n        if (!trimmed) continue\n\n        // Strip leading list bullet markers and numbered list markers\n        trimmed = trimmed.replace(/^[*•\\-]+\\s*/, '')\n        trimmed = trimmed.replace(/^\\d+[\\.\\)]\\s*/, '')\n\n        // Strip unparsed bold / italic markdown tags\n        trimmed = trimmed.replace(/\\*\\*([^*]+)\\*\\*/g, '$1')\n        trimmed = trimmed.replace(/(?<!\\*)\\*([^*]+)\\*(?!\\*)/g, '$1')\n\n        trimmed = trimmed.trim()\n        if (trimmed) {\n            cleanedLines.push(trimmed)\n        }\n    }\n\n    return cleanedLines.join('\\n')\n}\n\nexport function CollapsibleReasoning({\n    content,\n    isExpanded = false,\n    isThinking = false,\n    durationMs,\n    tokenCount,\n}: CollapsibleReasoningProps) {\n    const formatted = formatThought(content)\n    if (!formatted && !isThinking) return null\n\n    const glyph = isExpanded ? THEME.glyphs.foldOpen : THEME.glyphs.foldClosed\n    const formattedDuration = durationMs ? ` (${(durationMs / 1000).toFixed(1)}s)` : ''\n    const formattedTokens = tokenCount ? ` [${tokenCount} tokens]` : ''\n\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            <Box gap={1} alignItems=\"center\">\n                {isThinking ? (\n                    <Text color={THEME.colors.brand}>\n                        <InkSpinner type=\"dots\" />\n                    </Text>\n                ) : (\n                    <Text color={THEME.colors.muted}>{glyph}</Text>\n                )}\n                <Text color={THEME.colors.muted} bold>\n                    {isThinking ? 'Thinking...' : 'Reasoning'}\n                </Text>\n                <Text color={THEME.colors.dim}>\n                    {formattedDuration}\n                    {formattedTokens}\n                </Text>\n            </Box>\n\n            {isExpanded && formatted && (\n                <Box flexDirection=\"column\" paddingLeft={2} marginTop={0}>\n                    <Text color={THEME.colors.dim} italic>\n                        {formatted}\n                    </Text>\n                </Box>\n            )}\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "collapsible-reasoning",
+  "type": "ui",
+  "title": "Collapsible Reasoning",
+  "description": "Foldable chain-of-thought block with duration and token count.",
+  "dependencies": [
+    "ink-spinner"
+  ],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "collapsible-reasoning.tsx",
+      "path": "components/collapsible-reasoning.tsx",
+      "target": "collapsible-reasoning.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport InkSpinner from 'ink-spinner'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface CollapsibleReasoningProps {\n    /** The raw reasoning / thinking text content */\n    content: string\n    /** Whether the reasoning block is currently expanded to show details */\n    isExpanded?: boolean\n    /** Whether the agent is actively thinking/streaming thoughts */\n    isThinking?: boolean\n    /** Optional duration in milliseconds */\n    durationMs?: number\n    /** Optional token count consumed by reasoning */\n    tokenCount?: number\n}\n\nexport function formatThought(raw: string): string {\n    if (!raw) return ''\n\n    const lines = raw.split(/\\r?\\n/)\n    const cleanedLines: string[] = []\n\n    for (const line of lines) {\n        let trimmed = line.trim()\n        if (!trimmed) continue\n\n        // Strip section scaffolding labels like Goal Understanding, Analysis, etc.\n        trimmed = trimmed\n            .replace(/^[*•\\-]*\\s*\\*\\*([^*]+)\\*\\*:?\\s*/i, '')\n            .replace(/^#{1,4}\\s*([^:\\n]+):?\\s*/i, '')\n            .replace(\n                /^[*•\\-]*\\s*(?:goal understanding|analysis|next steps|approach|plan|execution plan|thoughts?|reasoning):\\s*/i,\n                ''\n            )\n\n        if (!trimmed) continue\n\n        // Strip leading list bullet markers and numbered list markers\n        trimmed = trimmed.replace(/^[*•\\-]+\\s*/, '')\n        trimmed = trimmed.replace(/^\\d+[\\.\\)]\\s*/, '')\n\n        // Strip unparsed bold / italic markdown tags\n        trimmed = trimmed.replace(/\\*\\*([^*]+)\\*\\*/g, '$1')\n        trimmed = trimmed.replace(/(?<!\\*)\\*([^*]+)\\*(?!\\*)/g, '$1')\n\n        trimmed = trimmed.trim()\n        if (trimmed) {\n            cleanedLines.push(trimmed)\n        }\n    }\n\n    return cleanedLines.join('\\n')\n}\n\nexport function CollapsibleReasoning({\n    content,\n    isExpanded = false,\n    isThinking = false,\n    durationMs,\n    tokenCount,\n}: CollapsibleReasoningProps) {\n    const formatted = formatThought(content)\n    if (!formatted && !isThinking) return null\n\n    const glyph = isExpanded ? THEME.glyphs.foldOpen : THEME.glyphs.foldClosed\n    const formattedDuration = durationMs ? ` (${(durationMs / 1000).toFixed(1)}s)` : ''\n    const formattedTokens = tokenCount ? ` [${tokenCount} tokens]` : ''\n\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            <Box gap={1} alignItems=\"center\">\n                {isThinking ? (\n                    <Text color={THEME.colors.brand}>\n                        <InkSpinner type=\"dots\" />\n                    </Text>\n                ) : (\n                    <Text color={THEME.colors.muted}>{glyph}</Text>\n                )}\n                <Text color={THEME.colors.muted} bold>\n                    {isThinking ? 'Thinking...' : 'Reasoning'}\n                </Text>\n                <Text color={THEME.colors.dim}>\n                    {formattedDuration}\n                    {formattedTokens}\n                </Text>\n            </Box>\n\n            {isExpanded && formatted && (\n                <Box flexDirection=\"column\" paddingLeft={2} marginTop={0}>\n                    <Text color={THEME.colors.dim} italic>\n                        {formatted}\n                    </Text>\n                </Box>\n            )}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

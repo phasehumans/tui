@@ -1,0 +1,21 @@
+{
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "pill",
+  "type": "ui",
+  "title": "Pill",
+  "description": "Compact badge chip for metadata, tags, and status labels.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "pill.tsx",
+      "path": "components/pill.tsx",
+      "target": "pill.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type PillProps = {\n    label: string\n    color?: string\n    backgroundColor?: string\n    dimColor?: boolean\n}\n\nexport function Pill({\n    label,\n    color = THEME.colors.text,\n    backgroundColor = THEME.colors.border,\n    dimColor,\n}: PillProps) {\n    return (\n        <Box backgroundColor={backgroundColor} paddingX={1} marginX={1}>\n            <Text color={color} dimColor={dimColor}>\n                {label}\n            </Text>\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
+}

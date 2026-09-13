@@ -4,6 +4,7 @@ import pkg from '../package.json' with { type: 'json' }
 
 import { parseCliArgs, getHelpText } from './args'
 import { handleAddCommand } from './commands/add'
+import { handleDiffCommand } from './commands/diff'
 import { handleInitCommand } from './commands/init'
 
 export { parseCliArgs, getHelpText } from './args'
@@ -33,6 +34,13 @@ async function main() {
             await handleAddCommand(parsedArgs.positionals, {
                 overwrite: parsedArgs.overwrite,
                 yes: parsedArgs.yes,
+                all: parsedArgs.all,
+                cwd: parsedArgs.cwd,
+            })
+            break
+        }
+        case 'diff': {
+            await handleDiffCommand(parsedArgs.positionals, {
                 cwd: parsedArgs.cwd,
             })
             break

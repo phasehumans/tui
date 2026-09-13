@@ -1,216 +1,769 @@
-import { Terminal, Copy, ArrowRight, Check, Code2, Sparkles, Box } from 'lucide-react'
-import { TerminalPreview } from '../components/terminal-preview'
+'use client'
 
-export default function Home() {
+import {
+    Copy,
+    Check,
+    RotateCcw,
+    ExternalLink,
+    Menu,
+    X,
+    Search,
+    Terminal,
+    FileCode,
+    CornerDownLeft,
+} from 'lucide-react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+
+import { CodeBlock } from '../components/code-block'
+import { TerminalPreview } from '../components/terminal-preview'
+import { DOC_ITEMS, type DocItem } from '../data/docs-data'
+
+type PackageManager = 'bun' | 'pnpm' | 'npm'
+type InstallMode = 'cli' | 'manual'
+
+export default function DocsPage() {
+    const [activeId, setActiveId] = useState<string>('introduction')
+    const [replayKey, setReplayKey] = useState<number>(0)
+    const [copiedKey, setCopiedKey] = useState<string | null>(null)
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false)
+    const [activeTocId, setActiveTocId] = useState<string>('overview')
+    const [searchQuery, setSearchQuery] = useState<string>('')
+    const [pm, setPm] = useState<PackageManager>('bun')
+    const [installMode, setInstallMode] = useState<InstallMode>('cli')
+    const [paletteOpen, setPaletteOpen] = useState<boolean>(false)
+    const [paletteQuery, setPaletteQuery] = useState<string>('')
+    const [paletteSelectedIndex, setPaletteSelectedIndex] = useState<number>(0)
+
+    const mainRef = useRef<HTMLElement>(null)
+    const paletteInputRef = useRef<HTMLInputElement>(null)
+
+    useEffect(() => {
+        const savedPm = localStorage.getItem('tui-pm') as PackageManager | null
+        if (savedPm && (savedPm === 'bun' || savedPm === 'pnpm' || savedPm === 'npm')) {
+            setPm(savedPm)
+        }
+    }, [])
+
+    const handleSelectPm = (selectedPm: PackageManager) => {
+        setPm(selectedPm)
+        try {
+            localStorage.setItem('tui-pm', selectedPm)
+        } catch {
+            // Intentionally swallowed: local storage failure
+        }
+    }
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace('#', '')
+            if (hash && DOC_ITEMS.some((item) => item.id === hash)) {
+                setActiveId(hash)
+            }
+        }
+
+        handleHashChange()
+        window.addEventListener('hashchange', handleHashChange)
+        return () => window.removeEventListener('hashchange', handleHashChange)
+    }, [])
+
+    // Global keyboard shortcut: Cmd+K / Ctrl+K
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+                e.preventDefault()
+                setPaletteOpen((prev) => !prev)
+            } else if (e.key === 'Escape' && paletteOpen) {
+                setPaletteOpen(false)
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [paletteOpen])
+
+    useEffect(() => {
+        if (paletteOpen) {
+            setPaletteQuery('')
+            setPaletteSelectedIndex(0)
+            setTimeout(() => paletteInputRef.current?.focus(), 50)
+        }
+    }, [paletteOpen])
+
+    const selectDocItem = useCallback((id: string) => {
+        setActiveId(id)
+        window.location.hash = id
+        setMobileSidebarOpen(false)
+        setPaletteOpen(false)
+        setReplayKey((k) => k + 1)
+        const doc = DOC_ITEMS.find((d) => d.id === id)
+        if (doc && doc.toc[0]) {
+            setActiveTocId(doc.toc[0].id)
+        }
+        if (mainRef.current) {
+            mainRef.current.scrollTo({ top: 0, behavior: 'auto' })
+        }
+    }, [])
+
+    const activeItem: DocItem =
+        DOC_ITEMS.find((item) => item.id === activeId) ?? (DOC_ITEMS[0] as DocItem)
+
+    const currentIndex = DOC_ITEMS.findIndex((item) => item.id === activeItem.id)
+    const prevItem = currentIndex > 0 ? DOC_ITEMS[currentIndex - 1] : null
+    const nextItem = currentIndex < DOC_ITEMS.length - 1 ? DOC_ITEMS[currentIndex + 1] : null
+
+    const handleCopy = (text: string, key: string) => {
+        navigator.clipboard.writeText(text).then(() => {
+            setCopiedKey(key)
+            setTimeout(() => {
+                setCopiedKey((curr) => (curr === key ? null : curr))
+            }, 1800)
+        }).catch(() => {
+            // Intentionally swallowed: clipboard fallback handled
+        })
+    }
+
+    const scrollToSection = (targetId: string) => {
+        setActiveTocId(targetId)
+        const mainContainer = mainRef.current
+        const targetElement = document.getElementById(targetId)
+
+        if (targetElement && mainContainer) {
+            const containerRect = mainContainer.getBoundingClientRect()
+            const targetRect = targetElement.getBoundingClientRect()
+            const relativeOffset = targetRect.top - containerRect.top + mainContainer.scrollTop - 16
+
+            mainContainer.scrollTo({
+                top: Math.max(0, relativeOffset),
+                behavior: 'smooth',
+            })
+        }
+    }
+
+    const handleMainScroll = () => {
+        const mainContainer = mainRef.current
+        if (!mainContainer) return
+
+        const containerRect = mainContainer.getBoundingClientRect()
+        const sections = activeItem.toc
+            .map((t) => ({ id: t.id, el: document.getElementById(t.id) }))
+            .filter((item): item is { id: string; el: HTMLElement } => item.el !== null)
+
+        if (sections.length === 0) return
+
+        if (mainContainer.scrollTop + mainContainer.clientHeight >= mainContainer.scrollHeight - 30) {
+            const last = sections[sections.length - 1]
+            if (last) {
+                setActiveTocId(last.id)
+                return
+            }
+        }
+
+        let currentSectionId = sections[0]?.id || 'overview'
+        for (const section of sections) {
+            if (section.el.getBoundingClientRect().top - containerRect.top <= 120) {
+                currentSectionId = section.id
+            }
+        }
+        setActiveTocId(currentSectionId)
+    }
+
+    const formatInstallCmd = (cmd: string, manager: PackageManager) => {
+        if (!cmd) return ''
+        if (manager === 'bun') {
+            return cmd.replace(/^npx\s+/, 'bunx ')
+        }
+        if (manager === 'pnpm') {
+            return cmd.replace(/^npx\s+/, 'pnpm dlx ')
+        }
+        return cmd
+    }
+
+    const formatPeerDepsCmd = (manager: PackageManager) => {
+        if (manager === 'bun') return 'bun add ink react'
+        if (manager === 'pnpm') return 'pnpm add ink react'
+        return 'npm install ink react'
+    }
+
+    const query = searchQuery.toLowerCase().trim()
+    const gettingStartedItems = DOC_ITEMS.filter((item) => item.category === 'getting-started')
+        .filter((item) => !query || item.title.toLowerCase().includes(query) || item.navLabel.toLowerCase().includes(query))
+    const componentItems = DOC_ITEMS.filter((item) => item.category === 'components')
+        .filter((item) => !query || item.title.toLowerCase().includes(query) || item.navLabel.toLowerCase().includes(query))
+
+    // Palette filtered list
+    const pQuery = paletteQuery.toLowerCase().trim()
+    const paletteResults = DOC_ITEMS.filter((item) => {
+        if (!pQuery) return true
+        return (
+            item.title.toLowerCase().includes(pQuery) ||
+            item.navLabel.toLowerCase().includes(pQuery) ||
+            item.description.toLowerCase().includes(pQuery)
+        )
+    })
+
+    const handlePaletteKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            setPaletteSelectedIndex((prev) =>
+                prev < paletteResults.length - 1 ? prev + 1 : 0
+            )
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            setPaletteSelectedIndex((prev) =>
+                prev > 0 ? prev - 1 : paletteResults.length - 1
+            )
+        } else if (e.key === 'Enter') {
+            e.preventDefault()
+            const selected = paletteResults[paletteSelectedIndex]
+            if (selected) {
+                selectDocItem(selected.id)
+            }
+        }
+    }
+
     return (
-        <main className="flex min-h-screen flex-col items-center justify-between p-6 sm:p-12 lg:p-24 max-w-7xl mx-auto">
-            {/* Navigation Header */}
-            <header className="w-full flex items-center justify-between py-4 border-b border-zinc-800/60 mb-16">
+        <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#141414] text-[#e2e2e2] font-mono text-[14px]">
+            {/* Header: Clean, borderless, compact typography */}
+            <header className="shrink-0 bg-[#141414] px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between z-30 max-w-[1300px] w-full mx-auto">
                 <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-mono font-bold text-sm">
-                        ❭_
-                    </div>
-                    <span className="font-semibold tracking-tight text-white font-mono">
-                        @trydecember/tui
-                    </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-mono">
-                        v0.1.0
-                    </span>
+                    <button
+                        onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+                        className="lg:hidden p-1 text-[#8c8c8c] hover:text-white"
+                        aria-label="Toggle navigation"
+                    >
+                        {mobileSidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+                    </button>
+
+                    <a
+                        href="#introduction"
+                        onClick={(e) => {
+                            e.preventDefault()
+                            selectDocItem('introduction')
+                        }}
+                        className="flex items-center gap-2"
+                    >
+                        <span className="text-[#fb923c] font-bold text-[1.35rem] leading-none">✱</span>
+                        <span className="font-bold text-white text-[1.3rem] tracking-[-0.02em] leading-none">tui</span>
+                        <span className="hidden sm:inline text-[0.88rem] text-[#8c8c8c] ml-1 leading-none">
+                            a ui library for terminal agents
+                        </span>
+                    </a>
                 </div>
-                <nav className="flex items-center gap-6 text-sm text-zinc-400">
-                    <a href="#components" className="hover:text-white transition-colors">
-                        Components
-                    </a>
-                    <a href="#quickstart" className="hover:text-white transition-colors">
-                        Quickstart
-                    </a>
+
+                <div className="flex items-center gap-3 sm:gap-5 text-[0.88rem] text-[#8c8c8c]">
+                    {/* Command Palette Trigger (Search bar beside left of github text) */}
+                    <button
+                        onClick={() => setPaletteOpen(true)}
+                        className="flex items-center gap-2 bg-[#1c1c1c] text-xs text-[#8c8c8c] hover:text-[#e2e2e2] hover:border-[#383838] px-3 py-1.5 rounded-[4px] border border-[#2a2a2a] w-40 sm:w-60 transition-all cursor-pointer text-left"
+                    >
+                        <Search className="h-3.5 w-3.5 text-[#5c5c5c] shrink-0" />
+                        <span className="truncate flex-1 text-[#6c6c6c]">search documentation...</span>
+                        <kbd className="hidden sm:inline text-[10px] text-[#5c5c5c] bg-[#141414] px-1.5 py-0.5 rounded border border-[#2a2a2a]">
+                            ⌘K
+                        </kbd>
+                    </button>
+
                     <a
                         href="https://github.com/phasehumans/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="hover:text-white transition-colors"
+                        className="link flex items-center gap-1.5"
                     >
-                        GitHub
+                        <span>github</span>
+                        <ExternalLink className="h-3.5 w-3.5" />
                     </a>
-                </nav>
+                    <a
+                        href="https://npmjs.com/package/@trydecember/tui"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link accent-link hidden sm:inline"
+                    >
+                        @trydecember/tui
+                    </a>
+                </div>
             </header>
 
-            {/* Hero Section */}
-            <section className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-24">
-                <div className="lg:col-span-6 flex flex-col gap-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs font-mono w-fit">
-                        <Sparkles className="h-3.5 w-3.5" />
-                        <span>The shadcn/ui for Terminal Agents</span>
+            {/* Main Area: Borderless layout with independent scrolling */}
+            <div className="flex-1 min-h-0 flex overflow-hidden w-full max-w-[1300px] mx-auto px-4 sm:px-6 pb-6">
+                {/* Left Sidebar — content shifted slightly right with pl-4 lg:pl-3 */}
+                <aside
+                    className={`
+                        fixed inset-y-16 left-0 z-20 w-52 bg-[#141414] py-2 pr-4 pl-4 lg:pl-3 overflow-y-auto flex flex-col gap-6 transition-transform duration-150
+                        lg:static lg:h-full lg:translate-x-0 shrink-0
+                        ${mobileSidebarOpen ? 'translate-x-0 shadow-2xl bg-[#141414]' : '-translate-x-full lg:translate-x-0'}
+                    `}
+                >
+                    {/* Getting Started */}
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[12px] font-semibold text-[#5c5c5c] uppercase tracking-wider px-2">
+                            getting started
+                        </span>
+                        <div className="flex flex-col gap-0.5">
+                            {gettingStartedItems.map((item) => {
+                                const isActive = item.id === activeItem.id
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => selectDocItem(item.id)}
+                                        className={`
+                                            flex items-center justify-between px-2.5 py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors
+                                            ${isActive ? 'bg-white/[0.06] text-white font-semibold' : 'text-[#8c8c8c] hover:text-white hover:bg-white/[0.02]'}
+                                        `}
+                                    >
+                                        <span>{item.navLabel}</span>
+                                    </button>
+                                )
+                            })}
+                            {gettingStartedItems.length === 0 && (
+                                <span className="text-xs text-[#5c5c5c] px-2 py-1">no matches</span>
+                            )}
+                        </div>
                     </div>
 
-                    <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                        A UI library for <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
-                            terminal coding agents.
+                    {/* Components */}
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[12px] font-semibold text-[#5c5c5c] uppercase tracking-wider px-2">
+                            components ({DOC_ITEMS.filter((i) => i.category === 'components').length})
                         </span>
-                    </h1>
+                        <div className="flex flex-col gap-0.5">
+                            {componentItems.map((item) => {
+                                const isActive = item.id === activeItem.id
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => selectDocItem(item.id)}
+                                        className={`
+                                            flex items-center justify-between px-2.5 py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors
+                                            ${isActive ? 'bg-white/[0.06] text-white font-semibold' : 'text-[#8c8c8c] hover:text-white hover:bg-white/[0.02]'}
+                                        `}
+                                    >
+                                        <span>{item.navLabel}</span>
+                                    </button>
+                                )
+                            })}
+                            {componentItems.length === 0 && (
+                                <span className="text-xs text-[#5c5c5c] px-2 py-1">no matches</span>
+                            )}
+                        </div>
+                    </div>
 
-                    <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-xl">
-                        An unbundled, copy-paste component library for React and Ink. Stop wrestling
-                        with ANSI cursor codes, line wrapping, and terminal diffs. Own the code and
-                        build modern agent experiences.
-                    </p>
-
-                    {/* Quickstart Command */}
-                    <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                        <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-lg border border-zinc-800 bg-zinc-950 font-mono text-xs sm:text-sm text-zinc-200">
-                            <span className="text-zinc-500">$</span>
-                            <span>npx @trydecember/tui add diff-viewer</span>
-                            <button
-                                aria-label="Copy command"
-                                className="text-zinc-500 hover:text-white transition-colors"
-                            >
-                                <Copy className="h-4 w-4" />
+                    {/* Sidebar quick init */}
+                    <div className="mt-auto pt-4 flex flex-col gap-1.5">
+                        <div
+                            onClick={() => handleCopy(formatInstallCmd('npx @trydecember/tui init', pm), 'sb-init')}
+                            className="cmd-box text-[0.84rem] py-1.5 px-2.5"
+                            title="copy init command"
+                        >
+                            <div className="cmd-code text-[0.84rem] gap-1.5">
+                                <span className="tok-pfx">$</span>
+                                <span>{formatInstallCmd('npx @trydecember/tui init', pm)}</span>
+                            </div>
+                            <button aria-label="copy init command" className="text-[#5c5c5c] hover:text-white">
+                                {copiedKey === 'sb-init' ? (
+                                    <Check className="h-3.5 w-3.5 text-[#fb923c]" />
+                                ) : (
+                                    <Copy className="h-3.5 w-3.5" />
+                                )}
                             </button>
                         </div>
                     </div>
-                </div>
+                </aside>
 
-                {/* Virtual xterm.js Canvas */}
-                <div className="lg:col-span-6">
-                    <TerminalPreview />
-                </div>
-            </section>
+                {/* Mobile Backdrop */}
+                {mobileSidebarOpen && (
+                    <div
+                        onClick={() => setMobileSidebarOpen(false)}
+                        className="fixed inset-0 z-10 bg-black/60 backdrop-blur-xs lg:hidden"
+                    />
+                )}
 
-            {/* Core Differentiators */}
-            <section id="features" className="w-full py-16 border-t border-zinc-800/60 mb-20">
-                <div className="text-center max-w-2xl mx-auto mb-12">
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-3">
-                        Designed for the Agent Era
-                    </h2>
-                    <p className="text-zinc-400 text-sm sm:text-base">
-                        Generic CLI libraries provide basic inputs and prompts. We provide
-                        primitives built explicitly for LLM agent loops.
-                    </p>
-                </div>
+                {/* Middle Content Pane */}
+                <main
+                    ref={mainRef}
+                    onScroll={handleMainScroll}
+                    className="flex-1 h-full min-h-0 overflow-y-auto py-2 pl-4 sm:pl-8 pr-4 sm:pr-8 flex flex-col gap-8"
+                >
+                    {/* Overview Header */}
+                    <section id="overview" className="flex flex-col gap-2">
+                        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-[-0.01em]">
+                            {activeItem.title}
+                        </h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 flex flex-col gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-                            <Terminal className="h-5 w-5" />
+                        <p className="text-[0.88rem] text-[#8c8c8c] leading-[1.6] max-w-2xl">
+                            {activeItem.description}
+                        </p>
+                    </section>
+
+                    {/* Installation Block: CLI vs Manual + Package Manager Switcher */}
+                    {activeItem.installCmd && (
+                        <div id="install-cmd" className="max-w-2xl flex flex-col gap-2">
+                            <div className="flex items-center justify-between text-xs text-[#8c8c8c] pb-1">
+                                <div className="flex items-center gap-1 bg-[#181818] p-0.5 rounded-[4px]">
+                                    <button
+                                        onClick={() => setInstallMode('cli')}
+                                        className={`px-2.5 py-1 rounded-[3px] transition-colors flex items-center gap-1.5 ${
+                                            installMode === 'cli'
+                                                ? 'bg-[#242424] text-white font-medium'
+                                                : 'hover:text-white'
+                                        }`}
+                                    >
+                                        <Terminal className="h-3 w-3" />
+                                        <span>cli</span>
+                                    </button>
+                                    <button
+                                        onClick={() => setInstallMode('manual')}
+                                        className={`px-2.5 py-1 rounded-[3px] transition-colors flex items-center gap-1.5 ${
+                                            installMode === 'manual'
+                                                ? 'bg-[#242424] text-white font-medium'
+                                                : 'hover:text-white'
+                                        }`}
+                                    >
+                                        <FileCode className="h-3 w-3" />
+                                        <span>manual</span>
+                                    </button>
+                                </div>
+
+                                {installMode === 'cli' && (
+                                    <div className="flex items-center gap-1 bg-[#181818] p-0.5 rounded-[4px]">
+                                        {(['bun', 'pnpm', 'npm'] as PackageManager[]).map((mgr) => (
+                                            <button
+                                                key={mgr}
+                                                onClick={() => handleSelectPm(mgr)}
+                                                className={`px-2 py-0.5 rounded-[3px] transition-colors ${
+                                                    pm === mgr
+                                                        ? 'bg-[#282828] text-[#fb923c] font-semibold'
+                                                        : 'hover:text-white'
+                                                }`}
+                                            >
+                                                {mgr}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {installMode === 'cli' ? (
+                                <div
+                                    onClick={() => handleCopy(formatInstallCmd(activeItem.installCmd!, pm), 'install-top')}
+                                    className="cmd-box"
+                                    title="click to copy command"
+                                >
+                                    <div className="cmd-code">
+                                        <span className="tok-pfx">$</span>
+                                        <span>{formatInstallCmd(activeItem.installCmd!, pm)}</span>
+                                    </div>
+                                    <button aria-label="copy command" className="text-[#5c5c5c] hover:text-white p-0.5">
+                                        {copiedKey === 'install-top' ? (
+                                            <Check className="h-3.5 w-3.5 text-[#fb923c]" />
+                                        ) : (
+                                            <Copy className="h-3.5 w-3.5" />
+                                        )}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="rounded-[4px] bg-[#181818] p-4 flex flex-col gap-3 text-[0.84rem]">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-[#fb923c] font-bold">1.</span>
+                                        <div className="flex-1 flex flex-col gap-1">
+                                            <span className="text-white">install peer dependencies:</span>
+                                            <div
+                                                onClick={() => handleCopy(formatPeerDepsCmd(pm), 'manual-peer')}
+                                                className="cmd-box text-xs py-1"
+                                            >
+                                                <div className="cmd-code">
+                                                    <span className="tok-pfx">$</span>
+                                                    <span>{formatPeerDepsCmd(pm)}</span>
+                                                </div>
+                                                <Copy className="h-3 w-3 text-[#5c5c5c]" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-[#fb923c] font-bold">2.</span>
+                                        <div className="flex-1 flex flex-col gap-1">
+                                            <span className="text-white">
+                                                copy the component into <code className="text-[#fb923c]">components/ui/{activeItem.id}.tsx</code>
+                                            </span>
+                                            <span className="text-[#8c8c8c] text-xs">
+                                                see the full source code in the usage section below or grab from GitHub.
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                        <h3 className="font-semibold text-white">Agent-First Primitives</h3>
-                        <p className="text-sm text-zinc-400 leading-relaxed">
-                            Out-of-the-box components for streaming markdown tokens, folding
-                            chain-of-thought blocks, and live tool cards.
-                        </p>
-                    </div>
+                    )}
 
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 flex flex-col gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                            <Code2 className="h-5 w-5" />
-                        </div>
-                        <h3 className="font-semibold text-white">Zero Lock-In (Copy-Paste)</h3>
-                        <p className="text-sm text-zinc-400 leading-relaxed">
-                            No rigid, black-box npm packages. Run the CLI, drop raw React/Ink source
-                            code into your project, and tweak it as you wish.
-                        </p>
-                    </div>
+                    {/* Terminal Preview (Always shown first) */}
+                    {activeItem.terminalMode && (
+                        <section id="preview" className="flex flex-col gap-2.5">
+                            <div className="flex items-center justify-between pb-1">
+                                <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">preview</span>
 
-                    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 flex flex-col gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                            <Box className="h-5 w-5" />
-                        </div>
-                        <h3 className="font-semibold text-white">Controlled View Invariants</h3>
-                        <p className="text-sm text-zinc-400 leading-relaxed">
-                            Pure, stateless components. Prevent rogue keyboard hooks from clashing
-                            over stdin—your agent state machine stays in control.
-                        </p>
-                    </div>
-                </div>
-            </section>
+                                <button
+                                    onClick={() => setReplayKey((k) => k + 1)}
+                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1 px-2 py-0.5 rounded hover:bg-[#202020] transition-colors"
+                                    title="replay terminal animation"
+                                >
+                                    <RotateCcw className="h-3 w-3 text-[#8c8c8c]" />
+                                    <span>replay</span>
+                                </button>
+                            </div>
 
-            {/* Component Catalog */}
-            <section id="components" className="w-full py-16 border-t border-zinc-800/60 mb-20">
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
-                    <div>
-                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
-                            Flagship Components
-                        </h2>
-                        <p className="text-zinc-400 text-sm">
-                            Run the add command to copy any of these primitives directly into your
-                            repository.
-                        </p>
-                    </div>
-                </div>
+                            <div className="rounded-[4px] bg-[#141414] overflow-hidden">
+                                <div className="flex items-center justify-between px-3 py-1.5 bg-[#181818] text-[0.8rem] text-[#8c8c8c]">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[#fb923c]">✱</span>
+                                        <span>tui · xterm.js 80x24</span>
+                                    </div>
+                                    <div className="text-[#5c5c5c]">mode: {activeItem.terminalMode}</div>
+                                </div>
+                                <div className="p-3 bg-[#111111]">
+                                    <TerminalPreview
+                                        mode={activeItem.terminalMode}
+                                        replayKey={replayKey}
+                                    />
+                                </div>
+                            </div>
+                        </section>
+                    )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[
-                        {
-                            name: 'diff-viewer',
-                            title: '<DiffViewer />',
-                            desc: 'Red/green split or unified chunk diffing with file headers and branch glyphs.',
-                            cmd: 'npx @trydecember/tui add diff-viewer',
-                        },
-                        {
-                            name: 'streaming-text',
-                            title: '<StreamingText />',
-                            desc: 'Smooth text and progressive markdown stream renderer with terminal cursor indicator.',
-                            cmd: 'npx @trydecember/tui add streaming-text',
-                        },
-                        {
-                            name: 'collapsible-reasoning',
-                            title: '<CollapsibleReasoning />',
-                            desc: 'Foldable chain-of-thought scratchpad block with duration and token count badges.',
-                            cmd: 'npx @trydecember/tui add collapsible-reasoning',
-                        },
-                        {
-                            name: 'tool-call-card',
-                            title: '<ToolCallCard />',
-                            desc: 'Execution status card with live spinner, duration indicator, and expandable stdout.',
-                            cmd: 'npx @trydecember/tui add tool-call-card',
-                        },
-                        {
-                            name: 'token-gauge',
-                            title: '<TokenGauge />',
-                            desc: 'Visual terminal meter for context window capacity and token usage monitoring.',
-                            cmd: 'npx @trydecember/tui add token-gauge',
-                        },
-                        {
-                            name: 'theme',
-                            title: 'theme.ts',
-                            desc: 'Central typed design token contract for unified colors, borders, and glyphs.',
-                            cmd: 'npx @trydecember/tui init',
-                        },
-                    ].map((comp) => (
-                        <div
-                            key={comp.name}
-                            className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-5 flex flex-col justify-between hover:border-zinc-700 transition-colors"
+                    {/* Usage Code Block (Directly below Terminal Preview) */}
+                    {activeItem.codeSnippet && (
+                        <section id="usage" className="flex flex-col gap-2.5">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">usage</span>
+                                <button
+                                    onClick={() => handleCopy(activeItem.codeSnippet!, 'usage-btn')}
+                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1"
+                                >
+                                    {copiedKey === 'usage-btn' ? (
+                                        <>
+                                            <Check className="h-3 w-3 text-[#fb923c]" />
+                                            <span className="text-[#fb923c]">copied</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Copy className="h-3 w-3" />
+                                            <span>copy code</span>
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            <div className="rounded-[4px] bg-[#181818] p-4 text-[0.84rem] overflow-x-auto">
+                                <CodeBlock code={activeItem.codeSnippet} language="tsx" />
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Overview Points (Numbered steps) */}
+                    {activeItem.points && (
+                        <section id="points" className="flex flex-col gap-2.5">
+                            <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">principles</span>
+                            <div className="flex flex-col gap-2">
+                                {activeItem.points.map((pt, idx) => (
+                                    <div key={idx} className="flex items-start gap-2.5 text-[0.85rem] text-[#8c8c8c]">
+                                        <span className="text-[#fb923c] font-bold min-w-[20px]">0{idx + 1}</span>
+                                        <span className="leading-[1.55]">{pt}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Props Reference Table */}
+                    {activeItem.props && activeItem.props.length > 0 && (
+                        <section id="props" className="flex flex-col gap-2.5">
+                            <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">api reference</span>
+                            <div className="w-full overflow-x-auto">
+                                <table className="w-full text-left text-[0.84rem]">
+                                    <thead>
+                                        <tr className="bg-[#181818]/60 text-[#5c5c5c] text-[0.78rem]">
+                                            <th className="py-2.5 px-3 font-semibold">prop</th>
+                                            <th className="py-2.5 px-3 font-semibold">type</th>
+                                            <th className="py-2.5 px-3 font-semibold">default</th>
+                                            <th className="py-2.5 px-3 font-semibold">description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {activeItem.props.map((p, idx) => (
+                                            <tr
+                                                key={idx}
+                                                className="hover:bg-white/[0.025] transition-colors"
+                                            >
+                                                <td className="py-2 px-3 text-white font-medium whitespace-nowrap">
+                                                    {p.prop}
+                                                </td>
+                                                <td className="py-2 px-3 text-[#8c8c8c] whitespace-nowrap font-mono text-[0.8rem]">
+                                                    {p.type}
+                                                </td>
+                                                <td className="py-2 px-3 text-[#5c5c5c] whitespace-nowrap">
+                                                    {p.default || '—'}
+                                                </td>
+                                                <td className="py-2 px-3 text-[#e2e2e2]">
+                                                    {p.desc}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Edit on GitHub Link */}
+                    <div className="pt-4 flex items-center justify-between text-xs text-[#8c8c8c]">
+                        <a
+                            href={
+                                activeItem.category === 'components'
+                                    ? `https://github.com/phasehumans/tui/blob/main/packages/registry/src/components/${activeItem.id}.tsx`
+                                    : 'https://github.com/phasehumans/tui/blob/main/packages/registry/src/registry.ts'
+                            }
+                            target="_blank"
+                            rel="noreferrer"
+                            className="link flex items-center gap-1.5"
                         >
-                            <div>
-                                <h3 className="font-mono font-bold text-cyan-400 text-base mb-2">
-                                    {comp.title}
-                                </h3>
-                                <p className="text-xs text-zinc-400 leading-relaxed mb-4">
-                                    {comp.desc}
-                                </p>
-                            </div>
-                            <div className="pt-3 border-t border-zinc-800/50 flex items-center justify-between text-[11px] font-mono text-zinc-500">
-                                <span className="truncate mr-2">{comp.cmd}</span>
-                                <Copy className="h-3.5 w-3.5 shrink-0 hover:text-white cursor-pointer" />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
+                            <span>edit this page on github</span>
+                            <ExternalLink className="h-3 w-3" />
+                        </a>
+                        <span className="text-[#5c5c5c]">@trydecember/tui</span>
+                    </div>
 
-            {/* Footer */}
-            <footer className="w-full py-8 border-t border-zinc-800/60 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 font-mono">
-                <div>© 2026 Phase Humans Inc. · Built for AI coding agents.</div>
-                <div className="mt-4 sm:mt-0 flex gap-6">
-                    <a href="https://trydecember.com" className="hover:text-zinc-300">
-                        trydecember.com
-                    </a>
-                    <a href="https://github.com/phasehumans/tui" className="hover:text-zinc-300">
-                        GitHub
-                    </a>
+                    {/* Pagination (Prev / Next) */}
+                    <div className="pt-4 pb-12 flex items-center justify-between text-[0.85rem]">
+                        {prevItem ? (
+                            <button
+                                onClick={() => selectDocItem(prevItem.id)}
+                                className="flex flex-col items-start gap-0.5 p-1 rounded hover:text-white transition-colors"
+                            >
+                                <span className="text-[#5c5c5c] text-[0.75rem]">← previous</span>
+                                <span className="text-[#8c8c8c] hover:text-white">{prevItem.navLabel}</span>
+                            </button>
+                        ) : (
+                            <div />
+                        )}
+
+                        {nextItem && (
+                            <button
+                                onClick={() => selectDocItem(nextItem.id)}
+                                className="flex flex-col items-end gap-0.5 p-1 rounded hover:text-white transition-colors"
+                            >
+                                <span className="text-[#5c5c5c] text-[0.75rem]">next →</span>
+                                <span className="text-[#8c8c8c] hover:text-white">{nextItem.navLabel}</span>
+                            </button>
+                        )}
+                    </div>
+                </main>
+
+                {/* Right Table of Contents: "On This Page" — moved slightly left with -ml-1 pl-0 pr-4 */}
+                <aside className="hidden xl:block w-44 shrink-0 h-full overflow-y-auto -ml-1 pl-0 pr-4 py-2">
+                    <div className="flex flex-col gap-3">
+                        <span className="text-[0.92rem] font-semibold text-white tracking-tight">
+                            on this page
+                        </span>
+                        <div className="flex flex-col gap-1">
+                            {activeItem.toc.map((item) => {
+                                const isActive = activeTocId === item.id
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => scrollToSection(item.id)}
+                                        className={`
+                                            text-left text-[0.88rem] transition-colors py-1
+                                            ${isActive ? 'text-white font-medium' : 'text-[#8c8c8c] hover:text-white'}
+                                        `}
+                                    >
+                                        <span>{item.label}</span>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            {/* ⌘K Command Palette Modal */}
+            {paletteOpen && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-start justify-center pt-24 px-4"
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) setPaletteOpen(false)
+                    }}
+                >
+                    <div className="w-full max-w-lg bg-[#181818] border border-[#2a2a2a] rounded-[6px] shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100">
+                        {/* Search Input Bar */}
+                        <div className="flex items-center gap-3 px-3.5 py-3 border-b border-[#242424]">
+                            <Search className="h-4 w-4 text-[#fb923c] shrink-0" />
+                            <input
+                                ref={paletteInputRef}
+                                type="text"
+                                value={paletteQuery}
+                                onChange={(e) => {
+                                    setPaletteQuery(e.target.value)
+                                    setPaletteSelectedIndex(0)
+                                }}
+                                onKeyDown={handlePaletteKeyDown}
+                                placeholder="search components, guides, tokens..."
+                                className="w-full bg-transparent text-sm text-[#e2e2e2] placeholder:text-[#5c5c5c] focus:outline-hidden"
+                            />
+                            <kbd
+                                onClick={() => setPaletteOpen(false)}
+                                className="text-[10px] text-[#8c8c8c] bg-[#222222] px-1.5 py-0.5 rounded border border-[#333] cursor-pointer hover:text-white"
+                            >
+                                ESC
+                            </kbd>
+                        </div>
+
+                        {/* Search Results */}
+                        <div className="max-h-80 overflow-y-auto py-2 px-1 flex flex-col gap-0.5">
+                            {paletteResults.length === 0 ? (
+                                <div className="py-8 text-center text-xs text-[#5c5c5c]">
+                                    no matching components or guides found
+                                </div>
+                            ) : (
+                                paletteResults.map((item, idx) => {
+                                    const isSelected = idx === paletteSelectedIndex
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => selectDocItem(item.id)}
+                                            onMouseEnter={() => setPaletteSelectedIndex(idx)}
+                                            className={`
+                                                flex items-center justify-between px-3 py-2 rounded-[4px] text-left transition-colors
+                                                ${isSelected ? 'bg-[#242424] text-white' : 'text-[#8c8c8c] hover:bg-white/[0.03]'}
+                                            `}
+                                        >
+                                            <div className="flex flex-col gap-0.5 truncate">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={isSelected ? 'text-[#fb923c]' : 'text-[#5c5c5c]'}>
+                                                        {item.category === 'components' ? '◆' : '◇'}
+                                                    </span>
+                                                    <span className="text-sm font-medium text-white">{item.title}</span>
+                                                    <span className="text-[11px] text-[#5c5c5c] uppercase tracking-wide">
+                                                        {item.category}
+                                                    </span>
+                                                </div>
+                                                <span className="text-xs text-[#8c8c8c] truncate pl-4">
+                                                    {item.description}
+                                                </span>
+                                            </div>
+                                            {isSelected && (
+                                                <CornerDownLeft className="h-3.5 w-3.5 text-[#fb923c] shrink-0 ml-2" />
+                                            )}
+                                        </button>
+                                    )
+                                })
+                            )}
+                        </div>
+
+                        {/* Footer Tips */}
+                        <div className="px-3.5 py-2 bg-[#141414] border-t border-[#242424] flex items-center justify-between text-[11px] text-[#5c5c5c]">
+                            <span>navigate with ↑ ↓ · select with ↵</span>
+                            <span>{paletteResults.length} items</span>
+                        </div>
+                    </div>
                 </div>
-            </footer>
-        </main>
+            )}
+        </div>
     )
 }

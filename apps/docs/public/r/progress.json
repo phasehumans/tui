@@ -1,0 +1,21 @@
+{
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "progress",
+  "type": "ui",
+  "title": "Progress",
+  "description": "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "progress.tsx",
+      "path": "components/progress.tsx",
+      "target": "progress.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface ProgressProps {\n    value: number\n    max?: number\n    width?: number\n    label?: string\n    showPercentage?: boolean\n    fillChar?: string\n    emptyChar?: string\n    color?: string\n}\n\nexport function Progress({\n    value,\n    max = 100,\n    width = 24,\n    label,\n    showPercentage = true,\n    fillChar = '█',\n    emptyChar = '░',\n    color,\n}: ProgressProps) {\n    const clamped = Math.max(0, Math.min(value, max))\n    const ratio = max > 0 ? clamped / max : 0\n    const percent = Math.round(ratio * 100)\n    const filledCount = Math.round(ratio * width)\n    const emptyCount = Math.max(0, width - filledCount)\n\n    const barColor =\n        color ??\n        (percent >= 90\n            ? THEME.colors.error\n            : percent >= 75\n              ? THEME.colors.warning\n              : THEME.colors.brand)\n\n    const filledBar = fillChar.repeat(filledCount)\n    const emptyBar = emptyChar.repeat(emptyCount)\n\n    return (\n        <Box flexDirection=\"row\" alignItems=\"center\" gap={1}>\n            {label && (\n                <Box marginRight={1}>\n                    <Text color={THEME.colors.muted}>{label}</Text>\n                </Box>\n            )}\n            <Text color={barColor}>{filledBar}</Text>\n            <Text color={THEME.colors.dim}>{emptyBar}</Text>\n            {showPercentage && (\n                <Box marginLeft={1}>\n                    <Text bold color={barColor}>\n                        {percent}%\n                    </Text>\n                </Box>\n            )}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ export interface CliArgs {
     isVersion: boolean
     yes: boolean
     overwrite: boolean
+    all: boolean
     cwd: string
 }
 
@@ -15,6 +16,7 @@ export function parseCliArgs(args: string[]): CliArgs {
     let isVersion = false
     let yes = false
     let overwrite = false
+    let all = false
     let cwd = process.cwd()
 
     for (let i = 0; i < args.length; i++) {
@@ -29,6 +31,8 @@ export function parseCliArgs(args: string[]): CliArgs {
             yes = true
         } else if (arg === '--overwrite') {
             overwrite = true
+        } else if (arg === '--all' || arg === '-a') {
+            all = true
         } else if (arg === '--cwd' && i + 1 < args.length) {
             cwd = args[++i]!
         } else if (!arg.startsWith('-')) {
@@ -47,6 +51,7 @@ export function parseCliArgs(args: string[]): CliArgs {
         isVersion,
         yes,
         overwrite,
+        all,
         cwd,
     }
 }
@@ -62,9 +67,11 @@ USAGE:
 COMMANDS:
   init                  Initialize tui.json and set up theme tokens
   add [components...]   Add components to your project
+  diff [components...]  Check for differences against the component registry
 
 OPTIONS:
   -y, --yes             Skip confirmation prompts and accept defaults
+  -a, --all             Add all components from registry (with add)
   --overwrite           Overwrite existing component files
   --cwd <path>          The working directory (default: current directory)
   -h, --help            Show this help message
@@ -73,6 +80,8 @@ OPTIONS:
 EXAMPLES:
   $ tui init
   $ tui add diff-viewer
-  $ tui add streaming-text collapsible-reasoning
+  $ tui add --all
+  $ tui diff button
+  $ tui diff
 `
 }

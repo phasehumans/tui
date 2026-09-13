@@ -1,0 +1,168 @@
+import { Box, Text } from 'ink'
+import React from 'react'
+
+import { THEME } from '../theme'
+
+export type FormattedTuiError = {
+    message: string
+    cause?: string
+    hint?: string
+}
+
+export function parseTuiError(message: string, cause?: string, hint?: string): FormattedTuiError {
+    const cleanCause = (c?: string) => c?.replace(/^Cause:\s*/i, '').trim()
+    const cleanMessage = (m: string) => m.replace(/^Error:\s*/i, '').trim()
+    const cleanHint = (h?: string) => h?.replace(/^Hint:\s*/i, '').trim()
+
+    if (cause || hint) {
+        return {
+            message: cleanMessage(message),
+            cause: cleanCause(cause),
+            hint: cleanHint(hint),
+        }
+    }
+
+    const clean = cleanMessage(message)
+
+    if (clean.includes('\n')) {
+        const lines = clean
+            .split('\n')
+            .map((l) => l.trim())
+            .filter(Boolean)
+        const firstLine = lines[0] || ''
+        const rest = cleanCause(lines.slice(1).join('\n'))
+
+        if (firstLine.includes('Rate limit or quota exhausted')) {
+            const hintMatch = firstLine.match(/Please upgrade.*$/i)
+            const summary = firstLine.replace(/Please upgrade.*$/i, '').trim()
+            return {
+                message: summary || 'Rate limit or quota exhausted from LLM provider.',
+                cause: rest,
+                hint: hintMatch
+                    ? hintMatch[0]
+                    : 'Please upgrade your API key tier or check your provider quota.',
+            }
+        }
+        if (firstLine.includes('credits exhausted') || firstLine.includes('Insufficient credits') || firstLine.includes('Insufficient balance')) {
+            const hintMatch = firstLine.match(/Please (?:add credits|top up|check|upgrade|switch).*$/i)
+            const summary = firstLine.replace(/Please (?:add credits|top up|check|upgrade|switch).*$/i, '').trim()
+            return {
+                message: summary || firstLine,
+                cause: rest,
+                hint: hintMatch ? hintMatch[0] : 'Please add credits or check your account balance.',
+            }
+        }
+        if (firstLine.includes('Authentication failed') || firstLine.includes('session expired')) {
+            const hintMatch = firstLine.match(/Please run.*$/i)
+            const summary = firstLine.replace(/Please run.*$/i, '').trim()
+            return {
+                message: summary || 'Authentication failed or session expired.',
+                cause: rest,
+                hint: hintMatch
+                    ? hintMatch[0]
+                    : 'Please re-authenticate or check your API key in environment variables.',
+            }
+        }
+
+        const genericHintMatch = firstLine.match(
+            /Please (?:add credits|top up|check|upgrade|run|switch).*$/i
+        )
+        if (genericHintMatch) {
+            const summary = firstLine
+                .replace(/Please (?:add credits|top up|check|upgrade|run|switch).*$/i, '')
+                .trim()
+            return {
+                message: summary || firstLine,
+                cause: rest,
+                hint: genericHintMatch[0],
+            }
+        }
+
+        return {
+            message: firstLine,
+            cause: rest,
+        }
+    }
+
+    return {
+        message: clean,
+    }
+}
+
+export type ErrorMessageProps = {
+    message: string
+    cause?: string
+    hint?: string
+    hasTopMargin?: boolean
+    paddingX?: number
+    paddingLeft?: number
+    paddingRight?: number
+}
+
+export function FormattedErrorText({
+    text,
+    defaultColor,
+    bold,
+}: {
+    text: string
+    defaultColor: string
+    bold?: boolean
+}) {
+    if (!text) return null
+    if (!text.includes('http://') && !text.includes('https://')) {
+        return (
+            <Text color={defaultColor} bold={bold}>
+                {text}
+            </Text>
+        )
+    }
+
+    const parts = text.split(/(https?:\/\/[^\s]+)/g)
+    return (
+        <Text color={defaultColor} bold={bold}>
+            {parts.map((part, idx) => {
+                if (/^https?:\/\//.test(part)) {
+                    const match = part.match(/^(.*?)([.,;!?)]*)$/)
+                    const url = match ? match[1] : part
+                    const trailing = match ? match[2] : ''
+                    return (
+                        <React.Fragment key={idx}>
+                            <Text color={THEME.colors.brand}>{url}</Text>
+                            {trailing}
+                        </React.Fragment>
+                    )
+                }
+                return part
+            })}
+        </Text>
+    )
+}
+
+export function ErrorMessage({
+    message,
+    cause,
+    hint,
+    hasTopMargin = false,
+    paddingX,
+    paddingLeft = THEME.padding.paddingLeft ?? THEME.padding.paddingX,
+    paddingRight = THEME.padding.paddingRight ?? 4,
+}: ErrorMessageProps) {
+    const parsed = parseTuiError(message, cause, hint)
+    const effectiveLeft = paddingX ?? paddingLeft
+    const effectiveRight = paddingX ?? paddingRight
+
+    return (
+        <Box
+            paddingLeft={effectiveLeft}
+            paddingRight={effectiveRight}
+            paddingY={0}
+            flexDirection="column"
+        >
+            {hasTopMargin && <Text> </Text>}
+            <FormattedErrorText text={parsed.message} defaultColor={THEME.colors.error} />
+            {parsed.hint && parsed.hint !== '' && (
+                <FormattedErrorText text={parsed.hint} defaultColor={THEME.colors.muted} />
+            )}
+        </Box>
+    )
+}
