@@ -4,3 +4,4 @@ out/
 .next/
 .turbo/
 bun.lock
+/docs/
