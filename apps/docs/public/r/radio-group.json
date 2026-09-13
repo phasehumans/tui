@@ -1,19 +1,21 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "radio-group",
-    "type": "ui",
-    "title": "Radio Group",
-    "description": "A set of checkable buttons—known as radio buttons—where no more than one can be checked at a time.",
-    "dependencies": [],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "radio-group.tsx",
-            "path": "components/radio-group.tsx",
-            "target": "radio-group.tsx",
-            "content": "import { Box, Text, useInput } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface RadioItem<T = string> {\n    label: string\n    value: T\n    hint?: string\n}\n\nexport interface RadioGroupProps<T = string> {\n    items: RadioItem<T>[]\n    value: T\n    onChange: (value: T) => void\n    isFocused?: boolean\n    orientation?: 'horizontal' | 'vertical'\n}\n\nexport function RadioGroup<T = string>({\n    items,\n    value,\n    onChange,\n    isFocused = false,\n    orientation = 'vertical',\n}: RadioGroupProps<T>) {\n    const currentIdx = items.findIndex((item) => item.value === value)\n\n    useInput((_input, key) => {\n        if (!isFocused) return\n\n        if (key.upArrow || (orientation === 'horizontal' && key.leftArrow)) {\n            const nextIdx = currentIdx > 0 ? currentIdx - 1 : items.length - 1\n            const next = items[nextIdx]\n            if (next) onChange(next.value)\n            return\n        }\n\n        if (key.downArrow || (orientation === 'horizontal' && key.rightArrow)) {\n            const nextIdx = currentIdx < items.length - 1 ? currentIdx + 1 : 0\n            const next = items[nextIdx]\n            if (next) onChange(next.value)\n            return\n        }\n    })\n\n    return (\n        <Box\n            flexDirection={orientation === 'horizontal' ? 'row' : 'column'}\n            gap={orientation === 'horizontal' ? 2 : 0}\n        >\n            {items.map((item) => {\n                const isSelected = item.value === value\n                const glyph = isSelected ? '(•)' : '( )'\n                const color = isSelected ? THEME.colors.brand : THEME.colors.muted\n\n                return (\n                    <Box key={String(item.value)} flexDirection=\"row\" gap={1}>\n                        <Text bold={isSelected} color={color}>\n                            {glyph}\n                        </Text>\n                        <Text color={isSelected ? THEME.colors.text : THEME.colors.muted}>\n                            {item.label}\n                        </Text>\n                        {item.hint && <Text color={THEME.colors.dim}>({item.hint})</Text>}\n                    </Box>\n                )\n            })}\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "radio-group",
+  "type": "ui",
+  "title": "Radio Group",
+  "description": "A set of checkable buttons (known as radio buttons) where no more than one can be checked at a time.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "radio-group.tsx",
+      "path": "components/radio-group.tsx",
+      "target": "radio-group.tsx",
+      "content": "import { Box, Text, useInput } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface RadioItem<T = string> {\n    label: string\n    value: T\n    hint?: string\n}\n\nexport interface RadioGroupProps<T = string> {\n    items: RadioItem<T>[]\n    value: T\n    onChange: (value: T) => void\n    isFocused?: boolean\n    orientation?: 'horizontal' | 'vertical'\n}\n\nexport function RadioGroup<T = string>({\n    items,\n    value,\n    onChange,\n    isFocused = false,\n    orientation = 'vertical',\n}: RadioGroupProps<T>) {\n    const currentIdx = items.findIndex((item) => item.value === value)\n\n    useInput((_input, key) => {\n        if (!isFocused) return\n\n        if (key.upArrow || (orientation === 'horizontal' && key.leftArrow)) {\n            const nextIdx = currentIdx > 0 ? currentIdx - 1 : items.length - 1\n            const next = items[nextIdx]\n            if (next) onChange(next.value)\n            return\n        }\n\n        if (key.downArrow || (orientation === 'horizontal' && key.rightArrow)) {\n            const nextIdx = currentIdx < items.length - 1 ? currentIdx + 1 : 0\n            const next = items[nextIdx]\n            if (next) onChange(next.value)\n            return\n        }\n    })\n\n    return (\n        <Box\n            flexDirection={orientation === 'horizontal' ? 'row' : 'column'}\n            gap={orientation === 'horizontal' ? 2 : 0}\n        >\n            {items.map((item) => {\n                const isSelected = item.value === value\n                const glyph = isSelected ? '(•)' : '( )'\n                const color = isSelected ? THEME.colors.brand : THEME.colors.muted\n\n                return (\n                    <Box key={String(item.value)} flexDirection=\"row\" gap={1}>\n                        <Text bold={isSelected} color={color}>\n                            {glyph}\n                        </Text>\n                        <Text color={isSelected ? THEME.colors.text : THEME.colors.muted}>\n                            {item.label}\n                        </Text>\n                        {item.hint && <Text color={THEME.colors.dim}>({item.hint})</Text>}\n                    </Box>\n                )\n            })}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

@@ -1,19 +1,21 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "diff-viewer",
-    "type": "ui",
-    "title": "Diff Viewer",
-    "description": "Red and green chunk diff renderer with line truncation and branch glyphs.",
-    "dependencies": [],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "diff-viewer.tsx",
-            "path": "components/diff-viewer.tsx",
-            "target": "diff-viewer.tsx",
-            "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface DiffViewerProps {\n    /** The raw unified diff string */\n    diff: string\n    /** Optional file path header */\n    filePath?: string\n    /** Maximum number of lines to display before truncating */\n    maxLines?: number\n    /** Whether the full diff is expanded if truncated */\n    isExpanded?: boolean\n}\n\nexport function DiffViewer({ diff, filePath, maxLines = 15, isExpanded = true }: DiffViewerProps) {\n    if (!diff) return null\n\n    const lines = diff.split(/\\r?\\n/)\n    const visibleLines = isExpanded ? lines : lines.slice(0, maxLines)\n    const isTruncated = !isExpanded && lines.length > maxLines\n\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            {filePath && (\n                <Box gap={1} alignItems=\"center\">\n                    <Text color={THEME.colors.brand} bold>\n                        {THEME.glyphs.branch} {filePath}\n                    </Text>\n                </Box>\n            )}\n\n            <Box\n                flexDirection=\"column\"\n                borderStyle=\"round\"\n                borderColor={THEME.colors.border}\n                paddingX={1}\n            >\n                {visibleLines.map((line, idx) => {\n                    let color: string = THEME.colors.text\n                    let bgColor: string | undefined = undefined\n\n                    if (line.startsWith('+') && !line.startsWith('+++')) {\n                        color = THEME.colors.success\n                        bgColor = THEME.colors.diffAddBg\n                    } else if (line.startsWith('-') && !line.startsWith('---')) {\n                        color = THEME.colors.error\n                        bgColor = THEME.colors.diffDeleteBg\n                    } else if (\n                        line.startsWith('@@') ||\n                        line.startsWith('diff --git') ||\n                        line.startsWith('---') ||\n                        line.startsWith('+++')\n                    ) {\n                        color = THEME.colors.muted\n                    }\n\n                    return (\n                        <Box key={idx} backgroundColor={bgColor} flexDirection=\"row\">\n                            <Text color={color} wrap=\"truncate-end\">\n                                {line}\n                            </Text>\n                        </Box>\n                    )\n                })}\n\n                {isTruncated && (\n                    <Box paddingTop={0}>\n                        <Text color={THEME.colors.muted}>\n                            ... ({lines.length - maxLines} more lines)\n                        </Text>\n                    </Box>\n                )}\n            </Box>\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "diff-viewer",
+  "type": "ui",
+  "title": "Diff Viewer",
+  "description": "Red and green chunk diff renderer with line truncation and branch glyphs.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "diff-viewer.tsx",
+      "path": "components/diff-viewer.tsx",
+      "target": "diff-viewer.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface DiffViewerProps {\n    /** The raw unified diff string */\n    diff: string\n    /** Optional file path header */\n    filePath?: string\n    /** Maximum number of lines to display before truncating */\n    maxLines?: number\n    /** Whether the full diff is expanded if truncated */\n    isExpanded?: boolean\n}\n\nexport function DiffViewer({ diff, filePath, maxLines = 15, isExpanded = true }: DiffViewerProps) {\n    if (!diff) return null\n\n    const lines = diff.split(/\\r?\\n/)\n    const visibleLines = isExpanded ? lines : lines.slice(0, maxLines)\n    const isTruncated = !isExpanded && lines.length > maxLines\n\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            {filePath && (\n                <Box gap={1} alignItems=\"center\">\n                    <Text color={THEME.colors.brand} bold>\n                        {THEME.glyphs.branch} {filePath}\n                    </Text>\n                </Box>\n            )}\n\n            <Box\n                flexDirection=\"column\"\n                borderStyle=\"round\"\n                borderColor={THEME.colors.border}\n                paddingX={1}\n            >\n                {visibleLines.map((line, idx) => {\n                    let color: string = THEME.colors.text\n                    let bgColor: string | undefined = undefined\n\n                    if (line.startsWith('+') && !line.startsWith('+++')) {\n                        color = THEME.colors.success\n                        bgColor = THEME.colors.diffAddBg\n                    } else if (line.startsWith('-') && !line.startsWith('---')) {\n                        color = THEME.colors.error\n                        bgColor = THEME.colors.diffDeleteBg\n                    } else if (\n                        line.startsWith('@@') ||\n                        line.startsWith('diff --git') ||\n                        line.startsWith('---') ||\n                        line.startsWith('+++')\n                    ) {\n                        color = THEME.colors.muted\n                    }\n\n                    return (\n                        <Box key={idx} backgroundColor={bgColor} flexDirection=\"row\">\n                            <Text color={color} wrap=\"truncate-end\">\n                                {line}\n                            </Text>\n                        </Box>\n                    )\n                })}\n\n                {isTruncated && (\n                    <Box paddingTop={0}>\n                        <Text color={THEME.colors.muted}>\n                            ... ({lines.length - maxLines} more lines)\n                        </Text>\n                    </Box>\n                )}\n            </Box>\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

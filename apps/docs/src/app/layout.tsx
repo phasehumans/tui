@@ -3,7 +3,7 @@ import './globals.css'
 import '@xterm/xterm/css/xterm.css'
 
 export const metadata: Metadata = {
-    title: 'tui — the shadcn/ui for terminal agents',
+    title: '@trydecember/tui',
     description:
         'an unbundled, copy-paste ui component library for terminal agents built with react & ink.',
     icons: {

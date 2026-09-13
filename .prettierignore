@@ -5,3 +5,4 @@ out/
 .turbo/
 bun.lock
 /docs/
+apps/docs/public/r/

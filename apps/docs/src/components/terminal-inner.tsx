@@ -111,11 +111,6 @@ export function TerminalInner({
             }
 
             if (mode === 'diff-viewer') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview diff-viewer\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '\x1b[38;2;251;146;60m⌥\x1b[0m \x1b[1;38;2;226;226;226mpackages/auth/src/jwt.ts\x1b[0m'
                 )
@@ -151,13 +146,6 @@ export function TerminalInner({
                 )
                 term.writeln('\x1b[38;2;92;92;92m  ... (12 more lines in diff chunk)\x1b[0m')
             } else if (mode === 'streaming-text') {
-                term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview streaming-text\x1b[0m'
-                )
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 const tokens = [
                     'The',
                     ' security',
@@ -198,13 +186,6 @@ export function TerminalInner({
                 term.write('\x1b[38;2;251;146;60m ▌\x1b[0m')
             } else if (mode === 'collapsible-reasoning') {
                 term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview collapsible-reasoning\x1b[0m'
-                )
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
-                term.writeln(
                     '\x1b[38;2;251;146;60m⠋\x1b[0m \x1b[1;38;2;140;140;140mThinking...\x1b[0m \x1b[38;2;92;92;92m(analyzing ast)\x1b[0m'
                 )
                 await sleep(600)
@@ -232,13 +213,6 @@ export function TerminalInner({
                 )
             } else if (mode === 'tool-call-card') {
                 term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview tool-call-card\x1b[0m'
-                )
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
-                term.writeln(
                     '\x1b[38;2;251;191;36m⠋\x1b[0m \x1b[1;38;2;251;146;60mbun test\x1b[0m \x1b[38;2;140;140;140mauth.test.ts\x1b[0m \x1b[38;2;92;92;92mrunning...\x1b[0m'
                 )
                 await sleep(700)
@@ -264,11 +238,6 @@ export function TerminalInner({
                     '\x1b[38;2;42;42;42m└────────────────────────────────────────────────────────┘\x1b[0m'
                 )
             } else if (mode === 'token-gauge') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview token-gauge\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln('\x1b[38;2;140;140;140mNominal context:\x1b[0m')
                 term.writeln(
                     '\x1b[38;2;140;140;140mContext:\x1b[0m \x1b[38;2;251;146;60m━━━━━━\x1b[0m\x1b[38;2;92;92;92m──────────────\x1b[0m \x1b[1;38;2;251;146;60m28%\x1b[0m \x1b[38;2;92;92;92m(36.4k / 128k)\x1b[0m'
@@ -290,11 +259,6 @@ export function TerminalInner({
                     '\x1b[38;2;248;113;113m━━━━━━━━━━━━━━━━━━━─\x1b[0m \x1b[1;38;2;248;113;113m96%\x1b[0m \x1b[38;2;92;92;92m(122.8k / 128k)\x1b[0m \x1b[48;2;63;19;22m\x1b[38;2;248;113;113m[flush needed]\x1b[0m'
                 )
             } else if (mode === 'pill') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview pill\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[48;2;42;42;42m\x1b[38;2;251;146;60m PR #42 \x1b[0m  \x1b[48;2;18;47;30m\x1b[38;2;74;222;128m approved \x1b[0m  \x1b[48;2;42;42;42m\x1b[38;2;140;140;140m typescript \x1b[0m'
                 )
@@ -306,10 +270,6 @@ export function TerminalInner({
                     '  \x1b[48;2;63;19;22m\x1b[38;2;248;113;113m blocked \x1b[0m  \x1b[48;2;42;42;42m\x1b[38;2;251;191;36m needs-review \x1b[0m  \x1b[48;2;42;42;42m\x1b[38;2;92;92;92m v0.3.0 \x1b[0m'
                 )
             } else if (mode === 'spinner') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview spinner\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
                 const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
                 term.writeln('')
                 for (let i = 0; i < 15; i++) {
@@ -325,11 +285,6 @@ export function TerminalInner({
                     '  \x1b[38;2;74;222;128m✔\x1b[0m \x1b[38;2;226;226;226mdependencies verified (0 vulnerabilities found)\x1b[0m'
                 )
             } else if (mode === 'text-area') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview text-area\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.write('  \x1b[38;2;251;146;60m❭\x1b[0m ')
                 const inputScript = [
                     '/model',
@@ -357,11 +312,6 @@ export function TerminalInner({
                     '\x1b[38;2;92;92;92m  [Enter] send   [Ctrl+K] clear   [@] mention file   [/] commands\x1b[0m'
                 )
             } else if (mode === 'header') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview header\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[1;38;2;251;146;60m✱\x1b[0m \x1b[1;38;2;226;226;226mAgent CLI 0.3.0\x1b[0m'
                 )
@@ -377,11 +327,6 @@ export function TerminalInner({
                     '  \x1b[38;2;140;140;140mType / to explore available commands and shortcuts\x1b[0m'
                 )
             } else if (mode === 'mermaid') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview mermaid\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;226;226;226m❖ Mermaid Diagram (flowchart)\x1b[0m \x1b[38;2;92;92;92m(ctrl+o for code)\x1b[0m'
                 )
@@ -406,11 +351,6 @@ export function TerminalInner({
                     '                          \x1b[38;2;42;42;42m└───────────────┘\x1b[0m'
                 )
             } else if (mode === 'markdown') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview markdown\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln('  \x1b[1;38;2;226;226;226m# API Specification\x1b[0m')
                 term.writeln(
                     '  The endpoint supports \x1b[48;2;42;42;42m\x1b[38;2;251;146;60m bearer \x1b[0m token authentication.'
@@ -435,11 +375,6 @@ export function TerminalInner({
                     '  \x1b[38;2;92;92;92m└───────────────┴────────┴─────────────────────────┘\x1b[0m'
                 )
             } else if (mode === 'user-message') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview user-message\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[38;2;251;146;60mcheck security and token expiration in auth.ts\x1b[0m'
                 )
@@ -452,41 +387,24 @@ export function TerminalInner({
                 )
             } else if (mode === 'error-message') {
                 term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview error-message\x1b[0m'
-                )
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
-                term.writeln(
                     '  \x1b[1;38;2;248;113;113mRate limit or quota exhausted from LLM provider.\x1b[0m'
                 )
                 term.writeln(
                     '  \x1b[38;2;140;140;140mPlease upgrade your API key tier at \x1b[38;2;251;146;60mhttps://platform.openai.com/limits\x1b[0m'
                 )
             } else if (mode === 'select-menu') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview select-menu\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln('  \x1b[1;38;2;226;226;226mSelect active model engine:\x1b[0m')
-                term.writeln('    \x1b[38;2;140;140;140mclaude-3-7-sonnet — Anthropic\x1b[0m')
+                term.writeln('    \x1b[38;2;140;140;140mclaude-3-7-sonnet - Anthropic\x1b[0m')
                 term.writeln(
-                    '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60mgpt-4o\x1b[0m \x1b[38;2;74;222;128m(Active)\x1b[0m \x1b[38;2;140;140;140m— OpenAI\x1b[0m'
+                    '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60mgpt-4o\x1b[0m \x1b[38;2;74;222;128m(Active)\x1b[0m \x1b[38;2;140;140;140m- OpenAI\x1b[0m'
                 )
-                term.writeln('    \x1b[38;2;140;140;140mdeepseek-r1 — DeepSeek\x1b[0m')
-                term.writeln('    \x1b[38;2;140;140;140mgemini-2.5-flash — Google\x1b[0m')
+                term.writeln('    \x1b[38;2;140;140;140mdeepseek-r1 - DeepSeek\x1b[0m')
+                term.writeln('    \x1b[38;2;140;140;140mgemini-2.5-flash - Google\x1b[0m')
                 term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m↑/↓\x1b[0m \x1b[38;2;140;140;140mNavigate\x1b[0m · \x1b[38;2;251;146;60menter\x1b[0m \x1b[38;2;140;140;140mSelect\x1b[0m · \x1b[38;2;251;146;60mesc\x1b[0m \x1b[38;2;140;140;140mCancel\x1b[0m'
                 )
             } else if (mode === 'command-menu') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview command-menu\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60m/model\x1b[0m               \x1b[38;2;140;140;140mSwitch active LLM model engine\x1b[0m'
                 )
@@ -505,13 +423,6 @@ export function TerminalInner({
                     '  \x1b[38;2;251;146;60m↑/↓\x1b[0m \x1b[38;2;140;140;140mNavigate\x1b[0m · \x1b[38;2;251;146;60menter\x1b[0m \x1b[38;2;140;140;140mSelect\x1b[0m · \x1b[38;2;251;146;60mtab\x1b[0m \x1b[38;2;140;140;140mComplete\x1b[0m · \x1b[38;2;251;146;60mesc\x1b[0m \x1b[38;2;140;140;140mCancel\x1b[0m'
                 )
             } else if (mode === 'shortcuts-menu') {
-                term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview shortcuts-menu\x1b[0m'
-                )
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60m/\x1b[0m                 \x1b[38;2;140;140;140mOpen slash commands palette\x1b[0m'
                 )
@@ -533,13 +444,6 @@ export function TerminalInner({
                     '  \x1b[38;2;251;146;60m↑/↓\x1b[0m \x1b[38;2;140;140;140mNavigate\x1b[0m · \x1b[38;2;251;146;60mesc\x1b[0m \x1b[38;2;140;140;140mClose\x1b[0m'
                 )
             } else if (mode === 'plan-approve-menu') {
-                term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview plan-approve-menu\x1b[0m'
-                )
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;42;42;42m┌────────────────────────────────────────────────────────┐\x1b[0m'
                 )
@@ -563,11 +467,6 @@ export function TerminalInner({
                     '  \x1b[38;2;251;146;60my\x1b[0m \x1b[38;2;140;140;140mApprove\x1b[0m · \x1b[38;2;251;146;60mr\x1b[0m \x1b[38;2;140;140;140mRefine\x1b[0m · \x1b[38;2;251;146;60mv\x1b[0m \x1b[38;2;140;140;140mView\x1b[0m · \x1b[38;2;251;146;60mn\x1b[0m \x1b[38;2;140;140;140mReject\x1b[0m'
                 )
             } else if (mode === 'input-bar') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview input-bar\x1b[0m')
-                await sleep(300)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;42;42;42m────────────────────────────────────────────────────────\x1b[0m'
                 )
@@ -600,11 +499,6 @@ export function TerminalInner({
                     '  \x1b[38;2;140;140;140mgpt-4o (OpenAI) · 28k tokens\x1b[0m          \x1b[38;2;92;92;92m? for shortcuts\x1b[0m'
                 )
             } else if (mode === 'card') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview card\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;42;42;42m╭──────────────────────────────────────────────────────╮\x1b[0m'
                 )
@@ -630,11 +524,6 @@ export function TerminalInner({
                     '  \x1b[38;2;42;42;42m╰──────────────────────────────────────────────────────╯\x1b[0m'
                 )
             } else if (mode === 'button') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview button\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[48;2;251;146;60m\x1b[1;38;2;20;20;20m Deploy \x1b[0m   \x1b[48;2;42;42;42m\x1b[38;2;226;226;226m Review \x1b[0m   \x1b[38;2;248;113;113m[ Rollback ]\x1b[0m   \x1b[38;2;92;92;92mCancel\x1b[0m'
                 )
@@ -643,11 +532,6 @@ export function TerminalInner({
                     '  \x1b[38;2;92;92;92m(Use tab to switch focus, return to select)\x1b[0m'
                 )
             } else if (mode === 'tabs') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview tabs\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[48;2;251;146;60m\x1b[1;38;2;20;20;20m Overview \x1b[0m \x1b[38;2;140;140;140m Commits \x1b[0m \x1b[38;2;140;140;140m CI Checks \x1b[0m'
                 )
@@ -662,11 +546,6 @@ export function TerminalInner({
                 term.writeln('  \x1b[38;2;140;140;140mRemote tracked: origin/main\x1b[0m')
                 term.writeln('  \x1b[38;2;74;222;128m✔ Working tree clean\x1b[0m')
             } else if (mode === 'dialog') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview dialog\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m┌────────────────────────────────────────────────────────┐\x1b[0m'
                 )
@@ -692,11 +571,6 @@ export function TerminalInner({
                     '  \x1b[38;2;251;146;60m└────────────────────────────────────────────────────────┘\x1b[0m'
                 )
             } else if (mode === 'progress') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview progress\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln('  \x1b[1;38;2;226;226;226mIndexing codebase symbols...\x1b[0m')
                 const steps = [15, 38, 68, 85, 100]
                 for (const pct of steps) {
@@ -716,11 +590,6 @@ export function TerminalInner({
                 term.writeln('')
                 term.writeln('  \x1b[38;2;74;222;128m✔ Indexed 1,428 symbols in 480ms\x1b[0m')
             } else if (mode === 'checkbox') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview checkbox\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m[\x1b[1;38;2;74;222;128m✔\x1b[0m\x1b[38;2;251;146;60m]\x1b[0m \x1b[1;38;2;226;226;226mRun database migrations before tests\x1b[0m \x1b[38;2;251;146;60m◂ focused\x1b[0m'
                 )
@@ -731,11 +600,6 @@ export function TerminalInner({
                 term.writeln('')
                 term.writeln('  \x1b[38;2;92;92;92m(Press space or enter to toggle)\x1b[0m')
             } else if (mode === 'radio-group') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview radio-group\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m(•)\x1b[0m \x1b[1;38;2;226;226;226mClaude 3.7 Sonnet\x1b[0m   \x1b[38;2;92;92;92mrecommended · hybrid reasoning\x1b[0m'
                 )
@@ -748,22 +612,12 @@ export function TerminalInner({
                 term.writeln('')
                 term.writeln('  \x1b[38;2;92;92;92m(Use ↑/↓ arrows to change selection)\x1b[0m')
             } else if (mode === 'skeleton') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview skeleton\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln('  \x1b[38;2;60;60;60m░░░░░░░░░░░░░░░░░░░░░░░░\x1b[0m')
                 term.writeln(
                     '  \x1b[38;2;60;60;60m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1b[0m'
                 )
                 term.writeln('  \x1b[38;2;60;60;60m░░░░░░░░░░░░░░░░\x1b[0m')
             } else if (mode === 'toast') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview toast\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;74;222;128m✔\x1b[0m  \x1b[1;38;2;74;222;128mSuccess:\x1b[0m \x1b[38;2;226;226;226mBranch merged successfully to origin/main\x1b[0m'
                 )
@@ -773,11 +627,6 @@ export function TerminalInner({
                     '  \x1b[38;2;248;113;113m✖\x1b[0m  \x1b[1;38;2;248;113;113mError:\x1b[0m   \x1b[38;2;226;226;226mFailed to authenticate with private registry\x1b[0m'
                 )
             } else if (mode === 'table') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview table\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;60;60;60m┌───────────────────┬──────────────┬──────────────┐\x1b[0m'
                 )
@@ -800,11 +649,6 @@ export function TerminalInner({
                     '  \x1b[38;2;60;60;60m└───────────────────┴──────────────┴──────────────┘\x1b[0m'
                 )
             } else if (mode === 'switch') {
-                term.writeln('\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mtui preview switch\x1b[0m')
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;110;231;183m\x1b[1m(─●)\x1b[0m \x1b[1mAuto-run tool calls\x1b[0m   \x1b[38;2;102;102;102m(immediate execution)\x1b[0m'
                 )
@@ -820,13 +664,6 @@ export function TerminalInner({
                 )
             } else {
                 // 'all' mode: Full agent session
-                term.writeln(
-                    '\x1b[38;2;251;146;60m❭\x1b[0m \x1b[1mdecember review packages/auth/src/jwt.ts\x1b[0m'
-                )
-                await sleep(350)
-                if (isCancelled) return
-
-                term.writeln('')
                 term.writeln(
                     '\x1b[38;2;251;146;60m●\x1b[0m \x1b[1;38;2;226;226;226mReasoning\x1b[0m \x1b[38;2;92;92;92m(1.2s) [142 tokens]\x1b[0m'
                 )

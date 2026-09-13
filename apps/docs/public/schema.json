@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://tui.trydecember.com/schema.json",
+    "title": "TuiConfig",
+    "description": "Configuration schema for @trydecember/tui projects (tui.json)",
+    "type": "object",
+    "properties": {
+        "$schema": {
+            "type": "string",
+            "description": "JSON schema reference URI"
+        },
+        "tsx": {
+            "type": "boolean",
+            "description": "Whether the project uses TypeScript / TSX",
+            "default": true
+        },
+        "framework": {
+            "type": "string",
+            "description": "Detected or configured project framework (e.g., next, vite, node)"
+        },
+        "packageManager": {
+            "type": "string",
+            "description": "Package manager used to install dependencies (bun, pnpm, npm, yarn)",
+            "enum": ["bun", "pnpm", "npm", "yarn"]
+        },
+        "theme": {
+            "type": "string",
+            "description": "Theme preset name",
+            "enum": ["default", "amber", "emerald", "cyan", "monochrome", "zinc", "slate"],
+            "default": "default"
+        },
+        "aliases": {
+            "type": "object",
+            "description": "Module path aliases for generated files",
+            "properties": {
+                "components": {
+                    "type": "string",
+                    "description": "Import alias or path for general components directory",
+                    "default": "@/components"
+                },
+                "ui": {
+                    "type": "string",
+                    "description": "Import alias or path for terminal UI primitives directory",
+                    "default": "@/components/ui"
+                },
+                "theme": {
+                    "type": "string",
+                    "description": "Import alias or path for local theme.ts",
+                    "default": "@/components/ui/theme"
+                }
+            },
+            "required": ["components", "ui", "theme"]
+        }
+    },
+    "required": ["tsx", "aliases"]
+}

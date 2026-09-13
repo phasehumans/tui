@@ -399,7 +399,7 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         type: 'ui',
         title: 'Tabs',
         description:
-            'A set of layered sections of content—known as tab panels—that are displayed one at a time via keyboard arrows.',
+            'A set of layered sections of content (known as tab panels) that are displayed one at a time via keyboard arrows.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
@@ -467,7 +467,7 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         type: 'ui',
         title: 'Radio Group',
         description:
-            'A set of checkable buttons—known as radio buttons—where no more than one can be checked at a time.',
+            'A set of checkable buttons (known as radio buttons) where no more than one can be checked at a time.',
         dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],

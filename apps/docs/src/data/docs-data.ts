@@ -16,6 +16,23 @@ export interface TocItem {
     label: string
 }
 
+export interface DocSectionItem {
+    title: string
+    description?: string
+    codeSnippet?: string
+    language?: 'tsx' | 'typescript' | 'bash' | 'diff' | 'json'
+}
+
+export interface DocSection {
+    id: string
+    title: string
+    description?: string
+    codeSnippet?: string
+    language?: 'tsx' | 'typescript' | 'bash' | 'diff' | 'json'
+    points?: string[]
+    items?: DocSectionItem[]
+}
+
 export interface DocItem {
     id: string
     category: DocCategory
@@ -59,6 +76,7 @@ export interface DocItem {
     variations?: ComponentVariation[]
     props?: PropItem[]
     points?: string[]
+    sections?: DocSection[]
     toc: TocItem[]
 }
 
@@ -69,19 +87,116 @@ const BASE_DOC_ITEMS: DocItem[] = [
         navLabel: 'introduction',
         title: 'introduction',
         badge: 'overview',
-        description: 'terminal ui primitives for react and ink. unbundled and copy-pasteable.',
+        description:
+            'An unbundled collection of copy-paste terminal UI primitives for AI coding agents built on React and Ink. Accessible, controlled, customizable, and open source.',
         terminalMode: 'all',
         installCmd: 'npx @trydecember/tui init',
-        points: [
-            'unbundled source code — you own the components in your repo.',
-            'stateless primitives — no background stdin hooks or hidden state.',
-            'central theme tokens contract for borders, glyphs, and colors.',
-        ],
         toc: [
             { id: 'overview', label: 'overview' },
             { id: 'install-cmd', label: 'quickstart' },
             { id: 'preview', label: 'terminal preview' },
-            { id: 'points', label: 'principles' },
+            { id: 'philosophy', label: 'philosophy' },
+            { id: 'turn-architecture', label: 'turn architecture' },
+        ],
+        sections: [
+            {
+                id: 'philosophy',
+                title: 'Philosophy & Design Invariants',
+                description:
+                    '@trydecember/tui is an unbundled collection of copy-paste terminal primitives. Instead of distributing a monolithic npm package, you copy typed, raw component primitives directly into your repository.',
+                points: [
+                    'Unbundled Source Code: You own the components. Modify styling, diff folding algorithms, border glyphs, or animation timings directly in your repo.',
+                    'Purely Controlled Primitives: All components are stateless view components. Your agent state machine owns focus, keyboard listeners (useInput), and lifecycle transitions. Components never hijack stdin.',
+                    'React + Ink Runtime: Built for the modern terminal ecosystem. Renders in any terminal emulator running Node.js or Bun with zero browser or native GUI dependencies.',
+                    'Local Design Token Contract: Every component consumes design tokens from a central theme.ts file via your local TypeScript path alias (@/components/ui/theme).',
+                    'Zero Vendor Lock-In: No telemetry, no hosted dependencies, and no proprietary wrappers. Just clean, readable TypeScript and Ink.',
+                ],
+            },
+            {
+                id: 'turn-architecture',
+                title: 'Agent Turn Architecture',
+                description:
+                    'In an AI coding agent, a "turn" represents a single round of interaction: the user\'s prompt, the agent\'s chain-of-thought scratchpad, tool calls (bash, edits, searches), code diffs, and the final streaming markdown response. Here is how @trydecember/tui primitives compose into a production agent turn:',
+                codeSnippet: `import React from 'react'
+import { Box } from 'ink'
+import { StreamingText } from '@/components/ui/streaming-text'
+import { CollapsibleReasoning } from '@/components/ui/collapsible-reasoning'
+import { ToolCallCard } from '@/components/ui/tool-call-card'
+import { DiffViewer } from '@/components/ui/diff-viewer'
+import { TokenGauge } from '@/components/ui/token-gauge'
+
+interface ToolCall {
+  name: string
+  status: 'pending' | 'running' | 'completed' | 'failed'
+  durationMs?: number
+  argsSnippet?: string
+}
+
+interface AgentTurnProps {
+  thought?: string
+  isThinking?: boolean
+  responseText?: string
+  isStreaming?: boolean
+  toolCalls?: ToolCall[]
+  diff?: string
+  tokensUsed?: number
+  tokenLimit?: number
+}
+
+export function AgentTurn({
+  thought,
+  isThinking = false,
+  responseText,
+  isStreaming = false,
+  toolCalls = [],
+  diff,
+  tokensUsed = 4120,
+  tokenLimit = 128000,
+}: AgentTurnProps) {
+  return (
+    <Box flexDirection="column" gap={1}>
+      {/* 1. Agent chain-of-thought scratchpad */}
+      {thought && (
+        <CollapsibleReasoning
+          thought={thought}
+          isStreaming={isThinking}
+          defaultCollapsed={!isThinking}
+        />
+      )}
+
+      {/* 2. Tool executions (file edits, bash execution, searches) */}
+      {toolCalls.map((call, idx) => (
+        <ToolCallCard
+          key={idx}
+          toolName={call.name}
+          status={call.status}
+          durationMs={call.durationMs}
+          argsSnippet={call.argsSnippet}
+        />
+      ))}
+
+      {/* 3. File diff viewer with syntax highlighting */}
+      {diff && <DiffViewer diff={diff} />}
+
+      {/* 4. Progressive streaming agent response */}
+      {responseText && (
+        <StreamingText
+          text={responseText}
+          isComplete={!isStreaming}
+        />
+      )}
+
+      {/* 5. Context window gauge */}
+      <TokenGauge
+        used={tokensUsed}
+        total={tokenLimit}
+        label="Context Window"
+      />
+    </Box>
+  )
+}`,
+                language: 'tsx',
+            },
         ],
     },
     {
@@ -90,25 +205,188 @@ const BASE_DOC_ITEMS: DocItem[] = [
         navLabel: 'installation',
         title: 'installation',
         badge: 'setup',
-        description: 'initialize project configuration and add components via cli.',
+        description:
+            'How to initialize your project, configure path aliases, and install terminal primitives via the CLI.',
         installCmd: 'npx @trydecember/tui init',
-        codeSnippet: `# 1. initialize theme.ts and config
-npx @trydecember/tui init
-
-# 2. add component source file
-npx @trydecember/tui add diff-viewer
-
-# 3. use in your ink component
-import { DiffViewer } from './components/tui/diff-viewer'`,
-        points: [
-            'writes theme.ts into your components/tui directory.',
-            'requires peer dependencies: react (>=18) and ink (>=4).',
-        ],
         toc: [
             { id: 'overview', label: 'overview' },
             { id: 'install-cmd', label: 'cli setup' },
-            { id: 'usage', label: 'workflow' },
-            { id: 'points', label: 'prerequisites' },
+            { id: 'prerequisites', label: 'prerequisites' },
+            { id: 'cli-options', label: 'cli options' },
+            { id: 'configuration', label: 'tui.json' },
+            { id: 'adding-components', label: 'adding components' },
+            { id: 'project-structure', label: 'project structure' },
+            { id: 'verification', label: 'verification' },
+        ],
+        sections: [
+            {
+                id: 'prerequisites',
+                title: 'Prerequisites',
+                description:
+                    'Ensure your project meets the minimum runtime and peer dependency requirements before initializing:',
+                points: [
+                    'Node.js (>= 18.0.0) or Bun (>= 1.0.0) installed on your system.',
+                    'React (>= 18.0.0 or 19.0.0) and Ink (>= 4.0.0, 5.0.0, or 6.0.0) installed in your project.',
+                    'TypeScript (>= 5.0.0) configured with path aliases in tsconfig.json (e.g. "@/*": ["./src/*"]).',
+                ],
+            },
+            {
+                id: 'cli-options',
+                title: 'CLI Options & Flags',
+                description:
+                    'The init command analyzes your project, detects your framework, package manager (bun, pnpm, npm), and tsconfig.json path aliases, and generates the initial tui.json and theme.ts token contract.',
+                items: [
+                    {
+                        title: 'Interactive Mode',
+                        description:
+                            'Prompts for your preferred theme preset and component path alias with sensible defaults.',
+                        codeSnippet: 'npx @trydecember/tui init',
+                        language: 'bash',
+                    },
+                    {
+                        title: 'Preset Selection (--theme <name>)',
+                        description:
+                            'Initialize directly with one of the built-in color presets (default, amber, emerald, cyan, monochrome, zinc, slate).',
+                        codeSnippet: 'npx @trydecember/tui init --theme emerald',
+                        language: 'bash',
+                    },
+                    {
+                        title: 'Non-Interactive / CI Mode (-y, --yes)',
+                        description:
+                            'Skip interactive prompts and automatically accept detected project defaults.',
+                        codeSnippet: 'npx @trydecember/tui init -y',
+                        language: 'bash',
+                    },
+                ],
+            },
+            {
+                id: 'configuration',
+                title: 'Configuration (tui.json)',
+                description:
+                    'The CLI creates a tui.json configuration file at the root of your project to manage component output paths and aliases:',
+                codeSnippet: `{
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "tsx": true,
+  "theme": "amber",
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "theme": "@/components/ui/theme"
+  }
+}`,
+                language: 'json',
+                items: [
+                    {
+                        title: '$schema',
+                        description:
+                            'URL to the official JSON Schema definition. Enables real-time validation and autocompletion in VSCode, Cursor, and WebStorm.',
+                    },
+                    {
+                        title: 'tsx',
+                        description:
+                            'Boolean flag indicating whether to generate TypeScript (.tsx) or JavaScript (.jsx) component files.',
+                    },
+                    {
+                        title: 'theme',
+                        description:
+                            'The active theme color preset name (default, amber, emerald, cyan, monochrome, zinc, slate).',
+                    },
+                    {
+                        title: 'aliases.components',
+                        description:
+                            'Base directory alias for application components in your project.',
+                    },
+                    {
+                        title: 'aliases.ui',
+                        description:
+                            'Target directory alias where primitives added by the CLI will be copied.',
+                    },
+                    {
+                        title: 'aliases.theme',
+                        description:
+                            'Path alias used by installed components to import the central theme.ts design tokens contract.',
+                    },
+                ],
+            },
+            {
+                id: 'adding-components',
+                title: 'Adding Components',
+                description:
+                    'Use the add command to download component templates and auto-install their dependencies:',
+                codeSnippet: `# Add a single component
+npx @trydecember/tui add diff-viewer
+
+# Add multiple components simultaneously
+npx @trydecember/tui add streaming-text collapsible-reasoning tool-call-card token-gauge
+
+# Add all available primitives at once
+npx @trydecember/tui add --all
+
+# Overwrite existing files without prompting
+npx @trydecember/tui add diff-viewer --overwrite`,
+                language: 'bash',
+                points: [
+                    'The CLI fetches typed component source code and dependency metadata directly from the static registry.',
+                    'External npm dependencies (e.g. diff, cli-spinners) are automatically detected and installed with your active package manager.',
+                    'Import paths inside downloaded components are automatically rewritten to match the aliases defined in your local tui.json.',
+                ],
+            },
+            {
+                id: 'project-structure',
+                title: 'Project Directory Structure',
+                description:
+                    'After running init and adding components, your project directory will look like this:',
+                codeSnippet: `my-terminal-agent/
+├── src/
+│   ├── components/
+│   │   └── ui/
+│   │       ├── theme.ts                  # Central design tokens contract
+│   │       ├── diff-viewer.tsx           # Unified git diff renderer
+│   │       ├── streaming-text.tsx        # Markdown streaming with cursor
+│   │       ├── tool-call-card.tsx        # Tool execution card with spinners
+│   │       └── collapsible-reasoning.tsx # Chain-of-thought scratchpad
+│   ├── agent.tsx                         # Agent state machine & orchestration
+│   └── index.tsx                         # Ink render loop entrypoint
+├── package.json
+├── tsconfig.json                         # Path aliases: "@/*": ["./src/*"]
+└── tui.json                              # Local CLI configuration`,
+                language: 'bash',
+            },
+            {
+                id: 'verification',
+                title: 'Verification & Hello World',
+                description:
+                    'Create a minimal index.tsx file to verify that your Ink runtime and @trydecember/tui primitives render cleanly in your terminal:',
+                codeSnippet: `import React from 'react'
+import { render, Box, Text } from 'ink'
+import { DiffViewer } from '@/components/ui/diff-viewer'
+import { THEME } from '@/components/ui/theme'
+
+const sampleDiff = \`--- a/agent.config.ts
++++ b/agent.config.ts
+@@ -1,4 +1,4 @@
+ export const agentConfig = {
+-  model: 'gemini-1.5-flash',
++  model: 'gemini-2.0-flash',
+   maxTokens: 8192,
+ }\`
+
+function App() {
+  return (
+    <Box flexDirection="column" padding={1}>
+      <Box marginBottom={1}>
+        <Text bold color={THEME.colors.brand}>
+          {THEME.glyphs.status} @trydecember/tui initialized successfully
+        </Text>
+      </Box>
+      <DiffViewer diff={sampleDiff} />
+    </Box>
+  )
+}
+
+render(<App />)`,
+                language: 'tsx',
+            },
         ],
     },
     {
@@ -117,35 +395,204 @@ import { DiffViewer } from './components/tui/diff-viewer'`,
         navLabel: 'theming',
         title: 'theming',
         badge: 'tokens',
-        description: 'typed token dictionary for colors, unicode glyphs, and borders.',
-        codeSnippet: `// components/tui/theme.ts
-export const THEME = {
-  colors: {
-    brand: '#fb923c',        // accent orange
-    text: '#e2e2e2',         // base text
-    muted: '#8c8c8c',        // secondary
-    dim: '#5c5c5c',          // borders / inactive
-    border: '#2a2a2a',       // box border
-    success: '#4ade80',      // additions / checkmarks
-    error: '#f87171',        // deletions / errors
-    warning: '#fbbf24',      // spinners / alerts
-    diffAddBg: '#122f1e',    // diff green background
-    diffDeleteBg: '#3f1316', // diff red background
-  },
-  glyphs: {
-    prompt: '❭',
-    bullet: '•',
-    status: '●',
-    branch: '⌥',
-    check: '✔',
-    cross: '✖',
-    foldClosed: '▸',
-    foldOpen: '▾',
-  },
-} as const`,
+        description:
+            'Type-safe design token contract for terminal colors, unicode glyphs, padding, and border styles.',
         toc: [
             { id: 'overview', label: 'overview' },
-            { id: 'usage', label: 'tokens contract' },
+            { id: 'token-contract', label: 'tokens contract' },
+            { id: 'presets', label: 'color presets' },
+            { id: 'glyphs', label: 'unicode glyphs' },
+            { id: 'customization', label: 'customization' },
+        ],
+        sections: [
+            {
+                id: 'token-contract',
+                title: 'The theme.ts Contract',
+                description:
+                    'All installed primitives import their styling tokens exclusively from components/ui/theme.ts. This guarantees consistent brand accents, border styles, and status glyphs across your entire agent interface:',
+                codeSnippet: `// components/ui/theme.ts
+export type ThemePreset =
+  | 'default'
+  | 'amber'
+  | 'emerald'
+  | 'cyan'
+  | 'monochrome'
+  | 'zinc'
+  | 'slate'
+
+export interface ThemeColors {
+  brand: string        // Accent color for active borders, spinners, and highlights
+  text: string         // Primary terminal body text (usually white/bright)
+  muted: string        // Secondary descriptions, timestamps, and metadata
+  dim: string          // Inactive items, faint dividers, and borders
+  border: string       // Box frames and card boundaries
+  success: string      // Passing checks, diff additions, completed status
+  error: string        // Errors, diff deletions, failed status
+  warning: string      // Active spinners, warnings, retry alerts
+  diffAddBg: string    // Background color for diff additions
+  diffDeleteBg: string // Background color for diff deletions
+}
+
+export interface ThemePadding {
+  paddingX: number
+  paddingLeft: number
+  paddingRight: number
+}
+
+export interface ThemeGlyphs {
+  prompt: string       // CLI command prompt indicator (❭)
+  selector: string     // Menu selection pointer (❭)
+  bullet: string       // List bullet (•)
+  status: string       // Live status indicator dot (●)
+  branch: string       // Git branch indicator (⌥)
+  check: string        // Success checkmark (✔)
+  cross: string        // Error / failure mark (✖)
+  arrowRight: string   // Next / right arrow (→)
+  arrowDown: string    // Expand / down arrow (↓)
+  foldClosed: string   // Collapsed disclosure triangle (▸)
+  foldOpen: string     // Expanded disclosure triangle (▾)
+}
+
+export interface ThemeDefinition {
+  colors: ThemeColors
+  padding: ThemePadding
+  glyphs: ThemeGlyphs
+}`,
+                language: 'typescript',
+            },
+            {
+                id: 'presets',
+                title: 'Built-In Color Presets',
+                description:
+                    '@trydecember/tui includes 7 curated terminal palettes engineered for high legibility across TrueColor and ANSI 256-color terminal emulators:',
+                items: [
+                    {
+                        title: 'Amber (Warm Glow, Recommended for Agents)',
+                        description:
+                            'Warm, high-focus amber accent (#FB923C) with deep carbon backgrounds. The default aesthetic for AI coding agents.',
+                        codeSnippet: `brand: '#FB923C', text: 'white', muted: '#FDBA74', dim: '#7C2D12', border: '#431407'`,
+                        language: 'typescript',
+                    },
+                    {
+                        title: 'Emerald (Matrix Green)',
+                        description:
+                            'Classic hacker matrix aesthetic (#10B981) with deep forest borders and emerald success indicators.',
+                        codeSnippet: `brand: '#10B981', text: 'white', muted: '#6EE7B7', dim: '#065F46', border: '#064E3B'`,
+                        language: 'typescript',
+                    },
+                    {
+                        title: 'Cyan (Electric Cyan)',
+                        description:
+                            'Clean, modern developer tooling aesthetic (#06B6D4) with marine dark tones.',
+                        codeSnippet: `brand: '#06B6D4', text: 'white', muted: '#67E8F9', dim: '#155E75', border: '#164E63'`,
+                        language: 'typescript',
+                    },
+                    {
+                        title: 'Default (Spacetime Blue)',
+                        description:
+                            'Balanced soft blue (#89B4F8) with neutral gray borders. Gentle on the eyes during long sessions.',
+                        codeSnippet: `brand: '#89B4F8', text: 'white', muted: '#AAAAAA', dim: '#666666', border: '#333333'`,
+                        language: 'typescript',
+                    },
+                    {
+                        title: 'Monochrome (Universal Grayscale)',
+                        description:
+                            'Pure high-contrast grayscale (#FFFFFF) engineered for universal compatibility across all terminal emulators and light/dark modes.',
+                        codeSnippet: `brand: '#FFFFFF', text: '#FFFFFF', muted: '#A3A3A3', dim: '#525252', border: '#404040'`,
+                        language: 'typescript',
+                    },
+                    {
+                        title: 'Zinc & Slate (Modern Dark)',
+                        description:
+                            'Industrial neutral zinc (#A1A1AA) or cool blue-tinted slate (#94A3B8) for clean, minimalist CLI applications.',
+                        codeSnippet: `brand: '#A1A1AA', text: '#FAFAFA', muted: '#71717A', dim: '#3F3F46', border: '#27272A'`,
+                        language: 'typescript',
+                    },
+                ],
+            },
+            {
+                id: 'glyphs',
+                title: 'Unicode Glyphs & Terminal Compatibility',
+                description:
+                    'Modern terminals support UTF-8 unicode characters by default. @trydecember/tui uses discrete unicode glyphs for status badges, selection arrows, and collapsible accordions. If your application targets legacy environments, you can configure ASCII fallbacks directly in theme.ts:',
+                codeSnippet: `// Detect UTF-8 support or environment override
+const isUtf8Supported =
+  Boolean(process.env.LANG && !process.env.LANG.includes('ASCII'))
+
+export const DEFAULT_GLYPHS: ThemeGlyphs = isUtf8Supported
+  ? {
+      prompt: '❭',
+      selector: '❭',
+      bullet: '•',
+      status: '●',
+      branch: '⌥',
+      check: '✔',
+      cross: '✖',
+      arrowRight: '→',
+      arrowDown: '↓',
+      foldClosed: '▸',
+      foldOpen: '▾',
+    }
+  : {
+      prompt: '>',
+      selector: '>',
+      bullet: '*',
+      status: 'o',
+      branch: 'git:',
+      check: '[v]',
+      cross: '[x]',
+      arrowRight: '->',
+      arrowDown: 'v',
+      foldClosed: '+',
+      foldOpen: '-',
+    }`,
+                language: 'typescript',
+            },
+            {
+                id: 'customization',
+                title: 'Customizing & Extending Tokens',
+                description:
+                    'Because theme.ts lives in your codebase, you can easily customize colors, add custom design tokens, or wrap components in dynamic theme switchers:',
+                codeSnippet: `// Example: Consuming theme tokens in a custom agent header
+import React from 'react'
+import { Box, Text } from 'ink'
+import { THEME } from '@/components/ui/theme'
+
+interface AgentHeaderProps {
+  model: string
+  tokensUsed: number
+  totalCost: number
+}
+
+export function AgentHeader({ model, tokensUsed, totalCost }: AgentHeaderProps) {
+  return (
+    <Box
+      borderStyle="round"
+      borderColor={THEME.colors.brand}
+      paddingX={THEME.padding.paddingX}
+      justifyContent="space-between"
+    >
+      <Box gap={1}>
+        <Text color={THEME.colors.brand}>{THEME.glyphs.status}</Text>
+        <Text bold color={THEME.colors.text}>Agent Active</Text>
+        <Text color={THEME.colors.dim}>({model})</Text>
+      </Box>
+      <Box gap={2}>
+        <Text color={THEME.colors.muted}>{tokensUsed.toLocaleString()} tokens</Text>
+        <Text bold color={THEME.colors.success}>
+          \${totalCost.toFixed(4)}
+        </Text>
+      </Box>
+    </Box>
+  )
+}`,
+                language: 'tsx',
+                points: [
+                    'Single Source of Truth: Modifying a color in theme.ts instantly updates every component across your CLI without editing individual component files.',
+                    'Type-Safe Tokens: TypeScript catches misspelled color names or invalid glyph properties at compile time.',
+                    'Dynamic Theming: You can expose a runtime flag (--theme <name>) or environment variable (TUI_THEME=emerald) that invokes createTheme(presetName) at startup.',
+                ],
+            },
         ],
     },
     {

@@ -1,19 +1,21 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "table",
-    "type": "ui",
-    "title": "Table",
-    "description": "A responsive terminal data grid component supporting structured column headers, rows, and cells.",
-    "dependencies": [],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "table.tsx",
-            "path": "components/table.tsx",
-            "target": "table.tsx",
-            "content": "import { Box, Text } from 'ink'\nimport React, { createContext, useContext } from 'react'\n\nimport { THEME } from '../theme'\n\ninterface TableContextType {\n    columnWidths?: number[]\n}\n\nconst TableContext = createContext<TableContextType>({})\n\nexport interface TableProps {\n    children: React.ReactNode\n    columnWidths?: number[]\n}\n\nexport function Table({ children, columnWidths }: TableProps) {\n    return (\n        <TableContext.Provider value={{ columnWidths }}>\n            <Box flexDirection=\"column\" marginY={1}>\n                {children}\n            </Box>\n        </TableContext.Provider>\n    )\n}\n\nexport function TableHeader({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"column\">\n            {children}\n            <Box height={1} overflow=\"hidden\">\n                <Text color={THEME.colors.border}>{'─'.repeat(64)}</Text>\n            </Box>\n        </Box>\n    )\n}\n\nexport function TableBody({ children }: { children: React.ReactNode }) {\n    return <Box flexDirection=\"column\">{children}</Box>\n}\n\nexport function TableRow({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"row\" gap={2} paddingY={0}>\n            {children}\n        </Box>\n    )\n}\n\nexport interface TableHeadProps {\n    children: React.ReactNode\n    width?: number\n}\n\nexport function TableHead({ children, width = 16 }: TableHeadProps) {\n    return (\n        <Box width={width}>\n            <Text bold color={THEME.colors.text}>\n                {children}\n            </Text>\n        </Box>\n    )\n}\n\nexport interface TableCellProps {\n    children: React.ReactNode\n    width?: number\n    color?: string\n}\n\nexport function TableCell({ children, width = 16, color }: TableCellProps) {\n    return (\n        <Box width={width}>\n            <Text color={color ?? THEME.colors.muted}>{children}</Text>\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "table",
+  "type": "ui",
+  "title": "Table",
+  "description": "A responsive terminal data grid component supporting structured column headers, rows, and cells.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "table.tsx",
+      "path": "components/table.tsx",
+      "target": "table.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React, { createContext, useContext } from 'react'\n\nimport { THEME } from '../theme'\n\ninterface TableContextType {\n    columnWidths?: number[]\n}\n\nconst TableContext = createContext<TableContextType>({})\n\nexport interface TableProps {\n    children: React.ReactNode\n    columnWidths?: number[]\n}\n\nexport function Table({ children, columnWidths }: TableProps) {\n    return (\n        <TableContext.Provider value={{ columnWidths }}>\n            <Box flexDirection=\"column\" marginY={1}>\n                {children}\n            </Box>\n        </TableContext.Provider>\n    )\n}\n\nexport function TableHeader({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"column\">\n            {children}\n            <Box height={1} overflow=\"hidden\">\n                <Text color={THEME.colors.border}>{'─'.repeat(64)}</Text>\n            </Box>\n        </Box>\n    )\n}\n\nexport function TableBody({ children }: { children: React.ReactNode }) {\n    return <Box flexDirection=\"column\">{children}</Box>\n}\n\nexport function TableRow({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"row\" gap={2} paddingY={0}>\n            {children}\n        </Box>\n    )\n}\n\nexport interface TableHeadProps {\n    children: React.ReactNode\n    width?: number\n}\n\nexport function TableHead({ children, width = 16 }: TableHeadProps) {\n    return (\n        <Box width={width}>\n            <Text bold color={THEME.colors.text}>\n                {children}\n            </Text>\n        </Box>\n    )\n}\n\nexport interface TableCellProps {\n    children: React.ReactNode\n    width?: number\n    color?: string\n}\n\nexport function TableCell({ children, width = 16, color }: TableCellProps) {\n    return (\n        <Box width={width}>\n            <Text color={color ?? THEME.colors.muted}>{children}</Text>\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

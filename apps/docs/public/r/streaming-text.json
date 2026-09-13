@@ -1,19 +1,21 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "streaming-text",
-    "type": "ui",
-    "title": "Streaming Text",
-    "description": "Smooth text and markdown stream renderer with terminal cursor indicator.",
-    "dependencies": [],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "streaming-text.tsx",
-            "path": "components/streaming-text.tsx",
-            "target": "streaming-text.tsx",
-            "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface StreamingTextProps {\n    /** The accumulated text or markdown stream */\n    content: string\n    /** Whether the stream is currently active */\n    isStreaming?: boolean\n    /** Optional text color override */\n    color?: string\n}\n\nexport function StreamingText({\n    content,\n    isStreaming = false,\n    color = THEME.colors.text,\n}: StreamingTextProps) {\n    if (!content) return null\n\n    return (\n        <Box flexDirection=\"column\">\n            <Text color={color}>\n                {content}\n                {isStreaming && <Text color={THEME.colors.brand}> ▌</Text>}\n            </Text>\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "streaming-text",
+  "type": "ui",
+  "title": "Streaming Text",
+  "description": "Smooth text and markdown stream renderer with terminal cursor indicator.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "streaming-text.tsx",
+      "path": "components/streaming-text.tsx",
+      "target": "streaming-text.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface StreamingTextProps {\n    /** The accumulated text or markdown stream */\n    content: string\n    /** Whether the stream is currently active */\n    isStreaming?: boolean\n    /** Optional text color override */\n    color?: string\n}\n\nexport function StreamingText({\n    content,\n    isStreaming = false,\n    color = THEME.colors.text,\n}: StreamingTextProps) {\n    if (!content) return null\n\n    return (\n        <Box flexDirection=\"column\">\n            <Text color={color}>\n                {content}\n                {isStreaming && <Text color={THEME.colors.brand}> ▌</Text>}\n            </Text>\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

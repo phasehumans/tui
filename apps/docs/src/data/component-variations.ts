@@ -1057,7 +1057,7 @@ render(<App />)`,
             title: 'Plan Accepted State',
             description: 'Confirmed plan execution banner.',
             terminalLines: [
-                '\x1b[38;2;74;222;128m✔ Plan approved\x1b[0m \x1b[38;2;140;140;140m— applying changes to 3 files...\x1b[0m',
+                '\x1b[38;2;74;222;128m✔ Plan approved\x1b[0m \x1b[38;2;140;140;140m- applying changes to 3 files...\x1b[0m',
             ],
             codeSnippet: `import { PlanApproveMenu } from '@/components/tui/plan-approve-menu'
 import { Box, render } from 'ink'

@@ -114,7 +114,7 @@ export function SelectMenu<T = string>({
                                 {item.label}
                             </Text>
                             {item.active && <Text color={THEME.colors.success}>(Active)</Text>}
-                            {item.hint && <Text color={THEME.colors.muted}>— {item.hint}</Text>}
+                            {item.hint && <Text color={THEME.colors.muted}>- {item.hint}</Text>}
                         </Box>
                     )
                 })}

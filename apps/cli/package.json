@@ -1,16 +1,43 @@
 {
     "name": "@trydecember/tui",
     "version": "0.1.0",
-    "description": "a ui library for terminal agents.",
+    "description": "an unbundled, copy-paste terminal ui component library for react & ink ai agents.",
     "type": "module",
     "bin": {
-        "tui": "./dist/index.js"
+        "tui": "dist/index.js"
     },
     "main": "./dist/index.js",
+    "publishConfig": {
+        "access": "public"
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [
+        "tui",
+        "ink",
+        "react",
+        "terminal",
+        "ai",
+        "agent",
+        "coding-agent",
+        "cli"
+    ],
+    "author": "December <founders@trydecember.com>",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/phasehumans/tui.git"
+    },
+    "homepage": "https://tui.trydecember.com",
     "scripts": {
         "build": "bun build ./src/index.ts --target=node --outfile=./dist/index.js",
+        "prepublishOnly": "bun run build",
         "dev": "bun run --watch ./src/index.ts",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "test": "bun test"
     },
     "dependencies": {
         "@clack/prompts": "^0.11.0",

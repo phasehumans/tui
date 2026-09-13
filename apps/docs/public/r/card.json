@@ -1,19 +1,21 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "card",
-    "type": "ui",
-    "title": "Card",
-    "description": "Displays a boxed card container with optional header, title, description, content, and footer.",
-    "dependencies": [],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "card.tsx",
-            "path": "components/card.tsx",
-            "target": "card.tsx",
-            "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface CardProps {\n    children: React.ReactNode\n    borderStyle?: 'round' | 'single' | 'double' | 'bold'\n    borderColor?: string\n    paddingX?: number\n    paddingY?: number\n    width?: number | string\n}\n\nexport function Card({\n    children,\n    borderStyle = 'round',\n    borderColor = THEME.colors.border,\n    paddingX = 1,\n    paddingY = 0,\n    width,\n}: CardProps) {\n    return (\n        <Box\n            flexDirection=\"column\"\n            borderStyle={borderStyle}\n            borderColor={borderColor}\n            paddingX={paddingX}\n            paddingY={paddingY}\n            width={width}\n        >\n            {children}\n        </Box>\n    )\n}\n\nexport function CardHeader({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"column\" marginBottom={1}>\n            {children}\n        </Box>\n    )\n}\n\nexport function CardTitle({ children }: { children: React.ReactNode }) {\n    return (\n        <Text bold color={THEME.colors.text}>\n            {children}\n        </Text>\n    )\n}\n\nexport function CardDescription({ children }: { children: React.ReactNode }) {\n    return <Text color={THEME.colors.muted}>{children}</Text>\n}\n\nexport function CardContent({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            {children}\n        </Box>\n    )\n}\n\nexport function CardFooter({ children }: { children: React.ReactNode }) {\n    return (\n        <Box marginTop={1} flexDirection=\"row\" gap={1}>\n            {children}\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "card",
+  "type": "ui",
+  "title": "Card",
+  "description": "Displays a boxed card container with optional header, title, description, content, and footer.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "card.tsx",
+      "path": "components/card.tsx",
+      "target": "card.tsx",
+      "content": "import { Box, Text } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport interface CardProps {\n    children: React.ReactNode\n    borderStyle?: 'round' | 'single' | 'double' | 'bold'\n    borderColor?: string\n    paddingX?: number\n    paddingY?: number\n    width?: number | string\n}\n\nexport function Card({\n    children,\n    borderStyle = 'round',\n    borderColor = THEME.colors.border,\n    paddingX = 1,\n    paddingY = 0,\n    width,\n}: CardProps) {\n    return (\n        <Box\n            flexDirection=\"column\"\n            borderStyle={borderStyle}\n            borderColor={borderColor}\n            paddingX={paddingX}\n            paddingY={paddingY}\n            width={width}\n        >\n            {children}\n        </Box>\n    )\n}\n\nexport function CardHeader({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"column\" marginBottom={1}>\n            {children}\n        </Box>\n    )\n}\n\nexport function CardTitle({ children }: { children: React.ReactNode }) {\n    return (\n        <Text bold color={THEME.colors.text}>\n            {children}\n        </Text>\n    )\n}\n\nexport function CardDescription({ children }: { children: React.ReactNode }) {\n    return <Text color={THEME.colors.muted}>{children}</Text>\n}\n\nexport function CardContent({ children }: { children: React.ReactNode }) {\n    return (\n        <Box flexDirection=\"column\" marginY={0}>\n            {children}\n        </Box>\n    )\n}\n\nexport function CardFooter({ children }: { children: React.ReactNode }) {\n    return (\n        <Box marginTop={1} flexDirection=\"row\" gap={1}>\n            {children}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }

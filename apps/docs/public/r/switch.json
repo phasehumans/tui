@@ -1,19 +1,21 @@
 {
-    "$schema": "https://tui.trydecember.com/schema.json",
-    "name": "switch",
-    "type": "ui",
-    "title": "Switch",
-    "description": "A binary state toggle switch for terminal interfaces with glyph track and badge display variants.",
-    "dependencies": [],
-    "devDependencies": [],
-    "registryDependencies": ["theme"],
-    "files": [
-        {
-            "name": "switch.tsx",
-            "path": "components/switch.tsx",
-            "target": "switch.tsx",
-            "content": "import { Box, Text, useInput } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type SwitchVariant = 'glyph' | 'badge'\n\nexport interface SwitchProps {\n    checked: boolean\n    onChange?: (checked: boolean) => void\n    label?: string\n    description?: string\n    isFocused?: boolean\n    disabled?: boolean\n    variant?: SwitchVariant\n}\n\nexport function Switch({\n    checked,\n    onChange,\n    label,\n    description,\n    isFocused = false,\n    disabled = false,\n    variant = 'glyph',\n}: SwitchProps) {\n    useInput((input, key) => {\n        if (!isFocused || disabled) return\n\n        if (input === ' ' || key.return) {\n            if (onChange) {\n                onChange(!checked)\n            }\n            return\n        }\n\n        if (key.leftArrow) {\n            if (checked && onChange) {\n                onChange(false)\n            }\n            return\n        }\n\n        if (key.rightArrow) {\n            if (!checked && onChange) {\n                onChange(true)\n            }\n            return\n        }\n    })\n\n    const glyphStr = checked ? '(─●)' : '(●─)'\n    const badgeStr = checked ? '[ ON ]' : '[ OFF ]'\n    const indicatorText = variant === 'badge' ? badgeStr : glyphStr\n\n    const indicatorColor = disabled\n        ? THEME.colors.dim\n        : checked\n          ? THEME.colors.success\n          : isFocused\n            ? THEME.colors.brand\n            : THEME.colors.dim\n\n    return (\n        <Box flexDirection=\"row\" alignItems=\"center\" gap={1}>\n            <Text bold color={indicatorColor}>\n                {indicatorText}\n            </Text>\n            {label && (\n                <Text\n                    color={\n                        disabled\n                            ? THEME.colors.dim\n                            : isFocused\n                              ? THEME.colors.text\n                              : THEME.colors.muted\n                    }\n                    bold={isFocused}\n                >\n                    {label}\n                </Text>\n            )}\n            {description && <Text color={THEME.colors.dim}>({description})</Text>}\n        </Box>\n    )\n}\n",
-            "type": "ui"
-        }
-    ]
+  "$schema": "https://tui.trydecember.com/schema.json",
+  "name": "switch",
+  "type": "ui",
+  "title": "Switch",
+  "description": "A binary state toggle switch for terminal interfaces with glyph track and badge display variants.",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [
+    "theme"
+  ],
+  "files": [
+    {
+      "name": "switch.tsx",
+      "path": "components/switch.tsx",
+      "target": "switch.tsx",
+      "content": "import { Box, Text, useInput } from 'ink'\nimport React from 'react'\n\nimport { THEME } from '../theme'\n\nexport type SwitchVariant = 'glyph' | 'badge'\n\nexport interface SwitchProps {\n    checked: boolean\n    onChange?: (checked: boolean) => void\n    label?: string\n    description?: string\n    isFocused?: boolean\n    disabled?: boolean\n    variant?: SwitchVariant\n}\n\nexport function Switch({\n    checked,\n    onChange,\n    label,\n    description,\n    isFocused = false,\n    disabled = false,\n    variant = 'glyph',\n}: SwitchProps) {\n    useInput((input, key) => {\n        if (!isFocused || disabled) return\n\n        if (input === ' ' || key.return) {\n            if (onChange) {\n                onChange(!checked)\n            }\n            return\n        }\n\n        if (key.leftArrow) {\n            if (checked && onChange) {\n                onChange(false)\n            }\n            return\n        }\n\n        if (key.rightArrow) {\n            if (!checked && onChange) {\n                onChange(true)\n            }\n            return\n        }\n    })\n\n    const glyphStr = checked ? '(─●)' : '(●─)'\n    const badgeStr = checked ? '[ ON ]' : '[ OFF ]'\n    const indicatorText = variant === 'badge' ? badgeStr : glyphStr\n\n    const indicatorColor = disabled\n        ? THEME.colors.dim\n        : checked\n          ? THEME.colors.success\n          : isFocused\n            ? THEME.colors.brand\n            : THEME.colors.dim\n\n    return (\n        <Box flexDirection=\"row\" alignItems=\"center\" gap={1}>\n            <Text bold color={indicatorColor}>\n                {indicatorText}\n            </Text>\n            {label && (\n                <Text\n                    color={\n                        disabled\n                            ? THEME.colors.dim\n                            : isFocused\n                              ? THEME.colors.text\n                              : THEME.colors.muted\n                    }\n                    bold={isFocused}\n                >\n                    {label}\n                </Text>\n            )}\n            {description && <Text color={THEME.colors.dim}>({description})</Text>}\n        </Box>\n    )\n}\n",
+      "type": "ui"
+    }
+  ]
 }
