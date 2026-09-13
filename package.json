@@ -18,7 +18,8 @@
         "build:registry": "turbo run build:registry",
         "typecheck": "turbo run typecheck",
         "dev": "turbo run dev",
-        "test": "turbo run test"
+        "test": "turbo run test",
+        "release": "bun scripts/release.ts"
     },
     "devDependencies": {
         "@types/bun": "latest",

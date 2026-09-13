@@ -1,6 +1,9 @@
 name: Publish CLI to npm
 
 on:
+    push:
+        tags:
+            - 'v*'
     release:
         types: [published]
     workflow_dispatch:
@@ -13,9 +16,13 @@ on:
 jobs:
     publish:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
             - name: Setup Bun
               uses: oven-sh/setup-bun@v2
