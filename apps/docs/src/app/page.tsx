@@ -465,9 +465,6 @@ export default function DocsPage() {
                                     const copyKey = `var-${activeItem.id}-${variation.id}`
                                     const promptCommand = `tui preview ${activeItem.id} --${variation.id}`
                                     const vReplayKey = variantReplayKeys[variation.id] || 0
-                                    const varInstallCmd =
-                                        variation.installCmd || activeItem.installCmd
-                                    const varInstallKey = `var-install-${activeItem.id}-${variation.id}`
 
                                     return (
                                         <div
@@ -487,72 +484,7 @@ export default function DocsPage() {
                                                 </div>
                                             </div>
 
-                                            {/* 2. Installation */}
-                                            {varInstallCmd && (
-                                                <div className="max-w-2xl flex flex-col gap-2">
-                                                    <div className="flex items-center justify-between text-xs text-[#8c8c8c] pb-1">
-                                                        <span className="text-[0.82rem] font-medium text-[#8c8c8c] font-mono">
-                                                            installation
-                                                        </span>
-                                                        <div className="flex items-center gap-1 bg-[#181818] p-0.5 rounded-[4px]">
-                                                            {(
-                                                                [
-                                                                    'bun',
-                                                                    'pnpm',
-                                                                    'npm',
-                                                                ] as PackageManager[]
-                                                            ).map((mgr) => (
-                                                                <button
-                                                                    key={mgr}
-                                                                    onClick={() =>
-                                                                        handleSelectPm(mgr)
-                                                                    }
-                                                                    className={`px-2.5 py-1 sm:py-0.5 rounded-[3px] text-xs transition-colors cursor-pointer min-h-[28px] sm:min-h-0 ${
-                                                                        pm === mgr
-                                                                            ? 'bg-[#282828] text-[#fb923c] font-semibold'
-                                                                            : 'hover:text-white'
-                                                                    }`}
-                                                                >
-                                                                    {mgr}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    <div
-                                                        onClick={() =>
-                                                            handleCopy(
-                                                                formatInstallCmd(varInstallCmd, pm),
-                                                                varInstallKey
-                                                            )
-                                                        }
-                                                        className="cmd-box cursor-pointer"
-                                                        title="click to copy command"
-                                                    >
-                                                        <div className="cmd-code code-scroll">
-                                                            <span className="tok-pfx">$</span>
-                                                            <span>
-                                                                {formatInstallCmd(
-                                                                    varInstallCmd,
-                                                                    pm
-                                                                )}
-                                                            </span>
-                                                        </div>
-                                                        <button
-                                                            aria-label="copy command"
-                                                            className="text-[#5c5c5c] hover:text-white p-1 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center shrink-0"
-                                                        >
-                                                            {copiedKey === varInstallKey ? (
-                                                                <Check className="h-3.5 w-3.5 text-[#fb923c]" />
-                                                            ) : (
-                                                                <Copy className="h-3.5 w-3.5" />
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* 3. Terminal Preview */}
+                                            {/* 2. Terminal Preview */}
                                             {(variation.terminalLines ||
                                                 variation.terminalMode) && (
                                                 <div className="flex flex-col gap-2.5">
@@ -606,7 +538,7 @@ export default function DocsPage() {
                                                 </div>
                                             )}
 
-                                            {/* 4. Usage Code */}
+                                            {/* 3. Usage Code */}
                                             <div className="flex flex-col gap-2.5">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-[0.82rem] font-medium text-[#8c8c8c] font-mono">
@@ -645,7 +577,7 @@ export default function DocsPage() {
                                                 </div>
                                             </div>
 
-                                            {/* 5. Other Info */}
+                                            {/* 4. Other Info */}
                                             {variation.description && (
                                                 <div className="flex flex-col gap-1 rounded-[4px] bg-[#141414] p-3 sm:p-3.5 border border-[#222222]">
                                                     <span className="text-[0.75rem] font-mono uppercase tracking-wider text-[#8c8c8c]">
