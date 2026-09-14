@@ -1,9 +1,13 @@
 import { $ } from 'bun'
 
-const version = process.argv[2]
+const args = process.argv.slice(2).filter((arg) => !arg.startsWith('--'))
 const force = process.argv.includes('--force')
 
-if (!version || version.startsWith('--')) {
+// Look for a semver version in args (e.g. "0.0.4" or "v0.0.4")
+const rawVersion = args.find((a) => /^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/.test(a.replace(/^v/, '')))
+const version = rawVersion ? rawVersion.replace(/^v/, '') : args[0]
+
+if (!version) {
     console.error('Usage: bun run release <version> [--force]')
     console.error('Example: bun run release 0.1.1')
     process.exit(1)
