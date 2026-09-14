@@ -516,6 +516,7 @@ export default function DocsPage() {
                                                         <TerminalPreview
                                                             mode={
                                                                 variation.terminalMode ||
+                                                                activeItem.terminalMode ||
                                                                 variation.id
                                                             }
                                                             lines={variation.terminalLines}

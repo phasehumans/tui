@@ -875,8 +875,8 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;92;92;92m(Press space/return to toggle, ← / → to switch state)\x1b[0m'
                 )
-            } else {
-                // December terminal agent session (intro preview)
+            } else if (targetMode === 'december') {
+                // December terminal agent session
                 term.writeln('  \x1b[1;38;2;255;255;255m✱ December CLI 0.3.28\x1b[0m')
                 term.writeln('  \x1b[38;2;170;170;170m~/code/december (main)\x1b[0m')
                 term.writeln('')
@@ -1014,13 +1014,20 @@ export function TerminalInner({
                 term.writeln(
                     `  \x1b[38;2;170;170;170m${modelText}\x1b[0m${spaces}\x1b[38;2;102;102;102m${hintText}\x1b[0m`
                 )
+            } else {
+                term.writeln(
+                    `  \x1b[38;2;248;113;113mComponent "${targetMode}" preview not found. Run "tui list" for available components.\x1b[0m`
+                )
             }
         }
+
+        let lastPreviewedComponent: string | null = null
 
         async function launchPreview(comp: string) {
             interactiveState = null
             shellActive = false
             currentLine = ''
+            lastPreviewedComponent = comp
             term.writeln('')
             term.writeln(`${getPrompt(cwd)}tui preview ${comp}`)
             term.writeln('')
@@ -1034,6 +1041,36 @@ export function TerminalInner({
                     shellActive = true
                 }
             }
+        }
+
+        async function replayComponent() {
+            interactiveState = null
+            shellActive = false
+            currentLine = ''
+
+            if (!lastPreviewedComponent && lines && lines.length > 0) {
+                term.writeln('')
+                if (promptCmd) {
+                    term.writeln(`${getPrompt(cwd)}${promptCmd}`)
+                } else {
+                    term.writeln(`${getPrompt(cwd)}tui preview ${mode}`)
+                }
+                term.writeln('')
+                for (const line of lines) {
+                    term.writeln(line)
+                    await sleep(35)
+                    if (isCancelled) return
+                }
+                if (interactive && !isCancelled) {
+                    term.writeln('')
+                    term.write(getPrompt(cwd))
+                    shellActive = true
+                }
+                return
+            }
+
+            const targetComp = lastPreviewedComponent || mode
+            await launchPreview(targetComp)
         }
 
         let dataDisposable: { dispose: () => void } | null = null
@@ -1142,7 +1179,7 @@ export function TerminalInner({
                         } else if (res.type === 'preview') {
                             launchPreview(res.component)
                         } else if (res.type === 'replay') {
-                            launchPreview(mode)
+                            replayComponent()
                         } else if (
                             res.type === 'output' ||
                             res.type === 'error' ||
@@ -1228,6 +1265,8 @@ export function TerminalInner({
             if (lines && lines.length > 0) {
                 for (const line of lines) {
                     term.writeln(line)
+                    await sleep(35)
+                    if (isCancelled) return
                 }
                 if (interactive && !isCancelled) {
                     term.writeln('')
