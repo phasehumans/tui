@@ -11,8 +11,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
     title: '@trydecember/tui',
-    description:
-        'an unbundled, copy-paste ui component library for terminal agents built with react & ink.',
+    description: 'a ui library for terminal agents',
     icons: {
         icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text x='50%' y='53%' dominant-baseline='middle' text-anchor='middle' font-size='31' fill='%23fb923c' font-family='system-ui, -apple-system, sans-serif'>✱</text></svg>",
     },

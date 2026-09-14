@@ -334,9 +334,8 @@ render(<App />)`,
         },
         {
             id: 'warning-threshold',
-            title: 'Warning Threshold (65%–85%)',
-            description:
-                'Bar automatically transitions to warning amber when exceeding 65% utilization.',
+            title: 'Warning Threshold (65% to 85%)',
+            description: 'Bar turns amber when exceeding 65% usage.',
             terminalLines: [
                 '\x1b[38;2;140;140;140mContext:\x1b[0m \x1b[38;2;251;191;36m━━━━━━━━━━━━━━──────\x1b[0m \x1b[1;38;2;251;191;36m72%\x1b[0m \x1b[38;2;92;92;92m(92.1k / 128k)\x1b[0m',
             ],
@@ -452,8 +451,9 @@ render(<App />)`,
     spinner: [
         {
             id: 'active-spinner',
-            title: 'Active Spinner with Progress Text',
-            description: 'Braille spinner displaying active workspace resolution.',
+            title: 'Classic Braille Dots',
+            description:
+                'Standard single-character braille spinner displaying active task resolution.',
             terminalLines: [
                 '  \x1b[38;2;251;146;60m⠸\x1b[0m \x1b[38;2;140;140;140manalyzing workspace dependencies...\x1b[0m',
             ],
@@ -464,7 +464,114 @@ import React from 'react'
 export function App() {
   return (
     <Box padding={1}>
-      <Spinner label="analyzing workspace dependencies..." />
+      <Spinner type="dots" label="analyzing workspace dependencies..." />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+        {
+            id: 'matrix-wave',
+            title: 'Inline Matrix Wave',
+            description:
+                'Compact 5-dot horizontal wave sweeping with bright head and phosphor trail.',
+            terminalLines: [
+                '  \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;251;146;60m●\x1b[0m \x1b[38;2;160;160;160m●\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m  \x1b[38;2;140;140;140mindexing workspace dependencies...\x1b[0m',
+            ],
+            codeSnippet: `import { Spinner } from '@/components/tui/spinner'
+import { Box, render } from 'ink'
+import React from 'react'
+
+export function App() {
+  return (
+    <Box padding={1}>
+      <Spinner type="matrix-wave" label="indexing workspace dependencies..." />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+        {
+            id: 'matrix-pulse',
+            title: 'Symmetrical Matrix Pulse',
+            description: 'Concentric pulse radiating outward from center dot across a 5-dot strip.',
+            terminalLines: [
+                '  \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;251;146;60m●\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;251;146;60m●\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m  \x1b[38;2;140;140;140mevaluating reasoning graph...\x1b[0m',
+            ],
+            codeSnippet: `import { Spinner } from '@/components/tui/spinner'
+import { Box, render } from 'ink'
+import React from 'react'
+
+export function App() {
+  return (
+    <Box padding={1}>
+      <Spinner type="matrix-pulse" label="evaluating reasoning graph..." />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+        {
+            id: 'equalizer-bars',
+            title: 'Equalizer Bars',
+            description:
+                'Vertical bar levels pulsing at harmonic frequencies like an audio visualizer.',
+            terminalLines: [
+                '  \x1b[38;2;251;146;60m ▂▃\x1b[0m \x1b[38;2;140;140;140mstreaming neural tokens...\x1b[0m',
+            ],
+            codeSnippet: `import { Spinner } from '@/components/tui/spinner'
+import { Box, render } from 'ink'
+import React from 'react'
+
+export function App() {
+  return (
+    <Box padding={1}>
+      <Spinner type="bars" label="streaming neural tokens..." />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+        {
+            id: 'snake-strip',
+            title: 'Slithering Snake',
+            description: '2-dot snake sliding smoothly back and forth along the dot track.',
+            terminalLines: [
+                '  \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;251;146;60m●\x1b[0m \x1b[38;2;160;160;160m●\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m  \x1b[38;2;140;140;140mresolving package graph...\x1b[0m',
+            ],
+            codeSnippet: `import { Spinner } from '@/components/tui/spinner'
+import { Box, render } from 'ink'
+import React from 'react'
+
+export function App() {
+  return (
+    <Box padding={1}>
+      <Spinner type="snake" label="resolving package graph..." />
+    </Box>
+  )
+}
+
+render(<App />)`,
+        },
+        {
+            id: 'shuttle-box',
+            title: 'Bouncing Shuttle',
+            description: 'Dot shuttle bouncing between bracket delimiters [ · · ● · · ].',
+            terminalLines: [
+                '  \x1b[38;2;60;60;60m[\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;251;146;60m●\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;60;60;60m·\x1b[0m \x1b[38;2;60;60;60m]\x1b[0m  \x1b[38;2;140;140;140mconnecting to agent server...\x1b[0m',
+            ],
+            codeSnippet: `import { Spinner } from '@/components/tui/spinner'
+import { Box, render } from 'ink'
+import React from 'react'
+
+export function App() {
+  return (
+    <Box padding={1}>
+      <Spinner type="shuttle" label="connecting to agent server..." />
     </Box>
   )
 }
@@ -565,7 +672,7 @@ render(<App />)`,
             title: 'Simple Header with Subtitle',
             description: 'Minimal terminal application title bar.',
             terminalLines: [
-                '\x1b[1;38;2;251;146;60mtui\x1b[0m \x1b[38;2;92;92;92m·\x1b[0m \x1b[38;2;140;140;140mterminal ui primitives for react\x1b[0m',
+                '\x1b[1;38;2;251;146;60mtui\x1b[0m \x1b[38;2;92;92;92m·\x1b[0m \x1b[38;2;140;140;140ma ui library for terminal agents\x1b[0m',
                 '\x1b[38;2;42;42;42m──────────────────────────────────────────────────────────\x1b[0m',
             ],
             codeSnippet: `import { Header } from '@/components/tui/header'
@@ -577,7 +684,7 @@ export function App() {
     <Box padding={1} flexDirection="column">
       <Header
         title="tui"
-        subtitle="terminal ui primitives for react"
+        subtitle="a ui library for terminal agents"
       />
     </Box>
   )

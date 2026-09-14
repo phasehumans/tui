@@ -4,41 +4,36 @@ import { FitAddon } from '@xterm/addon-fit'
 import { Terminal } from '@xterm/xterm'
 import React, { useEffect, useRef } from 'react'
 
+import {
+    PROMPT_STRING,
+    executeCommand,
+    autocomplete,
+    createSelectMenuState,
+    handleSelectMenuKey,
+    renderSelectMenu,
+    createSwitchState,
+    handleSwitchKey,
+    renderSwitch,
+    createTabsState,
+    handleTabsKey,
+    renderTabs,
+    createCheckboxState,
+    handleCheckboxKey,
+    renderCheckbox,
+    createPlanApproveState,
+    handlePlanApproveKey,
+    renderPlanApprove,
+    createInputBarState,
+    handleInputBarKey,
+    renderInputBar,
+} from './terminal-shell'
+
 export interface TerminalInnerProps {
-    mode?:
-        | 'all'
-        | 'diff-viewer'
-        | 'streaming-text'
-        | 'collapsible-reasoning'
-        | 'tool-call-card'
-        | 'token-gauge'
-        | 'pill'
-        | 'spinner'
-        | 'text-area'
-        | 'header'
-        | 'mermaid'
-        | 'markdown'
-        | 'user-message'
-        | 'error-message'
-        | 'select-menu'
-        | 'command-menu'
-        | 'shortcuts-menu'
-        | 'plan-approve-menu'
-        | 'input-bar'
-        | 'card'
-        | 'button'
-        | 'tabs'
-        | 'dialog'
-        | 'progress'
-        | 'checkbox'
-        | 'radio-group'
-        | 'skeleton'
-        | 'toast'
-        | 'table'
-        | string
+    mode?: string
     lines?: string[]
     replayKey?: number
     heightClass?: string
+    interactive?: boolean
 }
 
 function sleep(ms: number) {
@@ -50,6 +45,7 @@ export function TerminalInner({
     lines,
     replayKey = 0,
     heightClass = 'h-64 sm:h-72',
+    interactive = !lines,
 }: TerminalInnerProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const termRef = useRef<Terminal | null>(null)
@@ -61,10 +57,10 @@ export function TerminalInner({
 
         const term = new Terminal({
             theme: {
-                background: '#141414',
+                background: '#0a0a0a',
                 foreground: '#e2e2e2',
                 cursor: '#fb923c',
-                cursorAccent: '#141414',
+                cursorAccent: '#0a0a0a',
                 selectionBackground: 'rgba(251, 146, 60, 0.3)',
                 black: '#2a2a2a',
                 red: '#f87171',
@@ -80,7 +76,7 @@ export function TerminalInner({
             lineHeight: 1.45,
             cursorBlink: true,
             convertEol: true,
-            disableStdin: true,
+            disableStdin: !interactive,
         })
 
         const fitAddon = new FitAddon()
@@ -100,19 +96,150 @@ export function TerminalInner({
         resizeObserver.observe(containerRef.current)
 
         let isCancelled = false
+        let currentLine = ''
+        const history: string[] = []
+        let historyIndex = -1
+        let shellActive = false
 
-        async function runSimulation() {
-            if (!term) return
-            term.clear()
+        type InteractiveComponentState =
+            | { type: 'select-menu'; state: any; lineCount: number }
+            | { type: 'switch'; state: any; lineCount: number }
+            | { type: 'tabs'; state: any; lineCount: number }
+            | { type: 'checkbox'; state: any; lineCount: number }
+            | { type: 'plan-approve'; state: any; lineCount: number }
+            | { type: 'input-bar'; state: any; lineCount: number }
 
-            if (lines && lines.length > 0) {
-                for (const line of lines) {
-                    term.writeln(line)
-                }
-                return
+        let interactiveState: InteractiveComponentState | null = null
+
+        function renderInteractive(isUpdate = false) {
+            if (!interactiveState) return
+            let renderedLines: string[] = []
+            let hint = ''
+
+            switch (interactiveState.type) {
+                case 'select-menu':
+                    renderedLines = renderSelectMenu(interactiveState.state)
+                    hint =
+                        '  \x1b[38;2;102;102;102m[↑/↓ to navigate, Enter to select, q to exit to shell]\x1b[0m'
+                    break
+                case 'switch':
+                    renderedLines = renderSwitch(interactiveState.state)
+                    hint = '  \x1b[38;2;102;102;102m[Space to toggle, q to exit to shell]\x1b[0m'
+                    break
+                case 'tabs':
+                    renderedLines = renderTabs(interactiveState.state)
+                    hint =
+                        '  \x1b[38;2;102;102;102m[Tab or ←/→ to switch, q to exit to shell]\x1b[0m'
+                    break
+                case 'checkbox':
+                    renderedLines = renderCheckbox(interactiveState.state)
+                    hint =
+                        '  \x1b[38;2;102;102;102m[↑/↓ to navigate, Space to check, q to exit to shell]\x1b[0m'
+                    break
+                case 'plan-approve':
+                    renderedLines = renderPlanApprove(interactiveState.state)
+                    hint =
+                        '  \x1b[38;2;102;102;102m[←/→ to toggle, Enter to confirm, q to exit to shell]\x1b[0m'
+                    break
+                case 'input-bar':
+                    renderedLines = renderInputBar(interactiveState.state)
+                    hint =
+                        '  \x1b[38;2;102;102;102m[Type prompt and press Enter, q to exit to shell]\x1b[0m'
+                    break
             }
 
-            if (mode === 'diff-viewer') {
+            const total = [...renderedLines, hint]
+
+            if (isUpdate && interactiveState.lineCount > 0) {
+                term.write(`\x1b[${interactiveState.lineCount}A\r`)
+            }
+
+            for (const l of total) {
+                term.write(`\x1b[2K${l}\r\n`)
+            }
+
+            interactiveState.lineCount = total.length
+        }
+
+        function startComponentMode(targetMode: string): boolean {
+            if (
+                targetMode === 'select-menu' ||
+                targetMode === 'command-menu' ||
+                targetMode === 'shortcuts-menu'
+            ) {
+                const items =
+                    targetMode === 'shortcuts-menu'
+                        ? [
+                              { label: 'ctrl+c  Kill active task', value: 'kill' },
+                              { label: 'ctrl+b  Background task', value: 'background' },
+                              { label: 'ctrl+o  Toggle diff fold', value: 'diff' },
+                              { label: '?       Show shortcuts', value: 'help' },
+                          ]
+                        : undefined
+                interactiveState = {
+                    type: 'select-menu',
+                    state: createSelectMenuState(items),
+                    lineCount: 0,
+                }
+                shellActive = false
+                renderInteractive(false)
+                return true
+            }
+            if (targetMode === 'switch') {
+                interactiveState = {
+                    type: 'switch',
+                    state: createSwitchState(),
+                    lineCount: 0,
+                }
+                shellActive = false
+                renderInteractive(false)
+                return true
+            }
+            if (targetMode === 'tabs') {
+                interactiveState = {
+                    type: 'tabs',
+                    state: createTabsState(),
+                    lineCount: 0,
+                }
+                shellActive = false
+                renderInteractive(false)
+                return true
+            }
+            if (targetMode === 'checkbox' || targetMode === 'radio-group') {
+                interactiveState = {
+                    type: 'checkbox',
+                    state: createCheckboxState(),
+                    lineCount: 0,
+                }
+                shellActive = false
+                renderInteractive(false)
+                return true
+            }
+            if (targetMode === 'dialog' || targetMode === 'plan-approve-menu') {
+                interactiveState = {
+                    type: 'plan-approve',
+                    state: createPlanApproveState(),
+                    lineCount: 0,
+                }
+                shellActive = false
+                renderInteractive(false)
+                return true
+            }
+            if (targetMode === 'input-bar') {
+                interactiveState = {
+                    type: 'input-bar',
+                    state: createInputBarState(),
+                    lineCount: 0,
+                }
+                shellActive = false
+                renderInteractive(false)
+                return true
+            }
+            return false
+        }
+
+        async function runSpecificSimulation(targetMode: string) {
+            if (targetMode === 'diff-viewer') {
                 term.writeln(
                     '\x1b[38;2;251;146;60m⌥\x1b[0m \x1b[1;38;2;226;226;226mpackages/auth/src/jwt.ts\x1b[0m'
                 )
@@ -147,7 +274,7 @@ export function TerminalInner({
                     '\x1b[38;2;42;42;42m└────────────────────────────────────────────────────────┘\x1b[0m'
                 )
                 term.writeln('\x1b[38;2;92;92;92m  ... (12 more lines in diff chunk)\x1b[0m')
-            } else if (mode === 'streaming-text') {
+            } else if (targetMode === 'streaming-text') {
                 const tokens = [
                     'The',
                     ' security',
@@ -186,7 +313,7 @@ export function TerminalInner({
                 }
 
                 term.write('\x1b[38;2;251;146;60m ▌\x1b[0m')
-            } else if (mode === 'collapsible-reasoning') {
+            } else if (targetMode === 'collapsible-reasoning') {
                 term.writeln(
                     '\x1b[38;2;251;146;60m⠋\x1b[0m \x1b[1;38;2;140;140;140mThinking...\x1b[0m \x1b[38;2;92;92;92m(analyzing ast)\x1b[0m'
                 )
@@ -213,7 +340,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;92;92;92m\x1b[3m3. enforce expiration timestamp check before returning session\x1b[0m'
                 )
-            } else if (mode === 'tool-call-card') {
+            } else if (targetMode === 'tool-call-card') {
                 term.writeln(
                     '\x1b[38;2;251;191;36m⠋\x1b[0m \x1b[1;38;2;251;146;60mbun test\x1b[0m \x1b[38;2;140;140;140mauth.test.ts\x1b[0m \x1b[38;2;92;92;92mrunning...\x1b[0m'
                 )
@@ -239,7 +366,7 @@ export function TerminalInner({
                 term.writeln(
                     '\x1b[38;2;42;42;42m└────────────────────────────────────────────────────────┘\x1b[0m'
                 )
-            } else if (mode === 'token-gauge') {
+            } else if (targetMode === 'token-gauge') {
                 term.writeln('\x1b[38;2;140;140;140mNominal context:\x1b[0m')
                 term.writeln(
                     '\x1b[38;2;140;140;140mContext:\x1b[0m \x1b[38;2;251;146;60m━━━━━━\x1b[0m\x1b[38;2;92;92;92m──────────────\x1b[0m \x1b[1;38;2;251;146;60m28%\x1b[0m \x1b[38;2;92;92;92m(36.4k / 128k)\x1b[0m'
@@ -260,7 +387,7 @@ export function TerminalInner({
                 term.writeln(
                     '\x1b[38;2;248;113;113m━━━━━━━━━━━━━━━━━━━─\x1b[0m \x1b[1;38;2;248;113;113m96%\x1b[0m \x1b[38;2;92;92;92m(122.8k / 128k)\x1b[0m \x1b[48;2;63;19;22m\x1b[38;2;248;113;113m[flush needed]\x1b[0m'
                 )
-            } else if (mode === 'pill') {
+            } else if (targetMode === 'pill') {
                 term.writeln(
                     '  \x1b[48;2;42;42;42m\x1b[38;2;251;146;60m PR #42 \x1b[0m  \x1b[48;2;18;47;30m\x1b[38;2;74;222;128m approved \x1b[0m  \x1b[48;2;42;42;42m\x1b[38;2;140;140;140m typescript \x1b[0m'
                 )
@@ -271,22 +398,35 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[48;2;63;19;22m\x1b[38;2;248;113;113m blocked \x1b[0m  \x1b[48;2;42;42;42m\x1b[38;2;251;191;36m needs-review \x1b[0m  \x1b[48;2;42;42;42m\x1b[38;2;92;92;92m v0.3.0 \x1b[0m'
                 )
-            } else if (mode === 'spinner') {
-                const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+            } else if (targetMode === 'spinner') {
                 term.writeln('')
-                for (let i = 0; i < 15; i++) {
-                    const f = frames[i % frames.length]
+                const dotCount = 5
+                const totalCycle = dotCount + 2
+                for (let i = 0; i < 18; i++) {
+                    const head = i % totalCycle
+                    let dots = ''
+                    for (let c = 0; c < dotCount; c++) {
+                        const d = (head - c + totalCycle) % totalCycle
+                        if (d === 0) {
+                            dots += '\x1b[38;2;251;146;60m●\x1b[0m'
+                        } else if (d === 1) {
+                            dots += '\x1b[38;2;160;160;160m●\x1b[0m'
+                        } else {
+                            dots += '\x1b[38;2;60;60;60m·\x1b[0m'
+                        }
+                        if (c < dotCount - 1) dots += ' '
+                    }
                     term.write(
-                        `\r  \x1b[38;2;251;146;60m${f}\x1b[0m \x1b[38;2;140;140;140manalyzing workspace dependencies...\x1b[0m`
+                        `\r  ${dots}  \x1b[38;2;140;140;140manalyzing workspace dependencies...\x1b[0m`
                     )
-                    await sleep(80)
+                    await sleep(85)
                     if (isCancelled) return
                 }
                 term.write('\r\x1b[2K')
                 term.writeln(
                     '  \x1b[38;2;74;222;128m✔\x1b[0m \x1b[38;2;226;226;226mdependencies verified (0 vulnerabilities found)\x1b[0m'
                 )
-            } else if (mode === 'text-area') {
+            } else if (targetMode === 'text-area') {
                 term.write('  \x1b[38;2;251;146;60m❭\x1b[0m ')
                 const inputScript = [
                     '/model',
@@ -313,7 +453,7 @@ export function TerminalInner({
                 term.writeln(
                     '\x1b[38;2;92;92;92m  [Enter] send   [Ctrl+K] clear   [@] mention file   [/] commands\x1b[0m'
                 )
-            } else if (mode === 'header') {
+            } else if (targetMode === 'header') {
                 term.writeln(
                     '  \x1b[1;38;2;251;146;60m✱\x1b[0m \x1b[1;38;2;226;226;226mAgent CLI 0.3.0\x1b[0m'
                 )
@@ -328,7 +468,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;140;140;140mType / to explore available commands and shortcuts\x1b[0m'
                 )
-            } else if (mode === 'mermaid') {
+            } else if (targetMode === 'mermaid') {
                 term.writeln(
                     '  \x1b[38;2;226;226;226m❖ Mermaid Diagram (flowchart)\x1b[0m \x1b[38;2;92;92;92m(ctrl+o for code)\x1b[0m'
                 )
@@ -352,7 +492,7 @@ export function TerminalInner({
                 term.writeln(
                     '                          \x1b[38;2;42;42;42m└───────────────┘\x1b[0m'
                 )
-            } else if (mode === 'markdown') {
+            } else if (targetMode === 'markdown') {
                 term.writeln('  \x1b[1;38;2;226;226;226m# API Specification\x1b[0m')
                 term.writeln(
                     '  The endpoint supports \x1b[48;2;42;42;42m\x1b[38;2;251;146;60m bearer \x1b[0m token authentication.'
@@ -376,7 +516,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;92;92;92m└───────────────┴────────┴─────────────────────────┘\x1b[0m'
                 )
-            } else if (mode === 'user-message') {
+            } else if (targetMode === 'user-message') {
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[38;2;251;146;60mcheck security and token expiration in auth.ts\x1b[0m'
                 )
@@ -387,26 +527,26 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[38;2;251;146;60m/grill-me verify all error conditions\x1b[0m'
                 )
-            } else if (mode === 'error-message') {
+            } else if (targetMode === 'error-message') {
                 term.writeln(
                     '  \x1b[1;38;2;248;113;113mRate limit or quota exhausted from LLM provider.\x1b[0m'
                 )
                 term.writeln(
                     '  \x1b[38;2;140;140;140mPlease upgrade your API key tier at \x1b[38;2;251;146;60mhttps://platform.openai.com/limits\x1b[0m'
                 )
-            } else if (mode === 'select-menu') {
+            } else if (targetMode === 'select-menu') {
                 term.writeln('  \x1b[1;38;2;226;226;226mSelect active model engine:\x1b[0m')
-                term.writeln('    \x1b[38;2;140;140;140mclaude-3-7-sonnet - Anthropic\x1b[0m')
+                term.writeln('    \x1b[38;2;140;140;140mclaude-3-7-sonnet (Anthropic)\x1b[0m')
                 term.writeln(
-                    '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60mgpt-4o\x1b[0m \x1b[38;2;74;222;128m(Active)\x1b[0m \x1b[38;2;140;140;140m- OpenAI\x1b[0m'
+                    '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60mgpt-4o\x1b[0m \x1b[38;2;74;222;128m(Active)\x1b[0m \x1b[38;2;140;140;140m(OpenAI)\x1b[0m'
                 )
-                term.writeln('    \x1b[38;2;140;140;140mdeepseek-r1 - DeepSeek\x1b[0m')
-                term.writeln('    \x1b[38;2;140;140;140mgemini-2.5-flash - Google\x1b[0m')
+                term.writeln('    \x1b[38;2;140;140;140mdeepseek-r1 (DeepSeek)\x1b[0m')
+                term.writeln('    \x1b[38;2;140;140;140mgemini-2.5-flash (Google)\x1b[0m')
                 term.writeln('')
                 term.writeln(
                     '  \x1b[38;2;251;146;60m↑/↓\x1b[0m \x1b[38;2;140;140;140mNavigate\x1b[0m · \x1b[38;2;251;146;60menter\x1b[0m \x1b[38;2;140;140;140mSelect\x1b[0m · \x1b[38;2;251;146;60mesc\x1b[0m \x1b[38;2;140;140;140mCancel\x1b[0m'
                 )
-            } else if (mode === 'command-menu') {
+            } else if (targetMode === 'command-menu') {
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60m/model\x1b[0m               \x1b[38;2;140;140;140mSwitch active LLM model engine\x1b[0m'
                 )
@@ -424,7 +564,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;251;146;60m↑/↓\x1b[0m \x1b[38;2;140;140;140mNavigate\x1b[0m · \x1b[38;2;251;146;60menter\x1b[0m \x1b[38;2;140;140;140mSelect\x1b[0m · \x1b[38;2;251;146;60mtab\x1b[0m \x1b[38;2;140;140;140mComplete\x1b[0m · \x1b[38;2;251;146;60mesc\x1b[0m \x1b[38;2;140;140;140mCancel\x1b[0m'
                 )
-            } else if (mode === 'shortcuts-menu') {
+            } else if (targetMode === 'shortcuts-menu') {
                 term.writeln(
                     '  \x1b[38;2;251;146;60m❭\x1b[0m \x1b[1;38;2;251;146;60m/\x1b[0m                 \x1b[38;2;140;140;140mOpen slash commands palette\x1b[0m'
                 )
@@ -445,7 +585,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;251;146;60m↑/↓\x1b[0m \x1b[38;2;140;140;140mNavigate\x1b[0m · \x1b[38;2;251;146;60mesc\x1b[0m \x1b[38;2;140;140;140mClose\x1b[0m'
                 )
-            } else if (mode === 'plan-approve-menu') {
+            } else if (targetMode === 'plan-approve-menu') {
                 term.writeln(
                     '  \x1b[38;2;42;42;42m┌────────────────────────────────────────────────────────┐\x1b[0m'
                 )
@@ -468,7 +608,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;251;146;60my\x1b[0m \x1b[38;2;140;140;140mApprove\x1b[0m · \x1b[38;2;251;146;60mr\x1b[0m \x1b[38;2;140;140;140mRefine\x1b[0m · \x1b[38;2;251;146;60mv\x1b[0m \x1b[38;2;140;140;140mView\x1b[0m · \x1b[38;2;251;146;60mn\x1b[0m \x1b[38;2;140;140;140mReject\x1b[0m'
                 )
-            } else if (mode === 'input-bar') {
+            } else if (targetMode === 'input-bar') {
                 term.writeln(
                     '  \x1b[38;2;42;42;42m────────────────────────────────────────────────────────\x1b[0m'
                 )
@@ -500,7 +640,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;140;140;140mgpt-4o (OpenAI) · 28k tokens\x1b[0m          \x1b[38;2;92;92;92m? for shortcuts\x1b[0m'
                 )
-            } else if (mode === 'card') {
+            } else if (targetMode === 'card') {
                 term.writeln(
                     '  \x1b[38;2;42;42;42m╭──────────────────────────────────────────────────────╮\x1b[0m'
                 )
@@ -525,7 +665,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;42;42;42m╰──────────────────────────────────────────────────────╯\x1b[0m'
                 )
-            } else if (mode === 'button') {
+            } else if (targetMode === 'button') {
                 term.writeln(
                     '  \x1b[48;2;251;146;60m\x1b[1;38;2;20;20;20m Deploy \x1b[0m   \x1b[48;2;42;42;42m\x1b[38;2;226;226;226m Review \x1b[0m   \x1b[38;2;248;113;113m[ Rollback ]\x1b[0m   \x1b[38;2;92;92;92mCancel\x1b[0m'
                 )
@@ -533,7 +673,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;92;92;92m(Use tab to switch focus, return to select)\x1b[0m'
                 )
-            } else if (mode === 'tabs') {
+            } else if (targetMode === 'tabs') {
                 term.writeln(
                     '  \x1b[48;2;251;146;60m\x1b[1;38;2;20;20;20m Overview \x1b[0m \x1b[38;2;140;140;140m Commits \x1b[0m \x1b[38;2;140;140;140m CI Checks \x1b[0m'
                 )
@@ -547,7 +687,7 @@ export function TerminalInner({
                 )
                 term.writeln('  \x1b[38;2;140;140;140mRemote tracked: origin/main\x1b[0m')
                 term.writeln('  \x1b[38;2;74;222;128m✔ Working tree clean\x1b[0m')
-            } else if (mode === 'dialog') {
+            } else if (targetMode === 'dialog') {
                 term.writeln(
                     '  \x1b[38;2;251;146;60m┌────────────────────────────────────────────────────────┐\x1b[0m'
                 )
@@ -572,7 +712,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;251;146;60m└────────────────────────────────────────────────────────┘\x1b[0m'
                 )
-            } else if (mode === 'progress') {
+            } else if (targetMode === 'progress') {
                 term.writeln('  \x1b[1;38;2;226;226;226mIndexing codebase symbols...\x1b[0m')
                 const steps = [15, 38, 68, 85, 100]
                 for (const pct of steps) {
@@ -591,7 +731,7 @@ export function TerminalInner({
                 }
                 term.writeln('')
                 term.writeln('  \x1b[38;2;74;222;128m✔ Indexed 1,428 symbols in 480ms\x1b[0m')
-            } else if (mode === 'checkbox') {
+            } else if (targetMode === 'checkbox') {
                 term.writeln(
                     '  \x1b[38;2;251;146;60m[\x1b[1;38;2;74;222;128m✔\x1b[0m\x1b[38;2;251;146;60m]\x1b[0m \x1b[1;38;2;226;226;226mRun database migrations before tests\x1b[0m \x1b[38;2;251;146;60m◂ focused\x1b[0m'
                 )
@@ -601,7 +741,7 @@ export function TerminalInner({
                 )
                 term.writeln('')
                 term.writeln('  \x1b[38;2;92;92;92m(Press space or enter to toggle)\x1b[0m')
-            } else if (mode === 'radio-group') {
+            } else if (targetMode === 'radio-group') {
                 term.writeln(
                     '  \x1b[38;2;251;146;60m(•)\x1b[0m \x1b[1;38;2;226;226;226mClaude 3.7 Sonnet\x1b[0m   \x1b[38;2;92;92;92mrecommended · hybrid reasoning\x1b[0m'
                 )
@@ -613,13 +753,13 @@ export function TerminalInner({
                 )
                 term.writeln('')
                 term.writeln('  \x1b[38;2;92;92;92m(Use ↑/↓ arrows to change selection)\x1b[0m')
-            } else if (mode === 'skeleton') {
+            } else if (targetMode === 'skeleton') {
                 term.writeln('  \x1b[38;2;60;60;60m░░░░░░░░░░░░░░░░░░░░░░░░\x1b[0m')
                 term.writeln(
                     '  \x1b[38;2;60;60;60m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1b[0m'
                 )
                 term.writeln('  \x1b[38;2;60;60;60m░░░░░░░░░░░░░░░░\x1b[0m')
-            } else if (mode === 'toast') {
+            } else if (targetMode === 'toast') {
                 term.writeln(
                     '  \x1b[38;2;74;222;128m✔\x1b[0m  \x1b[1;38;2;74;222;128mSuccess:\x1b[0m \x1b[38;2;226;226;226mBranch merged successfully to origin/main\x1b[0m'
                 )
@@ -628,7 +768,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;248;113;113m✖\x1b[0m  \x1b[1;38;2;248;113;113mError:\x1b[0m   \x1b[38;2;226;226;226mFailed to authenticate with private registry\x1b[0m'
                 )
-            } else if (mode === 'table') {
+            } else if (targetMode === 'table') {
                 term.writeln(
                     '  \x1b[38;2;60;60;60m┌───────────────────┬──────────────┬──────────────┐\x1b[0m'
                 )
@@ -650,7 +790,7 @@ export function TerminalInner({
                 term.writeln(
                     '  \x1b[38;2;60;60;60m└───────────────────┴──────────────┴──────────────┘\x1b[0m'
                 )
-            } else if (mode === 'switch') {
+            } else if (targetMode === 'switch') {
                 term.writeln(
                     '  \x1b[38;2;110;231;183m\x1b[1m(─●)\x1b[0m \x1b[1mAuto-run tool calls\x1b[0m   \x1b[38;2;102;102;102m(immediate execution)\x1b[0m'
                 )
@@ -665,70 +805,359 @@ export function TerminalInner({
                     '  \x1b[38;2;92;92;92m(Press space/return to toggle, ← / → to switch state)\x1b[0m'
                 )
             } else {
-                // 'all' mode: Full agent session
+                // December terminal agent session (intro preview)
+                term.writeln('  \x1b[1;38;2;255;255;255m✱ December CLI 0.3.28\x1b[0m')
+                term.writeln('  \x1b[38;2;170;170;170m~/code/december (main)\x1b[0m')
+                term.writeln('')
+                term.writeln('  \x1b[38;2;137;180;248mTips for getting started\x1b[0m')
                 term.writeln(
-                    '\x1b[38;2;251;146;60m●\x1b[0m \x1b[1;38;2;226;226;226mReasoning\x1b[0m \x1b[38;2;92;92;92m(1.2s) [142 tokens]\x1b[0m'
+                    '  \x1b[38;2;170;170;170mRun /init to scaffold .december workspace for custom rules and skills\x1b[0m'
                 )
                 term.writeln(
-                    '  \x1b[38;2;92;92;92m\x1b[3mExamining JWT signature verification and session expiry checks...\x1b[0m'
+                    '  \x1b[38;2;170;170;170mUse /handoff to continue this session in December (trydecember.com)\x1b[0m'
                 )
-                await sleep(500)
+                await sleep(350)
+                if (isCancelled) return
+
+                term.writeln('')
+                term.write('  \x1b[38;2;137;180;248m❭ \x1b[0m')
+                const userPrompt = 'refactor auth middleware to verify jwt token expiration'
+                for (const char of userPrompt) {
+                    term.write(`\x1b[38;2;137;180;248m${char}\x1b[0m`)
+                    await sleep(18)
+                    if (isCancelled) return
+                }
+                term.writeln('')
+                await sleep(300)
                 if (isCancelled) return
 
                 term.writeln('')
                 term.writeln(
-                    '\x1b[38;2;74;222;128m✔\x1b[0m \x1b[1;38;2;251;146;60mread_file\x1b[0m \x1b[38;2;140;140;140mpackages/auth/src/jwt.ts\x1b[0m \x1b[38;2;92;92;92m0.1s\x1b[0m'
+                    '    \x1b[3;38;2;170;170;170mExamining auth middleware and token verification logic...\x1b[0m'
                 )
-                await sleep(400)
+                await sleep(250)
+                if (isCancelled) return
+                term.writeln(
+                    '    \x1b[3;38;2;170;170;170mAdding cryptographic signature verification and expiration check.\x1b[0m'
+                )
+                await sleep(350)
                 if (isCancelled) return
 
                 term.writeln('')
-                term.writeln('\x1b[38;2;251;146;60m⌥ packages/auth/src/jwt.ts\x1b[0m')
-                term.writeln(
-                    '\x1b[38;2;42;42;42m┌────────────────────────────────────────────────────────┐\x1b[0m'
+                term.write(
+                    '  \x1b[38;2;137;180;248m⠋\x1b[0m \x1b[38;2;253;214;99mread_file\x1b[0m\x1b[38;2;170;170;170m(path: "packages/auth/src/jwt.ts")\x1b[0m'
                 )
+                await sleep(300)
+                if (isCancelled) return
+
+                term.write('\r\x1b[2K')
                 term.writeln(
-                    '\x1b[38;2;140;140;140m│ @@ -14,6 +14,8 @@ export function verifyToken(token)      │\x1b[0m'
+                    '  \x1b[38;2;253;214;99m● read_file\x1b[0m\x1b[38;2;170;170;170m(path: "packages/auth/src/jwt.ts")\x1b[0m'
                 )
+                await sleep(250)
+                if (isCancelled) return
+
+                term.write(
+                    '  \x1b[38;2;137;180;248m⠋\x1b[0m \x1b[38;2;253;214;99medit_file\x1b[0m\x1b[38;2;170;170;170m(path: "packages/auth/src/jwt.ts")\x1b[0m'
+                )
+                await sleep(300)
+                if (isCancelled) return
+
+                term.write('\r\x1b[2K')
                 term.writeln(
-                    '\x1b[48;2;63;19;22m\x1b[38;2;248;113;113m│ - const decoded = jwt.decode(token)                    │\x1b[0m'
+                    '  \x1b[38;2;253;214;99m● edit_file\x1b[0m\x1b[38;2;170;170;170m(path: "packages/auth/src/jwt.ts")\x1b[0m \x1b[38;2;102;102;102m(ctrl+o to collapse)\x1b[0m'
                 )
+                await sleep(150)
+                if (isCancelled) return
+
                 term.writeln(
-                    '\x1b[48;2;18;47;30m\x1b[38;2;74;222;128m│ + const decoded = jwt.verify(token, process.env.SECRET)│\x1b[0m'
+                    '    \x1b[38;2;170;170;170m@@ -14,6 +14,8 @@ export function verifyToken(token) {\x1b[0m'
                 )
+                await sleep(120)
+                if (isCancelled) return
                 term.writeln(
-                    '\x1b[48;2;18;47;30m\x1b[38;2;74;222;128m│ + if (!decoded.exp || decoded.exp < Date.now()) return │\x1b[0m'
+                    '    \x1b[48;2;63;19;22m\x1b[38;2;252;165;165m- const decoded = jwt.decode(token)\x1b[0m'
                 )
+                await sleep(120)
+                if (isCancelled) return
                 term.writeln(
-                    '\x1b[38;2;42;42;42m└────────────────────────────────────────────────────────┘\x1b[0m'
+                    '    \x1b[48;2;18;47;30m\x1b[38;2;110;231;183m+ const decoded = jwt.verify(token, process.env.JWT_SECRET!)\x1b[0m'
                 )
-                await sleep(400)
+                await sleep(120)
+                if (isCancelled) return
+                term.writeln(
+                    "    \x1b[48;2;18;47;30m\x1b[38;2;110;231;183m+ if (!decoded.exp || decoded.exp < Date.now() / 1000) throw new AuthError('token expired')\x1b[0m"
+                )
+                await sleep(300)
                 if (isCancelled) return
 
                 term.writeln('')
                 const streamTokens = [
-                    'Fixed',
-                    ' potential',
-                    ' timing',
-                    ' attack',
-                    ' and',
-                    ' missing',
-                    ' signature',
-                    ' check',
-                    ' in',
+                    '  Refactored',
                     ' JWT',
-                    ' validation.\n',
+                    ' verification',
+                    ' in',
+                    ' `packages/auth/src/jwt.ts`:\n',
+                    '  • Replaced',
+                    ' unverified',
+                    ' jwt.decode',
+                    ' with',
+                    ' cryptographic',
+                    ' jwt.verify\n',
+                    '  • Added',
+                    ' expiration',
+                    ' claim',
+                    ' check',
+                    ' against',
+                    ' current',
+                    ' epoch\n',
+                    '  • Handled',
+                    ' expired',
+                    ' token',
+                    ' errors',
+                    ' with',
+                    ' descriptive',
+                    ' 401',
+                    ' response\n',
                 ]
-                for (const token of streamTokens) {
-                    term.write(token)
-                    await sleep(35)
+                for (const tok of streamTokens) {
+                    term.write(tok)
+                    await sleep(20)
                     if (isCancelled) return
                 }
+                await sleep(250)
+                if (isCancelled) return
 
                 term.writeln('')
+                const cols = term.cols || 80
+                const sep = '─'.repeat(Math.max(40, cols - 6))
+                term.writeln(`  \x1b[38;2;51;51;51m${sep}\x1b[0m`)
                 term.writeln(
-                    '\x1b[38;2;140;140;140mContext:\x1b[0m \x1b[38;2;251;146;60m━━━━━━\x1b[0m\x1b[38;2;92;92;92m──────────────\x1b[0m \x1b[1;38;2;251;146;60m28%\x1b[0m \x1b[38;2;92;92;92m(36.4k / 128k)\x1b[0m'
+                    '  \x1b[38;2;137;180;248m❭ \x1b[0m\x1b[38;2;102;102;102mAsk December to build...\x1b[0m'
                 )
+                term.writeln(`  \x1b[38;2;51;51;51m${sep}\x1b[0m`)
+                const modelText = 'gemini-3.7-flash (Subscription)'
+                const hintText = '? for shortcuts'
+                const spacesCount = Math.max(2, cols - 6 - modelText.length - hintText.length)
+                const spaces = ' '.repeat(spacesCount)
+                term.writeln(
+                    `  \x1b[38;2;170;170;170m${modelText}\x1b[0m${spaces}\x1b[38;2;102;102;102m${hintText}\x1b[0m`
+                )
+            }
+        }
+
+        async function launchPreview(comp: string) {
+            interactiveState = null
+            shellActive = false
+            currentLine = ''
+            term.writeln('')
+            term.writeln(`${PROMPT_STRING}tui preview ${comp}`)
+            term.writeln('')
+
+            const handled = startComponentMode(comp)
+            if (!handled) {
+                await runSpecificSimulation(comp)
+                if (!isCancelled) {
+                    term.writeln('')
+                    term.write(PROMPT_STRING)
+                    shellActive = true
+                }
+            }
+        }
+
+        let dataDisposable: { dispose: () => void } | null = null
+
+        if (interactive) {
+            dataDisposable = term.onData((data) => {
+                if (interactiveState) {
+                    if (data === 'q' || data === '\x03' || data === '\x1b') {
+                        interactiveState = null
+                        term.writeln('')
+                        term.writeln('  \x1b[38;2;102;102;102m[exited component mode]\x1b[0m')
+                        term.writeln('')
+                        term.write(PROMPT_STRING)
+                        shellActive = true
+                        currentLine = ''
+                        return
+                    }
+
+                    let changed = false
+                    switch (interactiveState.type) {
+                        case 'select-menu': {
+                            const next = handleSelectMenuKey(interactiveState.state, data)
+                            if (next !== interactiveState.state) {
+                                interactiveState.state = next
+                                changed = true
+                            }
+                            break
+                        }
+                        case 'switch': {
+                            const next = handleSwitchKey(interactiveState.state, data)
+                            if (next !== interactiveState.state) {
+                                interactiveState.state = next
+                                changed = true
+                            }
+                            break
+                        }
+                        case 'tabs': {
+                            const next = handleTabsKey(interactiveState.state, data)
+                            if (next !== interactiveState.state) {
+                                interactiveState.state = next
+                                changed = true
+                            }
+                            break
+                        }
+                        case 'checkbox': {
+                            const next = handleCheckboxKey(interactiveState.state, data)
+                            if (next !== interactiveState.state) {
+                                interactiveState.state = next
+                                changed = true
+                            }
+                            break
+                        }
+                        case 'plan-approve': {
+                            const next = handlePlanApproveKey(interactiveState.state, data)
+                            if (next !== interactiveState.state) {
+                                interactiveState.state = next
+                                changed = true
+                            }
+                            break
+                        }
+                        case 'input-bar': {
+                            const next = handleInputBarKey(interactiveState.state, data)
+                            if (next !== interactiveState.state) {
+                                interactiveState.state = next
+                                changed = true
+                            }
+                            break
+                        }
+                    }
+
+                    if (changed) {
+                        renderInteractive(true)
+                    }
+                    return
+                }
+
+                if (!shellActive) {
+                    if (data === '\x03' || data === '\r') {
+                        isCancelled = true
+                        term.writeln('')
+                        term.write(PROMPT_STRING)
+                        shellActive = true
+                        currentLine = ''
+                    }
+                    return
+                }
+
+                // Shell REPL Mode
+                if (data === '\r') {
+                    term.write('\r\n')
+                    const trimmed = currentLine.trim()
+                    if (trimmed) {
+                        history.push(trimmed)
+                        historyIndex = history.length
+                        const res = executeCommand(trimmed)
+                        if (res.type === 'clear') {
+                            term.clear()
+                            term.write(PROMPT_STRING)
+                        } else if (res.type === 'preview') {
+                            launchPreview(res.component)
+                        } else if (res.type === 'replay') {
+                            launchPreview(mode)
+                        } else if (
+                            res.type === 'output' ||
+                            res.type === 'error' ||
+                            res.type === 'theme'
+                        ) {
+                            term.writeln(res.output)
+                            term.writeln('')
+                            term.write(PROMPT_STRING)
+                        }
+                    } else {
+                        term.write(PROMPT_STRING)
+                    }
+                    currentLine = ''
+                } else if (data === '\x7f' || data === '\b') {
+                    if (currentLine.length > 0) {
+                        currentLine = currentLine.slice(0, -1)
+                        term.write('\b \b')
+                    }
+                } else if (data === '\t') {
+                    const res = autocomplete(currentLine)
+                    if (res.completed !== currentLine) {
+                        const backspaces = '\b \b'.repeat(currentLine.length)
+                        term.write(backspaces + res.completed)
+                        currentLine = res.completed
+                    } else if (res.suggestions && res.suggestions.length > 0) {
+                        term.writeln(
+                            '\r\n  \x1b[38;2;170;170;170m' +
+                                res.suggestions.join('   ') +
+                                '\x1b[0m'
+                        )
+                        term.write(PROMPT_STRING + currentLine)
+                    }
+                } else if (data === '\x1b[A') {
+                    if (history.length > 0) {
+                        if (historyIndex > 0) historyIndex--
+                        else historyIndex = history.length - 1
+                        const cmd = history[historyIndex] || ''
+                        const backspaces = '\b \b'.repeat(currentLine.length)
+                        term.write(backspaces + cmd)
+                        currentLine = cmd
+                    }
+                } else if (data === '\x1b[B') {
+                    if (history.length > 0) {
+                        if (historyIndex < history.length - 1) {
+                            historyIndex++
+                            const cmd = history[historyIndex] || ''
+                            const backspaces = '\b \b'.repeat(currentLine.length)
+                            term.write(backspaces + cmd)
+                            currentLine = cmd
+                        } else {
+                            historyIndex = history.length
+                            const backspaces = '\b \b'.repeat(currentLine.length)
+                            term.write(backspaces)
+                            currentLine = ''
+                        }
+                    }
+                } else if (data === '\x03') {
+                    term.write('^C\r\n' + PROMPT_STRING)
+                    currentLine = ''
+                    historyIndex = history.length
+                } else if (data === '\x0c') {
+                    term.clear()
+                    term.write(PROMPT_STRING + currentLine)
+                } else if (data.length === 1 && data >= ' ' && data <= '~') {
+                    currentLine += data
+                    term.write(data)
+                }
+            })
+        }
+
+        async function runSimulation() {
+            if (!term) return
+            term.clear()
+
+            if (lines && lines.length > 0) {
+                for (const line of lines) {
+                    term.writeln(line)
+                }
+                return
+            }
+
+            const initialCmd = mode === 'december' ? 'december' : `tui preview ${mode}`
+            term.writeln(`${PROMPT_STRING}${initialCmd}`)
+            term.writeln('')
+
+            const handled = startComponentMode(mode)
+            if (!handled) {
+                await runSpecificSimulation(mode)
+                if (!isCancelled) {
+                    term.writeln('')
+                    term.write(PROMPT_STRING)
+                    shellActive = true
+                }
             }
         }
 
@@ -736,17 +1165,18 @@ export function TerminalInner({
 
         return () => {
             isCancelled = true
+            dataDisposable?.dispose()
             resizeObserver.disconnect()
             term.dispose()
         }
-    }, [mode, lines, replayKey, heightClass])
+    }, [mode, lines, replayKey, heightClass, interactive])
 
     return (
-        <div className="w-full overflow-x-auto code-scroll touch-scroll">
-            <div
-                ref={containerRef}
-                className={`${heightClass || 'h-64 sm:h-72'} w-full min-w-[500px] sm:min-w-0`}
-            />
+        <div
+            onClick={() => termRef.current?.focus()}
+            className="w-full overflow-x-auto no-scrollbar touch-scroll bg-[#0a0a0a] cursor-text"
+        >
+            <div ref={containerRef} className={`${heightClass || 'h-48 sm:h-60'} w-full`} />
         </div>
     )
 }

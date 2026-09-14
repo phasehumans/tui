@@ -214,7 +214,7 @@ export default function DocsPage() {
                         href="https://github.com/phasehumans/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="link flex items-center gap-1.5 py-1 px-1"
+                        className="flex items-center gap-1.5 py-1 px-1 text-[#8c8c8c] hover:text-white transition-colors"
                     >
                         <span>github</span>
                         <ExternalLink className="h-3.5 w-3.5" />
@@ -223,7 +223,7 @@ export default function DocsPage() {
                         href="https://npmjs.com/package/@trydecember/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="link accent-link hidden sm:inline py-1"
+                        className="hidden sm:inline py-1 text-[#fb923c] hover:text-[#fdba74] transition-colors"
                     >
                         @trydecember/tui
                     </a>
@@ -236,7 +236,7 @@ export default function DocsPage() {
                 <aside
                     id="sidebar-nav"
                     className={`
-                        fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#141414] border-r border-[#222222] p-5 flex flex-col gap-6 overflow-y-auto shadow-2xl transition-transform duration-200 ease-in-out touch-scroll
+                        fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] bg-[#141414] border-r border-[#222222] p-5 flex flex-col gap-6 overflow-y-auto no-scrollbar shadow-2xl transition-transform duration-200 ease-in-out touch-scroll
                         lg:static lg:z-auto lg:h-full lg:w-52 lg:max-w-none lg:border-r-0 lg:p-0 lg:py-2 lg:pr-4 lg:shadow-none lg:translate-x-0 shrink-0 lg:-ml-3 lg:transition-none
                         ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
                     `}
@@ -288,8 +288,7 @@ export default function DocsPage() {
                     {/* Components */}
                     <div className="flex flex-col gap-1.5">
                         <span className="text-[12px] font-semibold text-[#5c5c5c] uppercase tracking-wider px-1.5">
-                            components (
-                            {DOC_ITEMS.filter((i) => i.category === 'components').length})
+                            components
                         </span>
                         <div className="flex flex-col gap-0.5">
                             {componentItems.map((item) => {
@@ -324,7 +323,7 @@ export default function DocsPage() {
                 <main
                     ref={mainRef}
                     onScroll={handleMainScroll}
-                    className="flex-1 h-full min-h-0 overflow-y-auto touch-scroll py-2 px-4 sm:px-8 flex flex-col gap-6 sm:gap-8"
+                    className="flex-1 h-full min-h-0 overflow-y-auto no-scrollbar touch-scroll py-2 px-4 sm:px-8 flex flex-col gap-6 sm:gap-8"
                 >
                     {/* Overview Header */}
                     <section id="overview" className="flex flex-col gap-2">
@@ -425,18 +424,20 @@ export default function DocsPage() {
 
                                 <button
                                     onClick={() => setReplayKey((k) => k + 1)}
-                                    className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-[#202020] transition-colors min-h-[32px]"
+                                    className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-white/[0.04] transition-colors cursor-pointer"
                                     title="replay terminal animation"
                                 >
-                                    <RotateCcw className="h-3.5 w-3.5 text-[#8c8c8c]" />
+                                    <RotateCcw className="h-3 w-3 text-[#8c8c8c]" />
                                     <span>replay</span>
                                 </button>
                             </div>
 
-                            <div className="rounded-[4px] bg-[#111111] p-3 overflow-x-auto code-scroll border border-[#222222]">
+                            {/* Terminal Canvas */}
+                            <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4">
                                 <TerminalPreview
                                     mode={activeItem.terminalMode}
                                     replayKey={replayKey}
+                                    heightClass={activeItem.terminalHeight}
                                 />
                             </div>
                         </section>
@@ -538,11 +539,16 @@ export default function DocsPage() {
                                             {/* Variation Terminal Preview */}
                                             {(variation.terminalLines ||
                                                 variation.terminalMode) && (
-                                                <div className="rounded-[4px] bg-[#111111] p-3 overflow-x-auto code-scroll border border-[#1f1f1f]">
+                                                <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4">
                                                     <TerminalPreview
                                                         mode={variation.terminalMode}
                                                         lines={variation.terminalLines}
-                                                        heightClass="h-28 sm:h-32"
+                                                        heightClass={
+                                                            variation.terminalLines &&
+                                                            variation.terminalLines.length <= 4
+                                                                ? 'h-20 sm:h-24'
+                                                                : 'h-28 sm:h-36'
+                                                        }
                                                     />
                                                 </div>
                                             )}
@@ -751,7 +757,7 @@ export default function DocsPage() {
                                                     {p.type}
                                                 </td>
                                                 <td className="py-2.5 px-3 text-[#5c5c5c] whitespace-nowrap">
-                                                    {p.default || '-'}
+                                                    {p.default || 'none'}
                                                 </td>
                                                 <td className="py-2.5 px-3 text-[#e2e2e2]">
                                                     {p.desc}
@@ -795,7 +801,7 @@ export default function DocsPage() {
                 </main>
 
                 {/* Right Table of Contents: "On This Page", positioned to right side */}
-                <aside className="hidden xl:block w-48 shrink-0 h-full overflow-y-auto pl-10 pr-0 py-2 text-left ml-auto xl:-mr-3">
+                <aside className="hidden xl:block w-48 shrink-0 h-full overflow-y-auto no-scrollbar pl-10 pr-0 py-2 text-left ml-auto xl:-mr-3">
                     <div className="flex flex-col gap-3">
                         <span className="text-[0.92rem] font-semibold text-white tracking-tight">
                             on this page

@@ -43,6 +43,7 @@ export interface DocItem {
     installCmd?: string
     terminalMode?:
         | 'all'
+        | 'december'
         | 'diff-viewer'
         | 'streaming-text'
         | 'collapsible-reasoning'
@@ -72,6 +73,7 @@ export interface DocItem {
         | 'toast'
         | 'table'
         | 'switch'
+    terminalHeight?: string
     codeSnippet?: string
     variations?: ComponentVariation[]
     props?: PropItem[]
@@ -87,36 +89,36 @@ const BASE_DOC_ITEMS: DocItem[] = [
         navLabel: 'introduction',
         title: 'introduction',
         badge: 'overview',
-        description:
-            'An unbundled collection of copy-paste terminal UI primitives for AI coding agents built on React and Ink. Accessible, controlled, customizable, and open source.',
-        terminalMode: 'all',
+        description: 'a ui library for terminal agents.',
+        terminalMode: 'december',
+        terminalHeight: 'h-[380px] sm:h-[460px]',
         installCmd: 'npx @trydecember/tui init',
         toc: [
             { id: 'overview', label: 'overview' },
             { id: 'install-cmd', label: 'quickstart' },
             { id: 'preview', label: 'terminal preview' },
-            { id: 'philosophy', label: 'philosophy' },
-            { id: 'turn-architecture', label: 'turn architecture' },
+            { id: 'philosophy', label: 'how it works' },
+            { id: 'turn-architecture', label: 'agent turn' },
         ],
         sections: [
             {
                 id: 'philosophy',
-                title: 'Philosophy & Design Invariants',
+                title: 'how it works',
                 description:
-                    '@trydecember/tui is an unbundled collection of copy-paste terminal primitives. Instead of distributing a monolithic npm package, you copy typed, raw component primitives directly into your repository.',
+                    'tui is a ui library for terminal agents. you add components directly to your project so you can edit and customize the code.',
                 points: [
-                    'Unbundled Source Code: You own the components. Modify styling, diff folding algorithms, border glyphs, or animation timings directly in your repo.',
-                    'Purely Controlled Primitives: All components are stateless view components. Your agent state machine owns focus, keyboard listeners (useInput), and lifecycle transitions. Components never hijack stdin.',
-                    'React + Ink Runtime: Built for the modern terminal ecosystem. Renders in any terminal emulator running Node.js or Bun with zero browser or native GUI dependencies.',
-                    'Local Design Token Contract: Every component consumes design tokens from a central theme.ts file via your local TypeScript path alias (@/components/ui/theme).',
-                    'Zero Vendor Lock-In: No telemetry, no hosted dependencies, and no proprietary wrappers. Just clean, readable TypeScript and Ink.',
+                    'own your code: components are copied to your project. you can change styling, borders, and behavior directly.',
+                    'controlled components: components are stateless. your agent controls focus, keyboard input, and state.',
+                    'react and ink: works in any terminal with node or bun. no browser or native window needed.',
+                    'shared theme: colors and symbols come from a theme.ts file in your project.',
+                    'no lock in: no telemetry or tracking. just plain typescript and ink.',
                 ],
             },
             {
                 id: 'turn-architecture',
-                title: 'Agent Turn Architecture',
+                title: 'agent turn',
                 description:
-                    'In an AI coding agent, a "turn" represents a single round of interaction: the user\'s prompt, the agent\'s chain-of-thought scratchpad, tool calls (bash, edits, searches), code diffs, and the final streaming markdown response. Here is how @trydecember/tui primitives compose into a production agent turn:',
+                    'a turn is one round between a user and an agent: user prompt, agent thoughts, tool calls, diffs, and the final reply. here is how components work together in a turn:',
                 codeSnippet: `import React from 'react'
 import { Box } from 'ink'
 import { StreamingText } from '@/components/ui/streaming-text'
@@ -155,7 +157,7 @@ export function AgentTurn({
 }: AgentTurnProps) {
   return (
     <Box flexDirection="column" gap={1}>
-      {/* 1. Agent chain-of-thought scratchpad */}
+      {/* 1. agent thinking block */}
       {thought && (
         <CollapsibleReasoning
           thought={thought}
@@ -164,7 +166,7 @@ export function AgentTurn({
         />
       )}
 
-      {/* 2. Tool executions (file edits, bash execution, searches) */}
+      {/* 2. tool calls (file edits, commands, searches) */}
       {toolCalls.map((call, idx) => (
         <ToolCallCard
           key={idx}
@@ -175,10 +177,10 @@ export function AgentTurn({
         />
       ))}
 
-      {/* 3. File diff viewer with syntax highlighting */}
+      {/* 3. code diff view */}
       {diff && <DiffViewer diff={diff} />}
 
-      {/* 4. Progressive streaming agent response */}
+      {/* 4. streaming text reply */}
       {responseText && (
         <StreamingText
           text={responseText}
@@ -186,7 +188,7 @@ export function AgentTurn({
         />
       )}
 
-      {/* 5. Context window gauge */}
+      {/* 5. token gauge */}
       <TokenGauge
         used={tokensUsed}
         total={tokenLimit}
@@ -205,55 +207,52 @@ export function AgentTurn({
         navLabel: 'installation',
         title: 'installation',
         badge: 'setup',
-        description:
-            'How to initialize your project, configure path aliases, and install terminal primitives via the CLI.',
+        description: 'set up your project, pick a theme, and add components.',
         installCmd: 'npx @trydecember/tui init',
         toc: [
             { id: 'overview', label: 'overview' },
-            { id: 'install-cmd', label: 'cli setup' },
+            { id: 'install-cmd', label: 'quickstart' },
             { id: 'prerequisites', label: 'prerequisites' },
-            { id: 'cli-options', label: 'cli options' },
+            { id: 'cli-options', label: 'options' },
             { id: 'configuration', label: 'tui.json' },
             { id: 'adding-components', label: 'adding components' },
-            { id: 'project-structure', label: 'project structure' },
-            { id: 'verification', label: 'verification' },
+            { id: 'project-structure', label: 'project layout' },
+            { id: 'verification', label: 'quick test' },
         ],
         sections: [
             {
                 id: 'prerequisites',
-                title: 'Prerequisites',
-                description:
-                    'Ensure your project meets the minimum runtime and peer dependency requirements before initializing:',
+                title: 'prerequisites',
+                description: 'what you need before setting up:',
                 points: [
-                    'Node.js (>= 18.0.0) or Bun (>= 1.0.0) installed on your system.',
-                    'React (>= 18.0.0 or 19.0.0) and Ink (>= 4.0.0, 5.0.0, or 6.0.0) installed in your project.',
-                    'TypeScript (>= 5.0.0) configured with path aliases in tsconfig.json (e.g. "@/*": ["./src/*"]).',
+                    'node 18 or later, or bun 1.0 or later.',
+                    'react and ink installed in your project.',
+                    'typescript with path aliases in tsconfig.json (like @/*).',
                 ],
             },
             {
                 id: 'cli-options',
-                title: 'CLI Options & Flags',
+                title: 'cli options',
                 description:
-                    'The init command analyzes your project, detects your framework, package manager (bun, pnpm, npm), and tsconfig.json path aliases, and generates the initial tui.json and theme.ts token contract.',
+                    'the init command checks your project, finds your package manager, and creates tui.json and theme.ts.',
                 items: [
                     {
-                        title: 'Interactive Mode',
-                        description:
-                            'Prompts for your preferred theme preset and component path alias with sensible defaults.',
+                        title: 'interactive setup',
+                        description: 'prompts you to choose a theme and where to save components.',
                         codeSnippet: 'npx @trydecember/tui init',
                         language: 'bash',
                     },
                     {
-                        title: 'Preset Selection (--theme <name>)',
+                        title: 'pick a theme (--theme <name>)',
                         description:
-                            'Initialize directly with one of the built-in color presets (default, amber, emerald, cyan, monochrome, zinc, slate).',
+                            'sets the theme directly (default, amber, emerald, cyan, monochrome, zinc, slate).',
                         codeSnippet: 'npx @trydecember/tui init --theme emerald',
                         language: 'bash',
                     },
                     {
-                        title: 'Non-Interactive / CI Mode (-y, --yes)',
+                        title: 'skip prompts (-y, --yes)',
                         description:
-                            'Skip interactive prompts and automatically accept detected project defaults.',
+                            'accepts default settings automatically without asking questions.',
                         codeSnippet: 'npx @trydecember/tui init -y',
                         language: 'bash',
                     },
@@ -261,9 +260,8 @@ export function AgentTurn({
             },
             {
                 id: 'configuration',
-                title: 'Configuration (tui.json)',
-                description:
-                    'The CLI creates a tui.json configuration file at the root of your project to manage component output paths and aliases:',
+                title: 'configuration (tui.json)',
+                description: 'tui.json stores paths and settings for your components:',
                 codeSnippet: `{
   "$schema": "https://tui.trydecember.com/schema.json",
   "tsx": true,
@@ -278,85 +276,78 @@ export function AgentTurn({
                 items: [
                     {
                         title: '$schema',
-                        description:
-                            'URL to the official JSON Schema definition. Enables real-time validation and autocompletion in VSCode, Cursor, and WebStorm.',
+                        description: 'link to schema for editor hints and autocomplete.',
                     },
                     {
                         title: 'tsx',
                         description:
-                            'Boolean flag indicating whether to generate TypeScript (.tsx) or JavaScript (.jsx) component files.',
+                            'set to true for typescript (.tsx) or false for javascript (.jsx).',
                     },
                     {
                         title: 'theme',
-                        description:
-                            'The active theme color preset name (default, amber, emerald, cyan, monochrome, zinc, slate).',
+                        description: 'color theme name for your components.',
                     },
                     {
                         title: 'aliases.components',
-                        description:
-                            'Base directory alias for application components in your project.',
+                        description: 'path alias for your components folder.',
                     },
                     {
                         title: 'aliases.ui',
-                        description:
-                            'Target directory alias where primitives added by the CLI will be copied.',
+                        description: 'path alias where tui components are saved.',
                     },
                     {
                         title: 'aliases.theme',
-                        description:
-                            'Path alias used by installed components to import the central theme.ts design tokens contract.',
+                        description: 'path alias for your theme.ts file.',
                     },
                 ],
             },
             {
                 id: 'adding-components',
-                title: 'Adding Components',
-                description:
-                    'Use the add command to download component templates and auto-install their dependencies:',
-                codeSnippet: `# Add a single component
+                title: 'adding components',
+                description: 'use the add command to copy components into your project:',
+                codeSnippet: `# add a single component
 npx @trydecember/tui add diff-viewer
 
-# Add multiple components simultaneously
+# add multiple components
 npx @trydecember/tui add streaming-text collapsible-reasoning tool-call-card token-gauge
 
-# Add all available primitives at once
+# add all components
 npx @trydecember/tui add --all
 
-# Overwrite existing files without prompting
+# overwrite existing files without prompting
 npx @trydecember/tui add diff-viewer --overwrite`,
                 language: 'bash',
                 points: [
-                    'The CLI fetches typed component source code and dependency metadata directly from the static registry.',
-                    'External npm dependencies (e.g. diff, cli-spinners) are automatically detected and installed with your active package manager.',
-                    'Import paths inside downloaded components are automatically rewritten to match the aliases defined in your local tui.json.',
+                    'copies component source files directly into your project.',
+                    'installs any needed packages (like diff or cli-spinners) automatically.',
+                    'updates import paths to match your tui.json path aliases.',
                 ],
             },
             {
                 id: 'project-structure',
-                title: 'Project Directory Structure',
+                title: 'project layout',
                 description:
-                    'After running init and adding components, your project directory will look like this:',
-                codeSnippet: `my-terminal-agent/
+                    'after running init and adding components, your project looks like this:',
+                codeSnippet: `my-agent/
 ├── src/
 │   ├── components/
 │   │   └── ui/
-│   │       ├── theme.ts                  # Central design tokens contract
-│   │       ├── diff-viewer.tsx           # Unified git diff renderer
-│   │       ├── streaming-text.tsx        # Markdown streaming with cursor
-│   │       ├── tool-call-card.tsx        # Tool execution card with spinners
-│   │       └── collapsible-reasoning.tsx # Chain-of-thought scratchpad
-│   ├── agent.tsx                         # Agent state machine & orchestration
-│   └── index.tsx                         # Ink render loop entrypoint
+│   │       ├── theme.ts                  # colors and symbols
+│   │       ├── diff-viewer.tsx           # code diff view
+│   │       ├── streaming-text.tsx        # streaming text with cursor
+│   │       ├── tool-call-card.tsx        # tool call status card
+│   │       └── collapsible-reasoning.tsx # collapsible thinking block
+│   ├── agent.tsx                         # agent logic
+│   └── index.tsx                         # entry point
 ├── package.json
-├── tsconfig.json                         # Path aliases: "@/*": ["./src/*"]
-└── tui.json                              # Local CLI configuration`,
+├── tsconfig.json                         # path aliases: "@/*": ["./src/*"]
+└── tui.json                              # local cli config`,
                 language: 'bash',
             },
             {
                 id: 'verification',
-                title: 'Verification & Hello World',
-                description:
-                    'Create a minimal index.tsx file to verify that your Ink runtime and @trydecember/tui primitives render cleanly in your terminal:',
+                title: 'quick test',
+                description: 'create a small file to test that components render in your terminal:',
                 codeSnippet: `import React from 'react'
 import { render, Box, Text } from 'ink'
 import { DiffViewer } from '@/components/ui/diff-viewer'
@@ -376,7 +367,7 @@ function App() {
     <Box flexDirection="column" padding={1}>
       <Box marginBottom={1}>
         <Text bold color={THEME.colors.brand}>
-          {THEME.glyphs.status} @trydecember/tui initialized successfully
+          {THEME.glyphs.status} @trydecember/tui ready
         </Text>
       </Box>
       <DiffViewer diff={sampleDiff} />
@@ -395,21 +386,20 @@ render(<App />)`,
         navLabel: 'theming',
         title: 'theming',
         badge: 'tokens',
-        description:
-            'Type-safe design token contract for terminal colors, unicode glyphs, padding, and border styles.',
+        description: 'colors, symbols, and spacing for terminal components.',
         toc: [
             { id: 'overview', label: 'overview' },
-            { id: 'token-contract', label: 'tokens contract' },
-            { id: 'presets', label: 'color presets' },
-            { id: 'glyphs', label: 'unicode glyphs' },
-            { id: 'customization', label: 'customization' },
+            { id: 'token-contract', label: 'theme file' },
+            { id: 'presets', label: 'color themes' },
+            { id: 'glyphs', label: 'symbols' },
+            { id: 'customization', label: 'customizing' },
         ],
         sections: [
             {
                 id: 'token-contract',
-                title: 'The theme.ts Contract',
+                title: 'theme file',
                 description:
-                    'All installed primitives import their styling tokens exclusively from components/ui/theme.ts. This guarantees consistent brand accents, border styles, and status glyphs across your entire agent interface:',
+                    'every component imports colors, borders, and symbols from theme.ts. this keeps your agent ui consistent:',
                 codeSnippet: `// components/ui/theme.ts
 export type ThemePreset =
   | 'default'
@@ -421,16 +411,16 @@ export type ThemePreset =
   | 'slate'
 
 export interface ThemeColors {
-  brand: string        // Accent color for active borders, spinners, and highlights
-  text: string         // Primary terminal body text (usually white/bright)
-  muted: string        // Secondary descriptions, timestamps, and metadata
-  dim: string          // Inactive items, faint dividers, and borders
-  border: string       // Box frames and card boundaries
-  success: string      // Passing checks, diff additions, completed status
-  error: string        // Errors, diff deletions, failed status
-  warning: string      // Active spinners, warnings, retry alerts
-  diffAddBg: string    // Background color for diff additions
-  diffDeleteBg: string // Background color for diff deletions
+  brand: string        // highlight color for borders, spinners, and accents
+  text: string         // body text
+  muted: string        // secondary text and labels
+  dim: string          // inactive items and faint borders
+  border: string       // box borders
+  success: string      // completed checks and diff additions
+  error: string        // errors and diff deletions
+  warning: string      // warnings and active spinners
+  diffAddBg: string    // background for diff additions
+  diffDeleteBg: string // background for diff deletions
 }
 
 export interface ThemePadding {
@@ -440,17 +430,17 @@ export interface ThemePadding {
 }
 
 export interface ThemeGlyphs {
-  prompt: string       // CLI command prompt indicator (❭)
-  selector: string     // Menu selection pointer (❭)
-  bullet: string       // List bullet (•)
-  status: string       // Live status indicator dot (●)
-  branch: string       // Git branch indicator (⌥)
-  check: string        // Success checkmark (✔)
-  cross: string        // Error / failure mark (✖)
-  arrowRight: string   // Next / right arrow (→)
-  arrowDown: string    // Expand / down arrow (↓)
-  foldClosed: string   // Collapsed disclosure triangle (▸)
-  foldOpen: string     // Expanded disclosure triangle (▾)
+  prompt: string       // command prompt symbol (❭)
+  selector: string     // menu selection pointer (❭)
+  bullet: string       // list bullet (•)
+  status: string       // status dot (●)
+  branch: string       // git branch icon (⌥)
+  check: string        // checkmark (✔)
+  cross: string        // failure mark (✖)
+  arrowRight: string   // right arrow (→)
+  arrowDown: string    // down arrow (↓)
+  foldClosed: string   // collapsed triangle (▸)
+  foldOpen: string     // expanded triangle (▾)
 }
 
 export interface ThemeDefinition {
@@ -462,49 +452,43 @@ export interface ThemeDefinition {
             },
             {
                 id: 'presets',
-                title: 'Built-In Color Presets',
-                description:
-                    '@trydecember/tui includes 7 curated terminal palettes engineered for high legibility across TrueColor and ANSI 256-color terminal emulators:',
+                title: 'color themes',
+                description: 'tui includes 7 built-in themes that work across terminal emulators:',
                 items: [
                     {
-                        title: 'Amber (Warm Glow, Recommended for Agents)',
+                        title: 'amber',
                         description:
-                            'Warm, high-focus amber accent (#FB923C) with deep carbon backgrounds. The default aesthetic for AI coding agents.',
+                            'warm orange accents with dark gray backgrounds. good default for agents.',
                         codeSnippet: `brand: '#FB923C', text: 'white', muted: '#FDBA74', dim: '#7C2D12', border: '#431407'`,
                         language: 'typescript',
                     },
                     {
-                        title: 'Emerald (Matrix Green)',
-                        description:
-                            'Classic hacker matrix aesthetic (#10B981) with deep forest borders and emerald success indicators.',
+                        title: 'emerald',
+                        description: 'green accents with dark green borders.',
                         codeSnippet: `brand: '#10B981', text: 'white', muted: '#6EE7B7', dim: '#065F46', border: '#064E3B'`,
                         language: 'typescript',
                     },
                     {
-                        title: 'Cyan (Electric Cyan)',
-                        description:
-                            'Clean, modern developer tooling aesthetic (#06B6D4) with marine dark tones.',
+                        title: 'cyan',
+                        description: 'bright cyan accents with dark blue borders.',
                         codeSnippet: `brand: '#06B6D4', text: 'white', muted: '#67E8F9', dim: '#155E75', border: '#164E63'`,
                         language: 'typescript',
                     },
                     {
-                        title: 'Default (Spacetime Blue)',
-                        description:
-                            'Balanced soft blue (#89B4F8) with neutral gray borders. Gentle on the eyes during long sessions.',
+                        title: 'default',
+                        description: 'soft blue with neutral gray borders.',
                         codeSnippet: `brand: '#89B4F8', text: 'white', muted: '#AAAAAA', dim: '#666666', border: '#333333'`,
                         language: 'typescript',
                     },
                     {
-                        title: 'Monochrome (Universal Grayscale)',
-                        description:
-                            'Pure high-contrast grayscale (#FFFFFF) engineered for universal compatibility across all terminal emulators and light/dark modes.',
+                        title: 'monochrome',
+                        description: 'pure black and white. works in every terminal.',
                         codeSnippet: `brand: '#FFFFFF', text: '#FFFFFF', muted: '#A3A3A3', dim: '#525252', border: '#404040'`,
                         language: 'typescript',
                     },
                     {
-                        title: 'Zinc & Slate (Modern Dark)',
-                        description:
-                            'Industrial neutral zinc (#A1A1AA) or cool blue-tinted slate (#94A3B8) for clean, minimalist CLI applications.',
+                        title: 'zinc and slate',
+                        description: 'neutral grays for a clean dark look.',
                         codeSnippet: `brand: '#A1A1AA', text: '#FAFAFA', muted: '#71717A', dim: '#3F3F46', border: '#27272A'`,
                         language: 'typescript',
                     },
@@ -512,10 +496,10 @@ export interface ThemeDefinition {
             },
             {
                 id: 'glyphs',
-                title: 'Unicode Glyphs & Terminal Compatibility',
+                title: 'symbols',
                 description:
-                    'Modern terminals support UTF-8 unicode characters by default. @trydecember/tui uses discrete unicode glyphs for status badges, selection arrows, and collapsible accordions. If your application targets legacy environments, you can configure ASCII fallbacks directly in theme.ts:',
-                codeSnippet: `// Detect UTF-8 support or environment override
+                    'tui uses utf-8 symbols for arrows, spinners, and dots. if your terminal only supports ascii, you can set plain text fallbacks in theme.ts:',
+                codeSnippet: `// check for utf-8 support or environment override
 const isUtf8Supported =
   Boolean(process.env.LANG && !process.env.LANG.includes('ASCII'))
 
@@ -550,10 +534,10 @@ export const DEFAULT_GLYPHS: ThemeGlyphs = isUtf8Supported
             },
             {
                 id: 'customization',
-                title: 'Customizing & Extending Tokens',
+                title: 'customizing',
                 description:
-                    'Because theme.ts lives in your codebase, you can easily customize colors, add custom design tokens, or wrap components in dynamic theme switchers:',
-                codeSnippet: `// Example: Consuming theme tokens in a custom agent header
+                    'because theme.ts is in your project, you can change colors directly or add new ones:',
+                codeSnippet: `// Example: using theme tokens in a custom agent header
 import React from 'react'
 import { Box, Text } from 'ink'
 import { THEME } from '@/components/ui/theme'
@@ -588,9 +572,9 @@ export function AgentHeader({ model, tokensUsed, totalCost }: AgentHeaderProps) 
 }`,
                 language: 'tsx',
                 points: [
-                    'Single Source of Truth: Modifying a color in theme.ts instantly updates every component across your CLI without editing individual component files.',
-                    'Type-Safe Tokens: TypeScript catches misspelled color names or invalid glyph properties at compile time.',
-                    'Dynamic Theming: You can expose a runtime flag (--theme <name>) or environment variable (TUI_THEME=emerald) that invokes createTheme(presetName) at startup.',
+                    'one place for colors: changing a color in theme.ts updates all components.',
+                    'typescript checks: typescript warns you if a color name or symbol is missing.',
+                    'runtime themes: you can switch themes with an option or environment variable.',
                 ],
             },
         ],
@@ -601,7 +585,7 @@ export function AgentHeader({ model, tokensUsed, totalCost }: AgentHeaderProps) 
         navLabel: 'diff-viewer',
         title: 'DiffViewer',
         badge: 'display',
-        description: 'unified git diff renderer with file headers and fold truncation.',
+        description: 'shows git diffs with file names and expandable lines.',
         terminalMode: 'diff-viewer',
         installCmd: 'npx @trydecember/tui add diff-viewer',
         codeSnippet: `import { DiffViewer } from '@/components/tui/diff-viewer'
@@ -632,25 +616,25 @@ render(<App />)`,
                 prop: 'diff',
                 type: 'string',
                 default: 'required',
-                desc: 'raw unified git diff string',
+                desc: 'unified git diff text',
             },
             {
                 prop: 'filePath',
                 type: 'string',
                 default: 'undefined',
-                desc: 'file path label in header',
+                desc: 'file path shown in header',
             },
             {
                 prop: 'maxLines',
                 type: 'number',
                 default: '15',
-                desc: 'max visible lines before fold truncation',
+                desc: 'maximum lines before folding',
             },
             {
                 prop: 'isExpanded',
                 type: 'boolean',
                 default: 'true',
-                desc: 'expand or collapse full diff',
+                desc: 'expand or collapse the diff',
             },
         ],
         toc: [
@@ -667,7 +651,7 @@ render(<App />)`,
         navLabel: 'streaming-text',
         title: 'StreamingText',
         badge: 'stream',
-        description: 'progressive token stream renderer with terminal block cursor.',
+        description: 'streams text token by token with a terminal block cursor.',
         terminalMode: 'streaming-text',
         installCmd: 'npx @trydecember/tui add streaming-text',
         codeSnippet: `import { StreamingText } from '@/components/tui/streaming-text'
@@ -688,19 +672,19 @@ render(<App stream="review complete." isGenerating={false} />)`,
                 prop: 'content',
                 type: 'string',
                 default: 'required',
-                desc: 'accumulated text content',
+                desc: 'text content to display',
             },
             {
                 prop: 'isStreaming',
                 type: 'boolean',
                 default: 'false',
-                desc: 'renders terminal block cursor when true',
+                desc: 'shows terminal cursor when true',
             },
             {
                 prop: 'color',
                 type: 'string',
                 default: 'THEME.colors.text',
-                desc: 'text color override',
+                desc: 'custom text color',
             },
         ],
         toc: [
@@ -717,7 +701,7 @@ render(<App stream="review complete." isGenerating={false} />)`,
         navLabel: 'collapsible-reasoning',
         title: 'CollapsibleReasoning',
         badge: 'container',
-        description: 'foldable thought container with execution time and token counter.',
+        description: 'collapsible block for agent thinking, duration, and token counts.',
         terminalMode: 'collapsible-reasoning',
         installCmd: 'npx @trydecember/tui add collapsible-reasoning',
         codeSnippet: `import { CollapsibleReasoning } from '@/components/tui/collapsible-reasoning'
@@ -743,13 +727,13 @@ render(<App />)`,
                 prop: 'content',
                 type: 'string',
                 default: 'required',
-                desc: 'raw reasoning text content',
+                desc: 'thinking text content',
             },
             {
                 prop: 'isExpanded',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether thought details are unfolded',
+                desc: 'whether thinking block is open',
             },
             {
                 prop: 'isThinking',
@@ -761,9 +745,14 @@ render(<App />)`,
                 prop: 'durationMs',
                 type: 'number',
                 default: 'undefined',
-                desc: 'execution time in ms',
+                desc: 'duration in milliseconds',
             },
-            { prop: 'tokenCount', type: 'number', default: 'undefined', desc: 'tokens consumed' },
+            {
+                prop: 'tokenCount',
+                type: 'number',
+                default: 'undefined',
+                desc: 'number of tokens used',
+            },
         ],
         toc: [
             { id: 'overview', label: 'overview' },
@@ -779,7 +768,7 @@ render(<App />)`,
         navLabel: 'tool-call-card',
         title: 'ToolCallCard',
         badge: 'status',
-        description: 'tool execution card with status indicator and expandable output.',
+        description: 'card showing tool name, status, duration, and output.',
         terminalMode: 'tool-call-card',
         installCmd: 'npx @trydecember/tui add tool-call-card',
         codeSnippet: `import { ToolCallCard } from '@/components/tui/tool-call-card'
@@ -807,37 +796,37 @@ render(<App />)`,
                 prop: 'toolName',
                 type: 'string',
                 default: 'required',
-                desc: 'tool identifier (e.g. bun test, read_file)',
+                desc: 'tool name (like bun test or read_file)',
             },
             {
                 prop: 'inputSummary',
                 type: 'string',
                 default: 'undefined',
-                desc: 'argument or target summary',
+                desc: 'arguments or target summary',
             },
             {
                 prop: 'status',
                 type: "'pending' | 'running' | 'completed' | 'failed'",
                 default: 'required',
-                desc: 'execution state',
+                desc: 'tool run state',
             },
             {
                 prop: 'isExpanded',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether output box is unfolded',
+                desc: 'whether output box is open',
             },
             {
                 prop: 'output',
                 type: 'string',
                 default: 'undefined',
-                desc: 'stdout or error content',
+                desc: 'output or error text',
             },
             {
                 prop: 'durationMs',
                 type: 'number',
                 default: 'undefined',
-                desc: 'runtime in milliseconds',
+                desc: 'duration in milliseconds',
             },
         ],
         toc: [
@@ -854,7 +843,7 @@ render(<App />)`,
         navLabel: 'token-gauge',
         title: 'TokenGauge',
         badge: 'meter',
-        description: 'context window capacity meter with threshold color transitions.',
+        description: 'bar showing context window usage and token limits.',
         terminalMode: 'token-gauge',
         installCmd: 'npx @trydecember/tui add token-gauge',
         codeSnippet: `import { TokenGauge } from '@/components/tui/token-gauge'
@@ -875,20 +864,20 @@ render(<App />)`,
                 prop: 'usedTokens',
                 type: 'number',
                 default: 'required',
-                desc: 'tokens currently used',
+                desc: 'tokens used so far',
             },
             {
                 prop: 'totalTokens',
                 type: 'number',
                 default: 'required',
-                desc: 'context window capacity',
+                desc: 'total token limit',
             },
-            { prop: 'width', type: 'number', default: '20', desc: 'visual meter width in columns' },
+            { prop: 'width', type: 'number', default: '20', desc: 'bar width in characters' },
             {
                 prop: 'label',
                 type: 'string',
                 default: "'Context'",
-                desc: 'label displayed before meter',
+                desc: 'label shown before the bar',
             },
         ],
         toc: [
@@ -905,7 +894,7 @@ render(<App />)`,
         navLabel: 'pill',
         title: 'Pill',
         badge: 'chip',
-        description: 'compact badge chip for metadata, tags, and status labels.',
+        description: 'small badge for tags, status, and metadata.',
         terminalMode: 'pill',
         installCmd: 'npx @trydecember/tui add pill',
         codeSnippet: `import { Pill } from '@/components/tui/pill'
@@ -928,25 +917,25 @@ render(<App />)`,
                 prop: 'label',
                 type: 'string',
                 default: 'required',
-                desc: 'text content of the badge pill',
+                desc: 'badge label text',
             },
             {
                 prop: 'color',
                 type: 'string',
                 default: 'THEME.colors.text',
-                desc: 'foreground label color',
+                desc: 'text color',
             },
             {
                 prop: 'backgroundColor',
                 type: 'string',
                 default: 'THEME.colors.border',
-                desc: 'background pill color',
+                desc: 'background color',
             },
             {
                 prop: 'dimColor',
                 type: 'boolean',
                 default: 'false',
-                desc: 'renders muted dim text if true',
+                desc: 'uses dim text when true',
             },
         ],
         toc: [
@@ -963,7 +952,8 @@ render(<App />)`,
         navLabel: 'spinner',
         title: 'Spinner',
         badge: 'feedback',
-        description: 'animated terminal dot spinner with an optional status label.',
+        description:
+            'animated terminal loading spinner with classic braille dots, dot-matrix waves, pulses, equalizer bars, and snake variants.',
         terminalMode: 'spinner',
         installCmd: 'npx @trydecember/tui add spinner',
         codeSnippet: `import { Spinner } from '@/components/tui/spinner'
@@ -972,8 +962,21 @@ import React from 'react'
 
 export function App() {
   return (
-    <Box padding={1}>
-      <Spinner label="analyzing dependencies..." />
+    <Box padding={1} flexDirection="column" gap={1}>
+      {/* Classic Braille dots */}
+      <Spinner type="dots" label="analyzing dependencies..." />
+
+      {/* Inline dot-matrix wave */}
+      <Spinner type="matrix-wave" label="indexing workspace..." />
+
+      {/* Symmetrical matrix pulse */}
+      <Spinner type="matrix-pulse" label="evaluating reasoning graph..." />
+
+      {/* Equalizer bars */}
+      <Spinner type="bars" label="streaming model tokens..." />
+
+      {/* Slithering snake */}
+      <Spinner type="snake" label="running tests..." />
     </Box>
   )
 }
@@ -981,10 +984,46 @@ export function App() {
 render(<App />)`,
         props: [
             {
+                prop: 'type',
+                type: "'dots' | 'matrix-wave' | 'matrix-pulse' | 'braille-matrix' | 'bars' | 'snake' | 'shuttle'",
+                default: "'dots'",
+                desc: 'spinner animation variant',
+            },
+            {
                 prop: 'label',
                 type: 'string',
                 default: 'undefined',
-                desc: 'optional status label displayed beside dots',
+                desc: 'optional status text displayed beside the spinner',
+            },
+            {
+                prop: 'color',
+                type: 'string',
+                default: 'THEME.colors.brand',
+                desc: 'active spinner / dot color',
+            },
+            {
+                prop: 'labelColor',
+                type: 'string',
+                default: 'THEME.colors.muted',
+                desc: 'label text color',
+            },
+            {
+                prop: 'inactiveColor',
+                type: 'string',
+                default: 'THEME.colors.border',
+                desc: 'inactive/background dot color for matrix variants',
+            },
+            {
+                prop: 'length',
+                type: 'number',
+                default: '5',
+                desc: 'number of dots for matrix-wave and snake variants',
+            },
+            {
+                prop: 'speed',
+                type: 'number',
+                default: '1',
+                desc: 'animation speed multiplier',
             },
         ],
         toc: [
@@ -1001,8 +1040,7 @@ render(<App />)`,
         navLabel: 'text-area',
         title: 'TextArea',
         badge: 'input',
-        description:
-            'multiline terminal input with cursor navigation, command highlighting, and history.',
+        description: 'multiline text input with cursor movement and history.',
         terminalMode: 'text-area',
         installCmd: 'npx @trydecember/tui add text-area',
         codeSnippet: `import { TextArea } from '@/components/tui/text-area'
@@ -1031,43 +1069,43 @@ render(<App />)`,
                 prop: 'value',
                 type: 'string',
                 default: 'required',
-                desc: 'current controlled text value',
+                desc: 'current text value',
             },
             {
                 prop: 'onChange',
                 type: '(value: string) => void',
                 default: 'required',
-                desc: 'text change callback',
+                desc: 'called when text changes',
             },
             {
                 prop: 'onSubmit',
                 type: '(value: string) => void',
                 default: 'required',
-                desc: 'enter key submission callback',
+                desc: 'called when enter is pressed',
             },
             {
                 prop: 'placeholder',
                 type: 'string',
                 default: "''",
-                desc: 'placeholder string when empty',
+                desc: 'text shown when empty',
             },
             {
                 prop: 'focus',
                 type: 'boolean',
                 default: 'true',
-                desc: 'whether keyboard input is active',
+                desc: 'whether input is focused',
             },
             {
                 prop: 'onHistoryUp',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'up arrow at first line callback',
+                desc: 'called when up arrow is pressed at the first line',
             },
             {
                 prop: 'onHistoryDown',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'down arrow at last line callback',
+                desc: 'called when down arrow is pressed at the last line',
             },
         ],
         toc: [
@@ -1084,7 +1122,7 @@ render(<App />)`,
         navLabel: 'header',
         title: 'Header',
         badge: 'layout',
-        description: 'session status banner with git branch detection and starter hints.',
+        description: 'header banner showing project title, version, and tips.',
         terminalMode: 'header',
         installCmd: 'npx @trydecember/tui add header',
         codeSnippet: `import { Header } from '@/components/tui/header'
@@ -1108,30 +1146,30 @@ export function App() {
 
 render(<App />)`,
         props: [
-            { prop: 'title', type: 'string', default: "'Agent CLI'", desc: 'cli app brand title' },
+            { prop: 'title', type: 'string', default: "'Agent CLI'", desc: 'title text' },
             {
                 prop: 'version',
                 type: 'string',
                 default: "'0.1.0'",
-                desc: 'semantic version string',
+                desc: 'version number',
             },
             {
                 prop: 'subtitle',
                 type: 'string',
                 default: 'undefined',
-                desc: 'optional secondary header label',
+                desc: 'optional subtitle text',
             },
             {
                 prop: 'workspaceRoot',
                 type: 'string',
                 default: 'process.cwd()',
-                desc: 'directory root to detect .git branch',
+                desc: 'folder to find git branch',
             },
             {
                 prop: 'tips',
                 type: 'string[]',
                 default: 'starter tips',
-                desc: 'array of helpful hint lines',
+                desc: 'list of tips to display',
             },
         ],
         toc: [
@@ -1148,7 +1186,7 @@ render(<App />)`,
         navLabel: 'mermaid',
         title: 'Mermaid',
         badge: 'diagram',
-        description: 'pure unicode flowchart, sequence, and pie diagram renderer for the terminal.',
+        description: 'renders flowcharts and diagrams in unicode.',
         terminalMode: 'mermaid',
         installCmd: 'npx @trydecember/tui add mermaid',
         codeSnippet: `import { Mermaid } from '@/components/tui/mermaid'
@@ -1173,7 +1211,7 @@ render(<App />)`,
                 prop: 'code',
                 type: 'string',
                 default: 'required',
-                desc: 'raw mermaid diagram markdown text',
+                desc: 'mermaid diagram code',
             },
         ],
         toc: [
@@ -1190,8 +1228,7 @@ render(<App />)`,
         navLabel: 'markdown',
         title: 'Markdown',
         badge: 'content',
-        description:
-            'terminal markdown parser supporting tables, lists, syntax-highlighted codeblocks, and diagrams.',
+        description: 'renders markdown with formatting, tables, lists, and code blocks.',
         terminalMode: 'markdown',
         installCmd: 'npx @trydecember/tui add markdown',
         codeSnippet: `import { Markdown } from '@/components/tui/markdown'
@@ -1218,7 +1255,7 @@ render(<App />)`,
                 prop: 'children',
                 type: 'string',
                 default: 'required',
-                desc: 'markdown formatted string to render',
+                desc: 'markdown text to render',
             },
         ],
         toc: [
@@ -1235,7 +1272,7 @@ render(<App />)`,
         navLabel: 'user-message',
         title: 'UserMessage',
         badge: 'stream',
-        description: 'terminal user prompt message bubble with brand chevron glyph.',
+        description: 'shows user prompt messages in the terminal.',
         terminalMode: 'user-message',
         installCmd: 'npx @trydecember/tui add user-message',
         codeSnippet: `import { UserMessage } from '@/components/tui/user-message'
@@ -1256,7 +1293,7 @@ render(<App />)`,
                 prop: 'message',
                 type: 'string',
                 default: 'required',
-                desc: 'user input message string',
+                desc: 'message text to display',
             },
         ],
         toc: [
@@ -1273,8 +1310,7 @@ render(<App />)`,
         navLabel: 'error-message',
         title: 'ErrorMessage',
         badge: 'status',
-        description:
-            'formatted terminal error display with automatic hint extraction and link styling.',
+        description: 'shows error messages with optional hints and causes.',
         terminalMode: 'error-message',
         installCmd: 'npx @trydecember/tui add error-message',
         codeSnippet: `import { ErrorMessage } from '@/components/tui/error-message'
@@ -1298,25 +1334,25 @@ render(<App />)`,
                 prop: 'message',
                 type: 'string',
                 default: 'required',
-                desc: 'primary error message string',
+                desc: 'error message text',
             },
             {
                 prop: 'cause',
                 type: 'string',
                 default: 'undefined',
-                desc: 'optional underlying error reason',
+                desc: 'optional cause of the error',
             },
             {
                 prop: 'hint',
                 type: 'string',
                 default: 'undefined',
-                desc: 'actionable fix advice or web link',
+                desc: 'optional tip or link to fix the issue',
             },
             {
                 prop: 'hasTopMargin',
                 type: 'boolean',
                 default: 'false',
-                desc: 'adds top blank line if true',
+                desc: 'adds space above the error',
             },
         ],
         toc: [
@@ -1333,7 +1369,7 @@ render(<App />)`,
         navLabel: 'select-menu',
         title: 'SelectMenu',
         badge: 'menu',
-        description: 'keyboard-navigable terminal selection list with active state and hints.',
+        description: 'list menu for selecting an item with arrow keys.',
         terminalMode: 'select-menu',
         installCmd: 'npx @trydecember/tui add select-menu',
         codeSnippet: `import { SelectMenu } from '@/components/tui/select-menu'
@@ -1365,31 +1401,31 @@ render(<App />)`,
                 prop: 'items',
                 type: 'SelectMenuItem[]',
                 default: 'required',
-                desc: 'array of items with label, value, hint, and active status',
+                desc: 'list of choices to pick from',
             },
             {
                 prop: 'onSelect',
                 type: '(item: SelectMenuItem) => void',
                 default: 'required',
-                desc: 'callback executed when enter is pressed',
+                desc: 'called when an item is selected',
             },
             {
                 prop: 'onCancel',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'callback executed when escape is pressed',
+                desc: 'called when escape is pressed',
             },
             {
                 prop: 'title',
                 type: 'string',
                 default: 'undefined',
-                desc: 'optional section header title above menu',
+                desc: 'optional title above the menu',
             },
             {
                 prop: 'windowSize',
                 type: 'number',
                 default: '8',
-                desc: 'maximum visible rows before windowed paging',
+                desc: 'max rows visible at once',
             },
         ],
         toc: [
@@ -1406,8 +1442,7 @@ render(<App />)`,
         navLabel: 'command-menu',
         title: 'CommandMenu',
         badge: 'palette',
-        description:
-            'slash command palette with real-time fuzzy filtering, pagination, and tab completion.',
+        description: 'slash command menu with filtering and key navigation.',
         terminalMode: 'command-menu',
         installCmd: 'npx @trydecember/tui add command-menu',
         codeSnippet: `import { CommandMenu } from '@/components/tui/command-menu'
@@ -1432,31 +1467,31 @@ render(<App />)`,
                 prop: 'query',
                 type: 'string',
                 default: "''",
-                desc: 'active slash command query string to filter commands',
+                desc: 'search text to filter commands',
             },
             {
                 prop: 'commands',
                 type: 'CommandItem[]',
                 default: 'DEFAULT_COMMANDS',
-                desc: 'array of command items with name, description, and value',
+                desc: 'list of available commands',
             },
             {
                 prop: 'onSelect',
                 type: '(command: CommandItem) => void',
                 default: 'required',
-                desc: 'callback executed on enter or tab',
+                desc: 'called when a command is chosen',
             },
             {
                 prop: 'onCancel',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'callback executed on escape',
+                desc: 'called when escape is pressed',
             },
             {
                 prop: 'windowSize',
                 type: 'number',
                 default: '5',
-                desc: 'number of command rows visible at once',
+                desc: 'max rows visible at once',
             },
         ],
         toc: [
@@ -1473,7 +1508,7 @@ render(<App />)`,
         navLabel: 'shortcuts-menu',
         title: 'ShortcutsMenu',
         badge: 'dialog',
-        description: 'interactive keyboard shortcuts overlay menu with navigation and pagination.',
+        description: 'menu showing available keyboard shortcuts.',
         terminalMode: 'shortcuts-menu',
         installCmd: 'npx @trydecember/tui add shortcuts-menu',
         codeSnippet: `import { ShortcutsMenu } from '@/components/tui/shortcuts-menu'
@@ -1494,19 +1529,19 @@ render(<App />)`,
                 prop: 'shortcuts',
                 type: 'ShortcutItem[]',
                 default: 'DEFAULT_SHORTCUTS',
-                desc: 'array of shortcut items with key and desc',
+                desc: 'list of shortcut keys and descriptions',
             },
             {
                 prop: 'onClose',
                 type: '() => void',
                 default: 'required',
-                desc: 'callback triggered by escape or ctrl+c',
+                desc: 'called when closing the menu',
             },
             {
                 prop: 'windowSize',
                 type: 'number',
                 default: '10',
-                desc: 'visible rows in the window',
+                desc: 'max rows visible at once',
             },
         ],
         toc: [
@@ -1523,8 +1558,7 @@ render(<App />)`,
         navLabel: 'plan-approve-menu',
         title: 'PlanApproveMenu',
         badge: 'action',
-        description:
-            'agent workflow action menu for reviewing, refining, approving, or rejecting execution plans.',
+        description: 'menu for reviewing and approving agent plans.',
         terminalMode: 'plan-approve-menu',
         installCmd: 'npx @trydecember/tui add plan-approve-menu',
         codeSnippet: `import { PlanApproveMenu } from '@/components/tui/plan-approve-menu'
@@ -1548,19 +1582,19 @@ render(<App />)`,
                 prop: 'onSelect',
                 type: "(action: 'approve' | 'refine' | 'view' | 'reject') => void",
                 default: 'required',
-                desc: 'selection callback',
+                desc: 'called when an action is selected',
             },
             {
                 prop: 'planSummary',
                 type: 'string',
                 default: 'undefined',
-                desc: 'brief summary of plan displayed in top card',
+                desc: 'summary text of the plan',
             },
             {
                 prop: 'options',
                 type: 'PlanApproveOption[]',
                 default: 'DEFAULT_PLAN_OPTIONS',
-                desc: 'customizable action items and hotkeys',
+                desc: 'list of actions to choose from',
             },
         ],
         toc: [
@@ -1577,8 +1611,7 @@ render(<App />)`,
         navLabel: 'input-bar',
         title: 'InputBar',
         badge: 'composite',
-        description:
-            'complete terminal agent input bar with multiline prompt, slash commands, and status display.',
+        description: 'prompt input bar with slash commands and status info.',
         terminalMode: 'input-bar',
         installCmd: 'npx @trydecember/tui add input-bar',
         codeSnippet: `import { InputBar } from '@/components/tui/input-bar'
@@ -1604,55 +1637,55 @@ render(<App />)`,
                 prop: 'onSubmit',
                 type: '(text: string) => void',
                 default: 'required',
-                desc: 'callback executed when enter is pressed',
+                desc: 'called when enter is pressed',
             },
             {
                 prop: 'placeholder',
                 type: 'string',
                 default: 'starter prompt',
-                desc: 'placeholder displayed when input is empty',
+                desc: 'text shown when input is empty',
             },
             {
                 prop: 'commands',
                 type: 'CommandItem[]',
                 default: 'DEFAULT_COMMANDS',
-                desc: 'custom slash commands array',
+                desc: 'list of slash commands',
             },
             {
                 prop: 'shortcuts',
                 type: 'ShortcutItem[]',
                 default: 'DEFAULT_SHORTCUTS',
-                desc: 'custom keyboard shortcuts array',
+                desc: 'list of keyboard shortcuts',
             },
             {
                 prop: 'fileSuggestions',
                 type: 'string[]',
                 default: '[]',
-                desc: 'workspace files array for @ mention completions',
+                desc: 'file list for suggestions',
             },
             {
                 prop: 'statusLeft',
                 type: 'React.ReactNode',
                 default: "'Agent ready'",
-                desc: 'left status bar content (engine, tokens, etc.)',
+                desc: 'left side status text or items',
             },
             {
                 prop: 'statusRight',
                 type: 'React.ReactNode',
                 default: "'? for shortcuts'",
-                desc: 'right status bar content',
+                desc: 'right side status text or items',
             },
             {
                 prop: 'activeToast',
                 type: '{ message: string; variant?: string }',
                 default: 'null',
-                desc: 'optional transient status toast',
+                desc: 'optional short message popup',
             },
             {
                 prop: 'disabled',
                 type: 'boolean',
                 default: 'false',
-                desc: 'disables input during active model streaming',
+                desc: 'disables typing when true',
             },
         ],
         toc: [
@@ -1669,8 +1702,7 @@ render(<App />)`,
         navLabel: 'card',
         title: 'Card',
         badge: 'primitive',
-        description:
-            'displays a boxed card container with optional header, title, description, content, and footer.',
+        description: 'box container with header, content, and footer.',
         terminalMode: 'card',
         installCmd: 'npx @trydecember/tui add card',
         codeSnippet: `import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/tui/card'
@@ -1702,31 +1734,31 @@ render(<App />)`,
                 prop: 'borderStyle',
                 type: "'round' | 'single' | 'double' | 'bold'",
                 default: "'round'",
-                desc: 'terminal box border style',
+                desc: 'border style type',
             },
             {
                 prop: 'borderColor',
                 type: 'string',
                 default: 'THEME.colors.border',
-                desc: 'custom color for the border frame',
+                desc: 'border color',
             },
             {
                 prop: 'paddingX',
                 type: 'number',
                 default: '1',
-                desc: 'horizontal padding inside card',
+                desc: 'left and right inner spacing',
             },
             {
                 prop: 'paddingY',
                 type: 'number',
                 default: '0',
-                desc: 'vertical padding inside card',
+                desc: 'top and bottom inner spacing',
             },
             {
                 prop: 'width',
                 type: 'number | string',
                 default: 'undefined',
-                desc: 'fixed width or percentage of container',
+                desc: 'width of the card',
             },
         ],
         toc: [
@@ -1743,8 +1775,7 @@ render(<App />)`,
         navLabel: 'button',
         title: 'Button',
         badge: 'primitive',
-        description:
-            'interactive terminal button and action chip with variants (default, secondary, destructive, outline, ghost, link, bracket) and keyboard focus.',
+        description: 'button with focus states and different styles.',
         terminalMode: 'button',
         installCmd: 'npx @trydecember/tui add button',
         codeSnippet: `import { Button } from '@/components/tui/button'
@@ -1769,49 +1800,49 @@ render(<App />)`,
                 prop: 'variant',
                 type: "'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link' | 'bracket'",
                 default: "'default'",
-                desc: 'visual styling preset',
+                desc: 'button style type',
             },
             {
                 prop: 'size',
                 type: "'sm' | 'default' | 'lg'",
                 default: "'default'",
-                desc: 'horizontal padding sizing',
+                desc: 'button size',
             },
             {
                 prop: 'isFocused',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether the button currently holds keyboard focus',
+                desc: 'whether the button is focused',
             },
             {
                 prop: 'disabled',
                 type: 'boolean',
                 default: 'false',
-                desc: 'disables keyboard triggers and dims text',
+                desc: 'disables clicking and dims the button',
             },
             {
                 prop: 'onSelect',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'callback triggered on return/enter when focused',
+                desc: 'called when enter is pressed',
             },
             {
                 prop: 'prefix',
                 type: 'React.ReactNode',
                 default: 'undefined',
-                desc: 'leading icon or glyph rendered before label',
+                desc: 'symbol or text before the label',
             },
             {
                 prop: 'suffix',
                 type: 'React.ReactNode',
                 default: 'undefined',
-                desc: 'trailing badge or glyph rendered after label',
+                desc: 'symbol or text after the label',
             },
             {
                 prop: 'shortcut',
                 type: 'string',
                 default: 'undefined',
-                desc: 'single key hotkey accelerator that triggers onSelect immediately',
+                desc: 'single key shortcut to trigger the button',
             },
         ],
         toc: [
@@ -1828,8 +1859,7 @@ render(<App />)`,
         navLabel: 'tabs',
         title: 'Tabs',
         badge: 'primitive',
-        description:
-            'layered sections of content displayed one at a time via keyboard arrow navigation.',
+        description: 'tab navigation for switching between views.',
         terminalMode: 'tabs',
         installCmd: 'npx @trydecember/tui add tabs',
         codeSnippet: `import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/tui/tabs'
@@ -1865,19 +1895,19 @@ render(<App />)`,
                 prop: 'defaultValue',
                 type: 'string',
                 default: 'undefined',
-                desc: 'initial active tab key',
+                desc: 'starting active tab',
             },
             {
                 prop: 'value',
                 type: 'string',
                 default: 'undefined',
-                desc: 'controlled active tab key',
+                desc: 'current active tab',
             },
             {
                 prop: 'onValueChange',
                 type: '(value: string) => void',
                 default: 'undefined',
-                desc: 'callback invoked when active tab changes',
+                desc: 'called when active tab changes',
             },
         ],
         toc: [
@@ -1894,8 +1924,7 @@ render(<App />)`,
         navLabel: 'dialog',
         title: 'Dialog',
         badge: 'primitive',
-        description:
-            'modal dialog overlay that interrupts the user with important content and expects a response.',
+        description: 'dialog box asking for confirmation.',
         terminalMode: 'dialog',
         installCmd: 'npx @trydecember/tui add dialog',
         codeSnippet: `import { Dialog } from '@/components/tui/dialog'
@@ -1926,38 +1955,38 @@ render(<App />)`,
                 prop: 'isOpen',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether the modal overlay is visible',
+                desc: 'whether the dialog is open',
             },
-            { prop: 'title', type: 'string', default: 'undefined', desc: 'modal title heading' },
+            { prop: 'title', type: 'string', default: 'undefined', desc: 'dialog title text' },
             {
                 prop: 'description',
                 type: 'string',
                 default: 'undefined',
-                desc: 'explanatory message text',
+                desc: 'explanation text',
             },
             {
                 prop: 'confirmText',
                 type: 'string',
                 default: "'Confirm'",
-                desc: 'label for the primary affirmative action',
+                desc: 'confirm button text',
             },
             {
                 prop: 'cancelText',
                 type: 'string',
                 default: "'Cancel'",
-                desc: 'label for dismissal',
+                desc: 'cancel button text',
             },
             {
                 prop: 'onConfirm',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'callback on enter / confirmation',
+                desc: 'called when confirmed',
             },
             {
                 prop: 'onCancel',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'callback on escape / cancel',
+                desc: 'called when cancelled',
             },
         ],
         toc: [
@@ -1974,8 +2003,7 @@ render(<App />)`,
         navLabel: 'progress',
         title: 'Progress',
         badge: 'primitive',
-        description:
-            'displays an indicator showing the completion progress of a task with terminal block glyphs.',
+        description: 'progress bar showing task completion percentage.',
         terminalMode: 'progress',
         installCmd: 'npx @trydecember/tui add progress',
         codeSnippet: `import { Progress } from '@/components/tui/progress'
@@ -1997,31 +2025,31 @@ render(<App />)`,
                 prop: 'value',
                 type: 'number',
                 default: '0',
-                desc: 'completion percentage between 0 and 100',
+                desc: 'progress value from 0 to 100',
             },
             {
                 prop: 'width',
                 type: 'number',
                 default: '20',
-                desc: 'character width of the progress track',
+                desc: 'bar width in characters',
             },
             {
                 prop: 'showPercentage',
                 type: 'boolean',
                 default: 'true',
-                desc: 'renders trailing percentage string',
+                desc: 'shows percentage number when true',
             },
             {
                 prop: 'color',
                 type: 'string',
                 default: 'THEME.colors.brand',
-                desc: 'fill color for completed blocks',
+                desc: 'color for completed part',
             },
             {
                 prop: 'emptyColor',
                 type: 'string',
                 default: 'THEME.colors.muted',
-                desc: 'color for empty track blocks',
+                desc: 'color for remaining part',
             },
         ],
         toc: [
@@ -2038,8 +2066,7 @@ render(<App />)`,
         navLabel: 'checkbox',
         title: 'Checkbox',
         badge: 'primitive',
-        description:
-            'toggle control that allows the user to switch between checked and unchecked states via space or enter.',
+        description: 'checkbox for toggling options on or off.',
         terminalMode: 'checkbox',
         installCmd: 'npx @trydecember/tui add checkbox',
         codeSnippet: `import { Checkbox } from '@/components/tui/checkbox'
@@ -2067,31 +2094,31 @@ render(<App />)`,
                 prop: 'checked',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether the checkbox is checked',
+                desc: 'whether checked',
             },
             {
                 prop: 'label',
                 type: 'string',
                 default: 'undefined',
-                desc: 'text label displayed alongside checkbox',
+                desc: 'label text',
             },
             {
                 prop: 'isFocused',
                 type: 'boolean',
                 default: 'false',
-                desc: 'keyboard focus state (space/enter to toggle)',
+                desc: 'whether focused',
             },
             {
                 prop: 'disabled',
                 type: 'boolean',
                 default: 'false',
-                desc: 'disables interaction and dims label',
+                desc: 'disables toggling when true',
             },
             {
                 prop: 'onChange',
                 type: '(checked: boolean) => void',
                 default: 'undefined',
-                desc: 'callback triggered when state changes',
+                desc: 'called when toggled',
             },
         ],
         toc: [
@@ -2108,8 +2135,7 @@ render(<App />)`,
         navLabel: 'radio-group',
         title: 'RadioGroup',
         badge: 'primitive',
-        description:
-            'a set of checkable radio buttons where no more than one option can be selected at a time.',
+        description: 'radio list where only one option can be selected.',
         terminalMode: 'radio-group',
         installCmd: 'npx @trydecember/tui add radio-group',
         codeSnippet: `import { RadioGroup } from '@/components/tui/radio-group'
@@ -2140,25 +2166,25 @@ render(<App />)`,
                 prop: 'value',
                 type: 'string',
                 default: 'required',
-                desc: 'currently selected option value',
+                desc: 'current selected value',
             },
             {
                 prop: 'options',
                 type: 'RadioGroupOption[]',
                 default: 'required',
-                desc: 'array of option items with label and optional hint',
+                desc: 'list of options to choose from',
             },
             {
                 prop: 'onChange',
                 type: '(value: string) => void',
                 default: 'required',
-                desc: 'callback invoked when an option is selected',
+                desc: 'called when an option is chosen',
             },
             {
                 prop: 'isFocused',
                 type: 'boolean',
                 default: 'true',
-                desc: 'enables arrow key navigation',
+                desc: 'whether focused',
             },
         ],
         toc: [
@@ -2175,7 +2201,7 @@ render(<App />)`,
         navLabel: 'skeleton',
         title: 'Skeleton',
         badge: 'primitive',
-        description: 'shows a placeholder pattern while asynchronous terminal content is loading.',
+        description: 'placeholder blocks shown while content loads.',
         terminalMode: 'skeleton',
         installCmd: 'npx @trydecember/tui add skeleton',
         codeSnippet: `import { Skeleton } from '@/components/tui/skeleton'
@@ -2198,15 +2224,15 @@ render(<App />)`,
                 prop: 'width',
                 type: 'number | string',
                 default: '16',
-                desc: 'width in character count or container size',
+                desc: 'width in characters',
             },
-            { prop: 'height', type: 'number', default: '1', desc: 'number of lines to fill' },
-            { prop: 'char', type: 'string', default: "'░'", desc: 'placeholder glyph character' },
+            { prop: 'height', type: 'number', default: '1', desc: 'height in lines' },
+            { prop: 'char', type: 'string', default: "'░'", desc: 'character to display' },
             {
                 prop: 'color',
                 type: 'string',
                 default: 'THEME.colors.muted',
-                desc: 'color tone for shimmer blocks',
+                desc: 'block color',
             },
         ],
         toc: [
@@ -2223,8 +2249,7 @@ render(<App />)`,
         navLabel: 'toast',
         title: 'Toast',
         badge: 'primitive',
-        description:
-            'a succinct floating notification message providing transient operational feedback.',
+        description: 'short notification message for quick feedback.',
         terminalMode: 'toast',
         installCmd: 'npx @trydecember/tui add toast',
         codeSnippet: `import { Toast } from '@/components/tui/toast'
@@ -2246,31 +2271,31 @@ render(<App />)`,
                 prop: 'message',
                 type: 'string',
                 default: 'required',
-                desc: 'notification message string',
+                desc: 'message text',
             },
             {
                 prop: 'title',
                 type: 'string',
                 default: 'undefined',
-                desc: 'optional heading for the toast',
+                desc: 'optional title text',
             },
             {
                 prop: 'variant',
                 type: "'info' | 'success' | 'warning' | 'error'",
                 default: "'info'",
-                desc: 'visual icon and color theme',
+                desc: 'style variant',
             },
             {
                 prop: 'duration',
                 type: 'number',
                 default: 'undefined',
-                desc: 'auto-dismiss delay in ms',
+                desc: 'time in ms before hiding',
             },
             {
                 prop: 'onDismiss',
                 type: '() => void',
                 default: 'undefined',
-                desc: 'callback executed when dismissed',
+                desc: 'called when dismissed',
             },
         ],
         toc: [
@@ -2287,8 +2312,7 @@ render(<App />)`,
         navLabel: 'table',
         title: 'Table',
         badge: 'primitive',
-        description:
-            'structured terminal data grid component supporting aligned column headers, rows, and cells.',
+        description: 'table with columns and rows for tabular data.',
         terminalMode: 'table',
         installCmd: 'npx @trydecember/tui add table',
         codeSnippet: `import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/tui/table'
@@ -2334,19 +2358,19 @@ render(<App />)`,
                 prop: 'children',
                 type: 'React.ReactNode',
                 default: 'required',
-                desc: 'TableHeader and TableBody elements',
+                desc: 'table header and body content',
             },
             {
                 prop: 'width',
                 type: 'number',
                 default: 'undefined',
-                desc: 'width on TableHead and TableCell',
+                desc: 'column or cell width',
             },
             {
                 prop: 'align',
                 type: "'left' | 'center' | 'right'",
                 default: "'left'",
-                desc: 'text alignment inside column cell',
+                desc: 'text alignment',
             },
         ],
         toc: [
@@ -2363,8 +2387,7 @@ render(<App />)`,
         navLabel: 'switch',
         title: 'Switch',
         badge: 'primitive',
-        description:
-            'accessible binary state toggle for terminal settings with glyph track and badge display modes.',
+        description: 'toggle switch for turning a setting on or off.',
         terminalMode: 'switch',
         installCmd: 'npx @trydecember/tui add switch',
         codeSnippet: `import { Switch } from '@/components/tui/switch'
@@ -2400,43 +2423,43 @@ render(<App />)`,
                 prop: 'checked',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether the switch is active/toggled on',
+                desc: 'whether switched on',
             },
             {
                 prop: 'onChange',
                 type: '(checked: boolean) => void',
                 default: 'undefined',
-                desc: 'callback fired when the switch state changes',
+                desc: 'called when state changes',
             },
             {
                 prop: 'label',
                 type: 'string',
                 default: 'undefined',
-                desc: 'text label displayed alongside the switch',
+                desc: 'label text',
             },
             {
                 prop: 'description',
                 type: 'string',
                 default: 'undefined',
-                desc: 'secondary explanation hint text in dim style',
+                desc: 'secondary hint text',
             },
             {
                 prop: 'variant',
                 type: "'glyph' | 'badge'",
                 default: "'glyph'",
-                desc: 'glyph track (●─)/(─●) or high-contrast badge [ON]/[OFF]',
+                desc: "style type ('glyph' or 'badge')",
             },
             {
                 prop: 'isFocused',
                 type: 'boolean',
                 default: 'false',
-                desc: 'whether keyboard input is captured (space/return/arrows)',
+                desc: 'whether focused',
             },
             {
                 prop: 'disabled',
                 type: 'boolean',
                 default: 'false',
-                desc: 'disables keyboard triggers and dims text',
+                desc: 'disables toggling and dims text',
             },
         ],
         toc: [

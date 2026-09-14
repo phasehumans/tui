@@ -137,8 +137,9 @@ export const REGISTRY_ITEMS: RegistryItem[] = [
         name: 'spinner',
         type: 'ui',
         title: 'Spinner',
-        description: 'Animated terminal dot spinner with an optional status label.',
-        dependencies: ['ink-spinner'],
+        description:
+            'Animated terminal loading spinner with classic braille dots, dot-matrix waves, pulses, equalizer bars, and snake variants.',
+        dependencies: [],
         devDependencies: [],
         registryDependencies: ['theme'],
         files: [
