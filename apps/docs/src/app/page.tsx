@@ -187,9 +187,9 @@ export default function DocsPage() {
                         aria-controls="sidebar-nav"
                     >
                         {mobileSidebarOpen ? (
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         ) : (
-                            <Menu className="h-4 w-4" />
+                            <Menu className="h-5 w-5" />
                         )}
                     </button>
 
@@ -213,7 +213,7 @@ export default function DocsPage() {
                     </a>
                 </div>
 
-                <div className="flex items-center gap-3 sm:gap-5 text-[0.88rem] text-[#8c8c8c]">
+                <div className="flex items-center gap-3 sm:gap-5 text-[0.82rem] sm:text-[0.88rem] text-[#8c8c8c] shrink-0">
                     <a
                         href="https://github.com/phasehumans/tui"
                         target="_blank"
@@ -226,7 +226,7 @@ export default function DocsPage() {
                         href="https://npmjs.com/package/@trydecember/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="hidden sm:inline py-1 text-[#fb923c] hover:text-[#fdba74] transition-colors"
+                        className="py-1 text-[#fb923c] hover:text-[#fdba74] transition-colors"
                     >
                         @trydecember/tui
                     </a>
@@ -245,7 +245,7 @@ export default function DocsPage() {
                     `}
                 >
                     {/* Mobile Drawer Header */}
-                    <div className="flex items-center justify-between pb-3 border-b border-[#222222] lg:hidden shrink-0">
+                    <div className="flex items-center justify-between pb-1 lg:hidden shrink-0">
                         <div className="flex items-center gap-2">
                             <span className="text-[#fb923c] font-bold text-[1.2rem] leading-none">
                                 ✱
@@ -260,7 +260,7 @@ export default function DocsPage() {
                             className="p-2 -mr-2 text-[#8c8c8c] hover:text-white rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
                             aria-label="Close navigation"
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-5 w-5" />
                         </button>
                     </div>
 
@@ -337,37 +337,6 @@ export default function DocsPage() {
                         <p className="text-[0.88rem] text-[#8c8c8c] leading-[1.6] max-w-2xl">
                             {activeItem.description}
                         </p>
-
-                        {/* Mobile On-This-Page Section Navigator */}
-                        {activeItem.toc.length > 1 && (
-                            <nav
-                                aria-label="On this page navigation"
-                                className="xl:hidden flex items-center gap-1.5 overflow-x-auto pt-2 pb-1 -mx-1 px-1 no-scrollbar touch-scroll"
-                            >
-                                <span className="text-[11px] uppercase tracking-wider text-[#5c5c5c] shrink-0 mr-1">
-                                    jump to:
-                                </span>
-                                {activeItem.toc
-                                    .filter(
-                                        (t) =>
-                                            !t.id.startsWith('variation-') &&
-                                            !t.id.startsWith('example-')
-                                    )
-                                    .map((t) => (
-                                        <button
-                                            key={t.id}
-                                            onClick={() => scrollToSection(t.id)}
-                                            className={`shrink-0 px-2.5 py-1 text-[12px] rounded border transition-colors cursor-pointer min-h-[30px] flex items-center focus:outline-none focus-visible:outline-none ${
-                                                activeTocId === t.id
-                                                    ? 'bg-[#222222] border-[#fb923c]/50 text-[#fb923c] font-medium'
-                                                    : 'bg-[#181818] border-[#222222] text-[#8c8c8c] hover:text-white'
-                                            }`}
-                                        >
-                                            {t.label}
-                                        </button>
-                                    ))}
-                            </nav>
-                        )}
                     </section>
 
                     {/* Installation Block */}
