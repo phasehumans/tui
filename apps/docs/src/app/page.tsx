@@ -14,6 +14,7 @@ const cleanTitle = (name: string) => name.replace(/^<|(\s*\/?>)$/g, '').trim()
 export default function DocsPage() {
     const [activeId, setActiveId] = useState<string>('introduction')
     const [replayKey, setReplayKey] = useState<number>(0)
+    const [variantReplayKeys, setVariantReplayKeys] = useState<Record<string, number>>({})
     const [copiedKey, setCopiedKey] = useState<string | null>(null)
     const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false)
     const [activeTocId, setActiveTocId] = useState<string>('overview')
@@ -344,19 +345,21 @@ export default function DocsPage() {
                                 <span className="text-[11px] uppercase tracking-wider text-[#5c5c5c] shrink-0 mr-1">
                                     jump to:
                                 </span>
-                                {activeItem.toc.map((t) => (
-                                    <button
-                                        key={t.id}
-                                        onClick={() => scrollToSection(t.id)}
-                                        className={`shrink-0 px-2.5 py-1 text-[12px] rounded border transition-colors cursor-pointer min-h-[30px] flex items-center ${
-                                            activeTocId === t.id
-                                                ? 'bg-[#222222] border-[#fb923c]/50 text-[#fb923c] font-medium'
-                                                : 'bg-[#181818] border-[#222222] text-[#8c8c8c] hover:text-white'
-                                        }`}
-                                    >
-                                        {t.label}
-                                    </button>
-                                ))}
+                                {activeItem.toc
+                                    .filter((t) => !t.id.startsWith('example-'))
+                                    .map((t) => (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => scrollToSection(t.id)}
+                                            className={`shrink-0 px-2.5 py-1 text-[12px] rounded border transition-colors cursor-pointer min-h-[30px] flex items-center ${
+                                                activeTocId === t.id
+                                                    ? 'bg-[#222222] border-[#fb923c]/50 text-[#fb923c] font-medium'
+                                                    : 'bg-[#181818] border-[#222222] text-[#8c8c8c] hover:text-white'
+                                            }`}
+                                        >
+                                            {t.label}
+                                        </button>
+                                    ))}
                             </nav>
                         )}
                     </section>
@@ -475,7 +478,7 @@ export default function DocsPage() {
 
                     {/* Component Variations / Examples Section */}
                     {activeItem.variations && activeItem.variations.length > 0 && (
-                        <section id="examples" className="flex flex-col gap-5">
+                        <section id="examples" className="flex flex-col gap-6">
                             <div className="flex items-center justify-between pb-1">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
@@ -487,79 +490,135 @@ export default function DocsPage() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-10">
                                 {activeItem.variations.map((variation, vIdx) => {
                                     const copyKey = `var-${activeItem.id}-${variation.id}`
+                                    const promptCommand = `tui preview ${activeItem.id} --${variation.id}`
+                                    const vReplayKey = variantReplayKeys[variation.id] || 0
+
                                     return (
                                         <div
                                             key={variation.id}
                                             id={`example-${variation.id}`}
-                                            className="flex flex-col gap-3 rounded-[4px] border border-[#222222] bg-[#141414] p-3.5 sm:p-4 transition-colors hover:border-[#2e2e2e]"
+                                            className="flex flex-col gap-4 pt-6 border-t border-[#222222] first:border-t-0 first:pt-0"
                                         >
-                                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-4">
-                                                <div className="flex flex-col gap-1">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[0.78rem] font-mono text-[#fb923c]">
-                                                            0{vIdx + 1}
-                                                        </span>
-                                                        <h3 className="text-[0.95rem] font-semibold text-white tracking-[-0.01em]">
-                                                            {variation.title}
-                                                        </h3>
-                                                    </div>
-                                                    {variation.description && (
-                                                        <p className="text-[0.84rem] text-[#8c8c8c] pl-6">
-                                                            {variation.description}
-                                                        </p>
-                                                    )}
+                                            {/* 1. Variant Heading */}
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2.5">
+                                                    <span className="text-[0.82rem] font-mono text-[#fb923c]">
+                                                        0{vIdx + 1}
+                                                    </span>
+                                                    <h3 className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
+                                                        {variation.title}
+                                                    </h3>
                                                 </div>
-
-                                                <button
-                                                    onClick={() =>
-                                                        handleCopy(variation.codeSnippet, copyKey)
-                                                    }
-                                                    className="self-start sm:self-auto text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors min-h-[32px] cursor-pointer"
-                                                    title="copy code snippet"
-                                                >
-                                                    {copiedKey === copyKey ? (
-                                                        <>
-                                                            <Check className="h-3.5 w-3.5 text-[#fb923c]" />
-                                                            <span className="text-[#fb923c]">
-                                                                copied
-                                                            </span>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Copy className="h-3.5 w-3.5" />
-                                                            <span>copy code</span>
-                                                        </>
-                                                    )}
-                                                </button>
                                             </div>
 
-                                            {/* Variation Terminal Preview */}
+                                            {/* 2. Terminal View */}
                                             {(variation.terminalLines ||
                                                 variation.terminalMode) && (
-                                                <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4">
-                                                    <TerminalPreview
-                                                        mode={variation.terminalMode}
-                                                        lines={variation.terminalLines}
-                                                        heightClass={
-                                                            variation.terminalLines &&
-                                                            variation.terminalLines.length <= 4
-                                                                ? 'h-20 sm:h-24'
-                                                                : 'h-28 sm:h-36'
-                                                        }
-                                                    />
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex items-center justify-between text-[0.78rem] text-[#707070] font-mono px-1">
+                                                        <div className="flex items-center gap-2 truncate">
+                                                            <span className="text-[#3b82f6]">
+                                                                user@december
+                                                            </span>
+                                                            <span className="text-[#606060]">
+                                                                :
+                                                            </span>
+                                                            <span className="text-[#10b981]">
+                                                                ~/code/tui
+                                                            </span>
+                                                            <span className="text-[#606060]">
+                                                                $
+                                                            </span>
+                                                            <span className="text-[#e2e2e2] truncate">
+                                                                {promptCommand}
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            onClick={() =>
+                                                                setVariantReplayKeys((prev) => ({
+                                                                    ...prev,
+                                                                    [variation.id]:
+                                                                        (prev[variation.id] || 0) +
+                                                                        1,
+                                                                }))
+                                                            }
+                                                            className="flex items-center gap-1.5 text-[#8c8c8c] hover:text-white transition-colors cursor-pointer shrink-0 ml-2"
+                                                            title="replay terminal animation"
+                                                        >
+                                                            <RotateCcw className="h-3 w-3" />
+                                                            <span>replay</span>
+                                                        </button>
+                                                    </div>
+                                                    <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4 border border-[#1e1e1e]">
+                                                        <TerminalPreview
+                                                            mode={variation.terminalMode}
+                                                            lines={variation.terminalLines}
+                                                            promptCmd={promptCommand}
+                                                            replayKey={vReplayKey}
+                                                            heightClass={
+                                                                variation.terminalLines &&
+                                                                variation.terminalLines.length <= 4
+                                                                    ? 'h-24 sm:h-28'
+                                                                    : 'h-36 sm:h-44'
+                                                            }
+                                                        />
+                                                    </div>
                                                 </div>
                                             )}
 
-                                            {/* Variation Code Snippet */}
-                                            <div className="rounded-[4px] bg-[#181818] p-3 text-[0.82rem] overflow-x-auto code-scroll border border-[#222222]">
-                                                <CodeBlock
-                                                    code={variation.codeSnippet}
-                                                    language="tsx"
-                                                />
+                                            {/* 3. Usage Code */}
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-[0.82rem] font-medium text-[#8c8c8c] font-mono">
+                                                        usage
+                                                    </span>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleCopy(
+                                                                variation.codeSnippet,
+                                                                copyKey
+                                                            )
+                                                        }
+                                                        className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors min-h-[30px] cursor-pointer"
+                                                        title="copy code snippet"
+                                                    >
+                                                        {copiedKey === copyKey ? (
+                                                            <>
+                                                                <Check className="h-3.5 w-3.5 text-[#fb923c]" />
+                                                                <span className="text-[#fb923c]">
+                                                                    copied
+                                                                </span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Copy className="h-3.5 w-3.5" />
+                                                                <span>copy code</span>
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                <div className="rounded-[4px] bg-[#181818] p-3 sm:p-4 text-[0.84rem] overflow-x-auto code-scroll border border-[#222222]">
+                                                    <CodeBlock
+                                                        code={variation.codeSnippet}
+                                                        language="tsx"
+                                                    />
+                                                </div>
                                             </div>
+
+                                            {/* 4. Other Info */}
+                                            {variation.description && (
+                                                <div className="flex flex-col gap-1 rounded-[4px] bg-[#141414] p-3 sm:p-3.5 border border-[#222222]">
+                                                    <span className="text-[0.75rem] font-mono uppercase tracking-wider text-[#8c8c8c]">
+                                                        info
+                                                    </span>
+                                                    <p className="text-[0.85rem] text-[#cccccc] leading-relaxed">
+                                                        {variation.description}
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     )
                                 })}
@@ -809,16 +868,25 @@ export default function DocsPage() {
                         <div className="flex flex-col gap-1">
                             {activeItem.toc.map((item) => {
                                 const isActive = activeTocId === item.id
+                                const isSubItem = item.id.startsWith('example-')
                                 return (
                                     <button
                                         key={item.id}
                                         onClick={() => scrollToSection(item.id)}
                                         className={`
-                                            text-left text-[0.88rem] transition-colors py-1 cursor-pointer
-                                            ${isActive ? 'text-white font-medium' : 'text-[#8c8c8c] hover:text-white'}
+                                            text-left transition-colors cursor-pointer truncate
+                                            ${isSubItem ? 'pl-2.5 text-[0.80rem] py-0.5' : 'text-[0.88rem] py-1'}
+                                            ${
+                                                isActive
+                                                    ? 'text-white font-medium'
+                                                    : isSubItem
+                                                      ? 'text-[#707070] hover:text-[#e2e2e2]'
+                                                      : 'text-[#8c8c8c] hover:text-white'
+                                            }
                                         `}
+                                        title={item.label}
                                     >
-                                        <span>{item.label}</span>
+                                        <span className="truncate block">{item.label}</span>
                                     </button>
                                 )
                             })}

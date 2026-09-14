@@ -17,6 +17,7 @@ const TerminalInner = dynamic(() => import('./terminal-inner').then((mod) => mod
 export interface TerminalPreviewProps {
     mode?: TerminalInnerProps['mode']
     lines?: string[]
+    promptCmd?: string
     replayKey?: number
     heightClass?: string
     interactive?: boolean
@@ -25,6 +26,7 @@ export interface TerminalPreviewProps {
 export function TerminalPreview({
     mode = 'all',
     lines,
+    promptCmd,
     replayKey = 0,
     heightClass = 'h-64 sm:h-72',
     interactive,
@@ -33,6 +35,7 @@ export function TerminalPreview({
         <TerminalInner
             mode={mode}
             lines={lines}
+            promptCmd={promptCmd}
             replayKey={replayKey}
             heightClass={heightClass}
             interactive={interactive}

@@ -31,6 +31,7 @@ import {
 export interface TerminalInnerProps {
     mode?: string
     lines?: string[]
+    promptCmd?: string
     replayKey?: number
     heightClass?: string
     interactive?: boolean
@@ -43,6 +44,7 @@ function sleep(ms: number) {
 export function TerminalInner({
     mode = 'all',
     lines,
+    promptCmd,
     replayKey = 0,
     heightClass = 'h-64 sm:h-72',
     interactive = !lines,
@@ -1146,6 +1148,10 @@ export function TerminalInner({
             term.clear()
 
             if (lines && lines.length > 0) {
+                if (promptCmd) {
+                    term.writeln(`${getPrompt(cwd)}${promptCmd}`)
+                    term.writeln('')
+                }
                 for (const line of lines) {
                     term.writeln(line)
                 }
@@ -1175,7 +1181,7 @@ export function TerminalInner({
             resizeObserver.disconnect()
             term.dispose()
         }
-    }, [mode, lines, replayKey, heightClass, interactive])
+    }, [mode, lines, promptCmd, replayKey, heightClass, interactive])
 
     return (
         <div

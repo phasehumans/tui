@@ -2476,19 +2476,26 @@ export const DOC_ITEMS: DocItem[] = BASE_DOC_ITEMS.map((item) => {
     if (item.category === 'components') {
         const variations = item.variations || COMPONENT_VARIATIONS[item.id]
         if (variations && variations.length > 0) {
-            const hasExamples = item.toc.some((t) => t.id === 'examples')
-            const usageIdx = item.toc.findIndex((t) => t.id === 'usage')
-            let toc = item.toc
-            if (!hasExamples) {
-                if (usageIdx !== -1) {
-                    toc = [
-                        ...item.toc.slice(0, usageIdx + 1),
-                        { id: 'examples', label: 'examples' },
-                        ...item.toc.slice(usageIdx + 1),
-                    ]
-                } else {
-                    toc = [...item.toc, { id: 'examples', label: 'examples' }]
-                }
+            const baseWithoutExamples = item.toc.filter(
+                (t) => t.id !== 'examples' && !t.id.startsWith('example-')
+            )
+            const usageIdx = baseWithoutExamples.findIndex((t) => t.id === 'usage')
+            const exampleEntries = [
+                { id: 'examples', label: 'examples' },
+                ...variations.map((v) => ({
+                    id: `example-${v.id}`,
+                    label: v.title.toLowerCase(),
+                })),
+            ]
+            let toc = baseWithoutExamples
+            if (usageIdx !== -1) {
+                toc = [
+                    ...baseWithoutExamples.slice(0, usageIdx + 1),
+                    ...exampleEntries,
+                    ...baseWithoutExamples.slice(usageIdx + 1),
+                ]
+            } else {
+                toc = [...baseWithoutExamples, ...exampleEntries]
             }
             return {
                 ...item,

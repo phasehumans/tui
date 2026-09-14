@@ -31,6 +31,12 @@ describe('docs-data component variations', () => {
                 (t) => t.id === 'examples' || t.id.startsWith('example-')
             )
             expect(hasExamplesInToc).toBe(true)
+
+            // Verify each individual variation is in toc
+            for (const v of item.variations!) {
+                const hasVariationInToc = item.toc.some((t) => t.id === `example-${v.id}`)
+                expect(hasVariationInToc).toBe(true)
+            }
         }
     })
 })
