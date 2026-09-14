@@ -61,7 +61,7 @@ export function TerminalInner({
             theme: {
                 background: '#0a0a0a',
                 foreground: '#e2e2e2',
-                cursor: '#fb923c',
+                cursor: '#ffffff',
                 cursorAccent: '#0a0a0a',
                 selectionBackground: 'rgba(251, 146, 60, 0.3)',
                 black: '#2a2a2a',

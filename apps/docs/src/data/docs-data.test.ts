@@ -23,18 +23,18 @@ describe('docs-data component variations', () => {
         }
     })
 
-    it('every component doc item should include examples in toc', () => {
+    it('every component doc item should include variations in toc', () => {
         const componentItems = DOC_ITEMS.filter((item) => item.category === 'components')
 
         for (const item of componentItems) {
-            const hasExamplesInToc = item.toc.some(
-                (t) => t.id === 'examples' || t.id.startsWith('example-')
+            const hasVariationsInToc = item.toc.some(
+                (t) => t.id === 'variations' || t.id.startsWith('variation-')
             )
-            expect(hasExamplesInToc).toBe(true)
+            expect(hasVariationsInToc).toBe(true)
 
             // Verify each individual variation is in toc
             for (const v of item.variations!) {
-                const hasVariationInToc = item.toc.some((t) => t.id === `example-${v.id}`)
+                const hasVariationInToc = item.toc.some((t) => t.id === `variation-${v.id}`)
                 expect(hasVariationInToc).toBe(true)
             }
         }

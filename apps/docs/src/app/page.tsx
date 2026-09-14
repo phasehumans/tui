@@ -1,6 +1,6 @@
 'use client'
 
-import { Copy, Check, RotateCcw, ExternalLink, Menu, X } from 'lucide-react'
+import { Copy, Check, RotateCcw, Menu, X } from 'lucide-react'
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 import { CodeBlock } from '../components/code-block'
@@ -215,10 +215,9 @@ export default function DocsPage() {
                         href="https://github.com/phasehumans/tui"
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-1.5 py-1 px-1 text-[#8c8c8c] hover:text-white transition-colors"
+                        className="py-1 px-1 text-[#8c8c8c] hover:text-white transition-colors"
                     >
                         <span>github</span>
-                        <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                     <a
                         href="https://npmjs.com/package/@trydecember/tui"
@@ -346,7 +345,11 @@ export default function DocsPage() {
                                     jump to:
                                 </span>
                                 {activeItem.toc
-                                    .filter((t) => !t.id.startsWith('example-'))
+                                    .filter(
+                                        (t) =>
+                                            !t.id.startsWith('variation-') &&
+                                            !t.id.startsWith('example-')
+                                    )
                                     .map((t) => (
                                         <button
                                             key={t.id}
@@ -476,31 +479,29 @@ export default function DocsPage() {
                         </section>
                     )}
 
-                    {/* Component Variations / Examples Section */}
+                    {/* Component Variations Section */}
                     {activeItem.variations && activeItem.variations.length > 0 && (
-                        <section id="examples" className="flex flex-col gap-6">
+                        <section id="variations" className="flex flex-col gap-8">
                             <div className="flex items-center justify-between pb-1">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
-                                        examples
-                                    </span>
-                                    <span className="text-[0.75rem] font-mono text-[#fb923c] px-1.5 py-0.5 rounded bg-[#fb923c]/10">
-                                        {activeItem.variations.length} variations
-                                    </span>
-                                </div>
+                                <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
+                                    variations
+                                </span>
                             </div>
 
-                            <div className="flex flex-col gap-10">
+                            <div className="flex flex-col gap-14">
                                 {activeItem.variations.map((variation, vIdx) => {
                                     const copyKey = `var-${activeItem.id}-${variation.id}`
                                     const promptCommand = `tui preview ${activeItem.id} --${variation.id}`
                                     const vReplayKey = variantReplayKeys[variation.id] || 0
+                                    const varInstallCmd =
+                                        variation.installCmd || activeItem.installCmd
+                                    const varInstallKey = `var-install-${activeItem.id}-${variation.id}`
 
                                     return (
                                         <div
                                             key={variation.id}
-                                            id={`example-${variation.id}`}
-                                            className="flex flex-col gap-4 pt-6 border-t border-[#222222] first:border-t-0 first:pt-0"
+                                            id={`variation-${variation.id}`}
+                                            className="flex flex-col gap-6"
                                         >
                                             {/* 1. Variant Heading */}
                                             <div className="flex items-center justify-between">
@@ -514,28 +515,79 @@ export default function DocsPage() {
                                                 </div>
                                             </div>
 
-                                            {/* 2. Terminal View */}
-                                            {(variation.terminalLines ||
-                                                variation.terminalMode) && (
-                                                <div className="flex flex-col gap-2">
-                                                    <div className="flex items-center justify-between text-[0.78rem] text-[#707070] font-mono px-1">
-                                                        <div className="flex items-center gap-2 truncate">
-                                                            <span className="text-[#3b82f6]">
-                                                                user@december
-                                                            </span>
-                                                            <span className="text-[#606060]">
-                                                                :
-                                                            </span>
-                                                            <span className="text-[#10b981]">
-                                                                ~/code/tui
-                                                            </span>
-                                                            <span className="text-[#606060]">
-                                                                $
-                                                            </span>
-                                                            <span className="text-[#e2e2e2] truncate">
-                                                                {promptCommand}
+                                            {/* 2. Installation */}
+                                            {varInstallCmd && (
+                                                <div className="max-w-2xl flex flex-col gap-2">
+                                                    <div className="flex items-center justify-between text-xs text-[#8c8c8c] pb-1">
+                                                        <span className="text-[0.82rem] font-medium text-[#8c8c8c] font-mono">
+                                                            installation
+                                                        </span>
+                                                        <div className="flex items-center gap-1 bg-[#181818] p-0.5 rounded-[4px]">
+                                                            {(
+                                                                [
+                                                                    'bun',
+                                                                    'pnpm',
+                                                                    'npm',
+                                                                ] as PackageManager[]
+                                                            ).map((mgr) => (
+                                                                <button
+                                                                    key={mgr}
+                                                                    onClick={() =>
+                                                                        handleSelectPm(mgr)
+                                                                    }
+                                                                    className={`px-2.5 py-1 sm:py-0.5 rounded-[3px] text-xs transition-colors cursor-pointer min-h-[28px] sm:min-h-0 ${
+                                                                        pm === mgr
+                                                                            ? 'bg-[#282828] text-[#fb923c] font-semibold'
+                                                                            : 'hover:text-white'
+                                                                    }`}
+                                                                >
+                                                                    {mgr}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        onClick={() =>
+                                                            handleCopy(
+                                                                formatInstallCmd(varInstallCmd, pm),
+                                                                varInstallKey
+                                                            )
+                                                        }
+                                                        className="cmd-box cursor-pointer"
+                                                        title="click to copy command"
+                                                    >
+                                                        <div className="cmd-code code-scroll">
+                                                            <span className="tok-pfx">$</span>
+                                                            <span>
+                                                                {formatInstallCmd(
+                                                                    varInstallCmd,
+                                                                    pm
+                                                                )}
                                                             </span>
                                                         </div>
+                                                        <button
+                                                            aria-label="copy command"
+                                                            className="text-[#5c5c5c] hover:text-white p-1 cursor-pointer min-w-[32px] min-h-[32px] flex items-center justify-center shrink-0"
+                                                        >
+                                                            {copiedKey === varInstallKey ? (
+                                                                <Check className="h-3.5 w-3.5 text-[#fb923c]" />
+                                                            ) : (
+                                                                <Copy className="h-3.5 w-3.5" />
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* 3. Terminal Preview */}
+                                            {(variation.terminalLines ||
+                                                variation.terminalMode) && (
+                                                <div className="flex flex-col gap-2.5">
+                                                    <div className="flex items-center justify-between pb-1">
+                                                        <span className="text-[0.82rem] font-medium text-[#8c8c8c] font-mono">
+                                                            preview
+                                                        </span>
                                                         <button
                                                             onClick={() =>
                                                                 setVariantReplayKeys((prev) => ({
@@ -545,14 +597,14 @@ export default function DocsPage() {
                                                                         1,
                                                                 }))
                                                             }
-                                                            className="flex items-center gap-1.5 text-[#8c8c8c] hover:text-white transition-colors cursor-pointer shrink-0 ml-2"
+                                                            className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded hover:bg-white/[0.04] transition-colors cursor-pointer"
                                                             title="replay terminal animation"
                                                         >
-                                                            <RotateCcw className="h-3 w-3" />
+                                                            <RotateCcw className="h-3 w-3 text-[#8c8c8c]" />
                                                             <span>replay</span>
                                                         </button>
                                                     </div>
-                                                    <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4 border border-[#1e1e1e]">
+                                                    <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4">
                                                         <TerminalPreview
                                                             mode={
                                                                 variation.terminalMode ||
@@ -573,8 +625,8 @@ export default function DocsPage() {
                                                 </div>
                                             )}
 
-                                            {/* 3. Usage Code */}
-                                            <div className="flex flex-col gap-2">
+                                            {/* 4. Usage Code */}
+                                            <div className="flex flex-col gap-2.5">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-[0.82rem] font-medium text-[#8c8c8c] font-mono">
                                                         usage
@@ -586,7 +638,7 @@ export default function DocsPage() {
                                                                 copyKey
                                                             )
                                                         }
-                                                        className="text-[0.78rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 shrink-0 px-2.5 py-1.5 rounded bg-[#1c1c1c] border border-[#2a2a2a] hover:border-[#383838] transition-colors min-h-[30px] cursor-pointer"
+                                                        className="text-[0.8rem] text-[#8c8c8c] hover:text-white flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/[0.04] transition-colors min-h-[32px] cursor-pointer"
                                                         title="copy code snippet"
                                                     >
                                                         {copiedKey === copyKey ? (
@@ -612,7 +664,7 @@ export default function DocsPage() {
                                                 </div>
                                             </div>
 
-                                            {/* 4. Other Info */}
+                                            {/* 5. Other Info */}
                                             {variation.description && (
                                                 <div className="flex flex-col gap-1 rounded-[4px] bg-[#141414] p-3 sm:p-3.5 border border-[#222222]">
                                                     <span className="text-[0.75rem] font-mono uppercase tracking-wider text-[#8c8c8c]">
@@ -872,7 +924,9 @@ export default function DocsPage() {
                         <div className="flex flex-col gap-1">
                             {activeItem.toc.map((item) => {
                                 const isActive = activeTocId === item.id
-                                const isSubItem = item.id.startsWith('example-')
+                                const isSubItem =
+                                    item.id.startsWith('variation-') ||
+                                    item.id.startsWith('example-')
                                 return (
                                     <button
                                         key={item.id}
