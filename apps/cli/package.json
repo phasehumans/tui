@@ -1,6 +1,6 @@
 {
     "name": "@trydecember/tui",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "a ui library for terminal agents.",
     "homepage": "https://tui.trydecember.com",
     "repository": {

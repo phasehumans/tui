@@ -596,7 +596,8 @@ render(<App />)`,
         navLabel: 'streaming-text',
         title: 'StreamingText',
         badge: 'stream',
-        description: 'renders streaming text token by token with an animated terminal block cursor.',
+        description:
+            'renders streaming text token by token with an animated terminal block cursor.',
         details: [
             'llm responses arrive in small token chunks over a stream. printing chunks with standard console.log causes flickering and messy line breaks. StreamingText buffers incoming tokens and smoothly updates the active line in place.',
             'use this during the response phase while the model generates text. when streaming finishes, set isStreaming to false to remove the cursor and leave clean, formatted text in the terminal history.',
@@ -651,7 +652,8 @@ render(<App stream="review complete." isGenerating={false} />)`,
         navLabel: 'collapsible-reasoning',
         title: 'CollapsibleReasoning',
         badge: 'container',
-        description: 'collapsible thinking block for agent reasoning traces, duration, and token metrics.',
+        description:
+            'collapsible thinking block for agent reasoning traces, duration, and token metrics.',
         details: [
             'modern reasoning models produce long internal thought traces before returning an answer. showing hundreds of lines of raw thinking pushes user prompts and context off screen. CollapsibleReasoning keeps the thought trace behind a clean toggle with a spinner while thinking, then summarizes duration and token count when done.',
             'render this at the start of an agent turn while the model streams its chain-of-thought. keep it expanded if the user wants live insight, or auto-collapse it once tool calls or final answers begin.',
@@ -724,7 +726,8 @@ render(<App />)`,
         navLabel: 'tool-call-card',
         title: 'ToolCallCard',
         badge: 'status',
-        description: 'displays tool execution status, parameters, runtime duration, and expandable output.',
+        description:
+            'displays tool execution status, parameters, runtime duration, and expandable output.',
         details: [
             'terminal agents run many tools per turn: reading files, searching code, executing bash commands, and running tests. ToolCallCard gives users clear visibility into what tool the agent is running, what arguments were passed, and whether it succeeded.',
             'render this whenever an agent calls a tool. set status to "pending" or "running" with a spinner while working. once the command finishes, update status to "completed" or "failed", set durationMs, and pass the stdout or stderr text to the output prop.',
@@ -805,7 +808,8 @@ render(<App />)`,
         navLabel: 'token-gauge',
         title: 'TokenGauge',
         badge: 'meter',
-        description: 'progress meter displaying context window limits, token consumption, and percentages.',
+        description:
+            'progress meter displaying context window limits, token consumption, and percentages.',
         details: [
             'agent sessions accumulate tokens quickly as chat messages, file reads, and tool logs build up. hitting context limits unexpectedly can cause tool failures or lost session history. TokenGauge gives users continuous visibility into remaining context.',
             'render this in your agent status bar, footer, or turn summary. it calculates the percentage of used tokens and displays a character-based progress bar with exact counts.',
@@ -861,7 +865,8 @@ render(<App />)`,
         navLabel: 'pill',
         title: 'Pill',
         badge: 'chip',
-        description: 'compact badge for status tags, model identifiers, git branches, and metadata chips.',
+        description:
+            'compact badge for status tags, model identifiers, git branches, and metadata chips.',
         details: [
             'terminal headers, message cards, and tool outputs often need small labels for context, such as the active branch, model name, or pr status. Pill provides a standardized chip with brackets, custom colors, and background tints.',
             'use pills inside headers, turn summaries, or tool parameters to highlight important metadata without taking up extra vertical lines.',
@@ -924,7 +929,8 @@ render(<App />)`,
         navLabel: 'spinner',
         title: 'Spinner',
         badge: 'feedback',
-        description: 'animated terminal loading spinner with braille dots, matrix waves, bars, and snake variants.',
+        description:
+            'animated terminal loading spinner with braille dots, matrix waves, bars, and snake variants.',
         details: [
             'when an agent is waiting for api responses, file searches, or background builds, a static terminal looks frozen. Spinner renders smooth frame animations to signal active progress.',
             'use Spinner alongside status messages during tool execution, git clones, dependency installations, or api calls. swap it for a checkmark or error icon when the task finishes.',
@@ -1016,7 +1022,8 @@ render(<App />)`,
         navLabel: 'text-area',
         title: 'TextArea',
         badge: 'input',
-        description: 'multiline text input with cursor navigation, line wrapping, and command history.',
+        description:
+            'multiline text input with cursor navigation, line wrapping, and command history.',
         details: [
             'single-line inputs are frustrating when users need to paste multi-line stack traces, write detailed prompts, or review code snippets before sending. TextArea provides full multiline editing directly in the terminal.',
             'use this as your primary user input box in interactive agent sessions. it supports arrow keys for cursor movement, backspace/delete, and enter for submission (or shift+enter for newlines).',
@@ -1103,7 +1110,8 @@ render(<App />)`,
         navLabel: 'header',
         title: 'Header',
         badge: 'layout',
-        description: 'top-level terminal banner showing agent title, version, active model, and tips.',
+        description:
+            'top-level terminal banner showing agent title, version, active model, and tips.',
         details: [
             'when a user launches a terminal agent session, the header establishes context: which agent is running, what workspace is open, and which model engine is active. Header renders an organized top banner with clean borders and divider lines.',
             'render this once at the top of your agent view. you can include badges for model name, git branch, and connection status.',
@@ -1172,7 +1180,8 @@ render(<App />)`,
         navLabel: 'mermaid',
         title: 'Mermaid',
         badge: 'diagram',
-        description: 'renders Mermaid architecture, flowcharts, and sequence diagrams directly in terminal unicode.',
+        description:
+            'renders Mermaid architecture, flowcharts, and sequence diagrams directly in terminal unicode.',
         details: [
             'when agents explain system architectures, database relationships, or multi-agent workflows, text descriptions can be hard to follow. Mermaid parses diagram syntax and renders clean box-and-arrow diagrams in terminal unicode.',
             'use this when your agent generates architecture proposals, debugging workflows, or system documentation in terminal output.',
@@ -1220,7 +1229,8 @@ render(<App />)`,
         navLabel: 'markdown',
         title: 'Markdown',
         badge: 'content',
-        description: 'renders Markdown text with terminal colors, headers, bullet lists, bold, and code blocks.',
+        description:
+            'renders Markdown text with terminal colors, headers, bullet lists, bold, and code blocks.',
         details: [
             'llm outputs naturally include markdown syntax like headings, bullet lists, backtick code spans, and bold text. raw markdown markers like #, **, and ``` look unpolished in a terminal. Markdown parses these tokens into native Ink text nodes with proper colors.',
             'wrap completed agent responses, help screens, or documentation viewers in this component to turn plain text into structured, readable terminal layouts.',
@@ -1270,7 +1280,8 @@ render(<App />)`,
         navLabel: 'user-message',
         title: 'UserMessage',
         badge: 'stream',
-        description: 'formatted message container for user prompts with avatars, timestamps, and badges.',
+        description:
+            'formatted message container for user prompts with avatars, timestamps, and badges.',
         details: [
             'in a multi-turn terminal conversation, separating user prompts from agent thoughts and tool outputs must be obvious at a glance. UserMessage wraps user text in a distinct card with a prompt symbol or avatar.',
             'place this at the top of each conversation turn when a prompt is submitted. it stays in the scrollback history so users can review the dialogue sequence.',
@@ -1313,7 +1324,8 @@ render(<App />)`,
         navLabel: 'error-message',
         title: 'ErrorMessage',
         badge: 'status',
-        description: 'alert banner for api failures, tool errors, permission issues, and stack traces.',
+        description:
+            'alert banner for api failures, tool errors, permission issues, and stack traces.',
         details: [
             'when an api key is missing, a shell command fails with a non-zero exit code, or a network request times out, dumping raw stack traces confuses users. ErrorMessage presents the issue clearly with an alert icon, summary message, and actionable hint.',
             'render ErrorMessage whenever a tool or agent turn fails. it highlights the error title with a red alert badge and displays troubleshooting guidance in a readable box.',
@@ -1377,7 +1389,8 @@ render(<App />)`,
         navLabel: 'select-menu',
         title: 'SelectMenu',
         badge: 'menu',
-        description: 'interactive list menu for picking options using arrow keys, filtering, and enter.',
+        description:
+            'interactive list menu for picking options using arrow keys, filtering, and enter.',
         details: [
             'when an agent asks the user to pick from a list of files, select a model engine, or choose a fix strategy, typing freeform text is slow and error-prone. SelectMenu provides clean keyboard navigation with an active cursor indicator.',
             'use this in interactive agent prompts where the user must make a structured choice before the agent proceeds with the next step.',
@@ -1584,7 +1597,8 @@ render(<App />)`,
         navLabel: 'plan-approve-menu',
         title: 'PlanApproveMenu',
         badge: 'action',
-        description: 'interactive approval menu for reviewing and confirming multi-step agent execution plans.',
+        description:
+            'interactive approval menu for reviewing and confirming multi-step agent execution plans.',
         details: [
             'before autonomous agents run actions like modifying files, running migrations, or executing shell scripts, they should present an execution plan for review. PlanApproveMenu displays the plan summary with clear action choices.',
             'render this after an agent produces a multi-step task list and before any tool calls run. users can choose to approve and run, refine the plan, view details, or reject the operation.',
@@ -1643,7 +1657,8 @@ render(<App />)`,
         navLabel: 'input-bar',
         title: 'InputBar',
         badge: 'composite',
-        description: 'bottom-docked terminal input bar with prompt symbols, status badges, and history.',
+        description:
+            'bottom-docked terminal input bar with prompt symbols, status badges, and history.',
         details: [
             'the input bar is the main control point of any terminal agent. InputBar combines a prompt prefix symbol, placeholder text, model status badges, and shortcut reminders into a unified bottom bar.',
             'keep this docked at the bottom of your terminal interface. wire it to your agent state machine to handle user prompts, slash commands, and cancel actions.',
@@ -1739,7 +1754,8 @@ render(<App />)`,
         navLabel: 'card',
         title: 'Card',
         badge: 'primitive',
-        description: 'bordered container component for grouping related content, metrics, or panels.',
+        description:
+            'bordered container component for grouping related content, metrics, or panels.',
         details: [
             'terminal layouts become hard to scan without clear boundaries between content sections. Card wraps text and controls in solid, rounded, or double borders with optional headers and footers.',
             'use Card to frame summary panels, configuration screens, tool call groups, or system diagnostic reports.',
@@ -1817,7 +1833,8 @@ render(<App />)`,
         navLabel: 'button',
         title: 'Button',
         badge: 'primitive',
-        description: 'keyboard-focusable button for confirming actions, selecting modes, and triggering tools.',
+        description:
+            'keyboard-focusable button for confirming actions, selecting modes, and triggering tools.',
         details: [
             'terminal interfaces need clear focusable triggers for actions like submit, cancel, retry, and apply patch. Button renders a styled pill with focused, active, and disabled states.',
             'use buttons inside dialogs, approval menus, and form rows. users navigate between buttons with tab or left/right arrow keys and activate with enter or space.',
@@ -1906,7 +1923,8 @@ render(<App />)`,
         navLabel: 'tabs',
         title: 'Tabs',
         badge: 'primitive',
-        description: 'horizontal tab navigation bar for switching between terminal views and panels.',
+        description:
+            'horizontal tab navigation bar for switching between terminal views and panels.',
         details: [
             'when an agent interface has multiple views—like chat, file changes, logs, and settings—Tabs lets users switch between them without losing current scroll state or re-rendering everything.',
             'dock Tabs below the header or at the top of multi-panel views. bind arrow keys or number shortcuts (1-9) to change the active tab index.',
@@ -1976,7 +1994,8 @@ render(<App />)`,
         navLabel: 'dialog',
         title: 'Dialog',
         badge: 'primitive',
-        description: 'modal overlay dialog for blocking confirmations, alerts, and critical prompts.',
+        description:
+            'modal overlay dialog for blocking confirmations, alerts, and critical prompts.',
         details: [
             'when an agent needs immediate user confirmation before an irreversible action—like overwriting uncommitted files or terminating a running container—Dialog centers a high-priority modal box over the terminal.',
             'render Dialog conditionally when confirmation state is active. it captures keyboard focus so typing does not leak into background inputs.',
@@ -2395,7 +2414,8 @@ render(<App />)`,
         navLabel: 'table',
         title: 'Table',
         badge: 'primitive',
-        description: 'structured tabular grid for displaying tabular data, model comparisons, and benchmark metrics.',
+        description:
+            'structured tabular grid for displaying tabular data, model comparisons, and benchmark metrics.',
         details: [
             'when agents report benchmark results, model pricing comparisons, file lists, or database query results, unstructured text is hard to scan. Table aligns columns with borders, header rows, and formatted cells.',
             'use Table in summary steps or tool execution outputs where structured data comparison is needed.',

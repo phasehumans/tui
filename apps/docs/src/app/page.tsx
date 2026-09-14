@@ -345,7 +345,10 @@ export default function DocsPage() {
                         {activeItem.details && activeItem.details.length > 0 && (
                             <div className="flex flex-col gap-2.5 max-w-3xl pt-0.5">
                                 {activeItem.details.map((detail, idx) => (
-                                    <p key={idx} className="text-[0.88rem] text-[#a3a3a3] leading-[1.65]">
+                                    <p
+                                        key={idx}
+                                        className="text-[0.88rem] text-[#a3a3a3] leading-[1.65]"
+                                    >
                                         {detail}
                                     </p>
                                 ))}
@@ -564,7 +567,7 @@ export default function DocsPage() {
                                                             <>
                                                                 <Check className="h-3.5 w-3.5 text-[#fb923c]" />
                                                                 <span className="text-[#fb923c]">
-                                                                  copied
+                                                                    copied
                                                                 </span>
                                                             </>
                                                         ) : (
