@@ -1,10 +1,77 @@
 // Terminal Shell and Interactive State Engine for @trydecember/tui
 // Operates 100% client-side inside virtual terminal emulator (xterm.js)
 
-export const PROMPT_STRING =
-    '\x1b[38;2;74;222;128muser@december\x1b[0m:\x1b[38;2;137;180;248m~/code/tui\x1b[0m$ '
+export function getPrompt(cwd = '~/code/tui'): string {
+    return `\x1b[38;2;74;222;128muser@december\x1b[0m:\x1b[38;2;137;180;248m${cwd}\x1b[0m$ `
+}
+
+export const PROMPT_STRING = getPrompt('~/code/tui')
 
 export const PROMPT_PLAIN = 'user@december:~/code/tui$ '
+
+export const SIMULATED_FS: Record<string, { dirs: string[]; files: Record<string, string> }> = {
+    '~': {
+        dirs: ['code'],
+        files: {
+            '.bashrc': '# december bashrc\nexport THEME=emerald\n',
+        },
+    },
+    '~/code': {
+        dirs: ['tui', 'december'],
+        files: {},
+    },
+    '~/code/tui': {
+        dirs: ['apps', 'packages', 'docs'],
+        files: {
+            'package.json': JSON.stringify(
+                {
+                    name: '@trydecember/tui',
+                    version: '0.3.28',
+                    private: true,
+                    workspaces: ['apps/*', 'packages/*'],
+                },
+                null,
+                2
+            ),
+            'tui.json': JSON.stringify(
+                {
+                    $schema: 'https://tui.trydecember.com/schema.json',
+                    style: 'default',
+                    aliases: {
+                        components: '@/components',
+                        theme: '@/theme',
+                    },
+                },
+                null,
+                2
+            ),
+            'theme.ts':
+                '// @trydecember/tui theme tokens\nexport const THEME = createTheme("default")\n',
+            'README.md':
+                '# @trydecember/tui\nUnbundled, copy-paste terminal UI component library for React + Ink.\n',
+            'tsconfig.json':
+                '{\n  "compilerOptions": {\n    "target": "ESNext",\n    "module": "ESNext"\n  }\n}\n',
+        },
+    },
+    '~/code/tui/apps': {
+        dirs: ['docs', 'cli'],
+        files: {
+            'package.json': '{\n  "name": "apps"\n}\n',
+        },
+    },
+    '~/code/tui/packages': {
+        dirs: ['registry', 'core'],
+        files: {
+            'package.json': '{\n  "name": "packages"\n}\n',
+        },
+    },
+    '~/code/tui/docs': {
+        dirs: [],
+        files: {
+            'index.md': '# Documentation\n',
+        },
+    },
+}
 
 export const AVAILABLE_COMPONENTS: string[] = [
     'collapsible-reasoning',
@@ -64,20 +131,155 @@ export function parseCommand(raw: string): ParsedCommand {
     }
 }
 
+export interface ShellContext {
+    cwd?: string
+    theme?: string
+}
+
 export type CommandResult =
     | { type: 'output'; output: string }
     | { type: 'clear' }
     | { type: 'preview'; component: string }
     | { type: 'theme'; themePreset: string; output: string }
+    | { type: 'cd'; newCwd: string; output?: string }
     | { type: 'replay' }
     | { type: 'error'; output: string }
 
-export function executeCommand(raw: string): CommandResult {
+export function executeCommand(raw: string, context: ShellContext = {}): CommandResult {
     const { command, args } = parseCommand(raw)
+    const cwd = context.cwd || '~/code/tui'
     if (!command) return { type: 'output', output: '' }
 
     if (command === 'clear') {
         return { type: 'clear' }
+    }
+
+    if (command === 'pwd') {
+        const fullPath = cwd.startsWith('~/')
+            ? '/home/user/' + cwd.slice(2)
+            : cwd === '~'
+              ? '/home/user'
+              : cwd
+        return { type: 'output', output: fullPath }
+    }
+
+    if (command === 'whoami') {
+        return { type: 'output', output: 'user' }
+    }
+
+    if (command === 'date') {
+        return { type: 'output', output: new Date().toUTCString() }
+    }
+
+    if (command === 'uname') {
+        return { type: 'output', output: 'Linux december 6.8.0-agent x86_64 GNU/Linux' }
+    }
+
+    if (command === 'echo') {
+        return { type: 'output', output: args.join(' ') }
+    }
+
+    if (command === 'bun') {
+        return { type: 'output', output: '1.3.14' }
+    }
+
+    if (command === 'node') {
+        return { type: 'output', output: 'v22.14.0' }
+    }
+
+    if (command === 'npm') {
+        return { type: 'output', output: '10.8.2' }
+    }
+
+    if (command === 'git') {
+        const sub = args[0]
+        if (sub === 'status') {
+            return {
+                type: 'output',
+                output: "On branch main\nYour branch is up to date with 'origin/main'.\n\nnothing to commit, working tree clean",
+            }
+        }
+        if (sub === 'branch') {
+            return { type: 'output', output: '* main' }
+        }
+        if (sub === 'log') {
+            return {
+                type: 'output',
+                output: '\x1b[38;2;251;146;60mcommit 17e079e\x1b[0m (HEAD -> main)\nAuthor: chaitanya <dev.chaitanyasonawane@gmail.com>\nDate:   Mon Sep 14 2026\n\n    feat(docs): add interactive terminal shell repl and component controls',
+            }
+        }
+        return { type: 'output', output: 'git version 2.43.0' }
+    }
+
+    if (command === 'ls' || command === 'dir') {
+        const isLa = args.includes('-la') || args.includes('-l') || args.includes('-al')
+        const current = SIMULATED_FS[cwd] || { dirs: [], files: {} }
+        if (isLa) {
+            const lines = [
+                'total 40',
+                'drwxr-xr-x  8 user user 4096 Sep 14 07:30 .',
+                'drwxr-xr-x  3 user user 4096 Sep 14 07:00 ..',
+            ]
+            for (const d of current.dirs) {
+                lines.push(
+                    `drwxr-xr-x  2 user user 4096 Sep 14 07:25 \x1b[1;38;2;137;180;248m${d}\x1b[0m`
+                )
+            }
+            for (const [f, content] of Object.entries(current.files)) {
+                const size = content.length.toString().padStart(4, ' ')
+                lines.push(`-rw-r--r--  1 user user ${size} Sep 14 07:25 ${f}`)
+            }
+            return { type: 'output', output: lines.join('\n') }
+        } else {
+            const dirItems = current.dirs.map((d) => `\x1b[1;38;2;137;180;248m${d}/\x1b[0m`)
+            const fileItems = Object.keys(current.files)
+            const all = [...dirItems, ...fileItems]
+            return { type: 'output', output: '  ' + all.join('   ') }
+        }
+    }
+
+    if (command === 'cd') {
+        const target = args[0]
+        if (!target || target === '~') {
+            return { type: 'cd', newCwd: '~' }
+        }
+        if (target === '..') {
+            if (cwd === '~') return { type: 'cd', newCwd: '~' }
+            const parts = cwd.split('/')
+            parts.pop()
+            const up = parts.join('/') || '~'
+            return { type: 'cd', newCwd: up }
+        }
+        if (target === '.') {
+            return { type: 'cd', newCwd: cwd }
+        }
+        const candidate = `${cwd}/${target}`.replace('~//', '~/')
+        if (SIMULATED_FS[candidate]) {
+            return { type: 'cd', newCwd: candidate }
+        }
+        if (SIMULATED_FS[target]) {
+            return { type: 'cd', newCwd: target }
+        }
+        return {
+            type: 'error',
+            output: `cd: no such file or directory: ${target}`,
+        }
+    }
+
+    if (command === 'cat') {
+        const fileName = args[0]
+        if (!fileName) {
+            return { type: 'error', output: 'usage: cat <file>' }
+        }
+        const current = SIMULATED_FS[cwd] || { dirs: [], files: {} }
+        const content = current.files[fileName]
+        if (content !== undefined) {
+            return { type: 'output', output: content.trimEnd() }
+        }
+        return {
+            type: 'error',
+            output: `cat: no such file: ${fileName}`,
+        }
     }
 
     if (command === 'help') {
@@ -202,15 +404,89 @@ export function executeCommand(raw: string): CommandResult {
     }
 }
 
-export function autocomplete(input: string): { completed: string; suggestions?: string[] } {
+export function autocomplete(
+    input: string,
+    context?: ShellContext
+): { completed: string; suggestions?: string[] } {
     const trimmedStart = input.trimStart()
 
     // Base commands
-    const topCommands = ['tui', 'help', 'clear', 'replay']
+    const topCommands = [
+        'tui',
+        'help',
+        'clear',
+        'replay',
+        'ls',
+        'cd',
+        'pwd',
+        'cat',
+        'echo',
+        'whoami',
+        'uname',
+        'git',
+        'date',
+        'bun',
+        'node',
+    ]
     if (!trimmedStart.includes(' ')) {
         const matches = topCommands.filter((c) => c.startsWith(trimmedStart))
         if (matches.length === 1 && matches[0]) {
             return { completed: `${matches[0]} ` }
+        }
+        if (matches.length > 1) {
+            return { completed: input, suggestions: matches }
+        }
+        return { completed: input }
+    }
+
+    // cd autocompletion
+    if (trimmedStart.startsWith('cd ')) {
+        const rest = trimmedStart.slice(3).trimStart()
+        const cwd = context?.cwd || '~/code/tui'
+        const current = SIMULATED_FS[cwd] || { dirs: [], files: {} }
+        const available = [...current.dirs, '..', '~']
+        if (!rest) {
+            return { completed: input, suggestions: available }
+        }
+        const matches = available.filter((d) => d.startsWith(rest))
+        if (matches.length === 1 && matches[0]) {
+            return { completed: `cd ${matches[0]} ` }
+        }
+        if (matches.length > 1) {
+            return { completed: input, suggestions: matches }
+        }
+        return { completed: input }
+    }
+
+    // cat autocompletion
+    if (trimmedStart.startsWith('cat ')) {
+        const rest = trimmedStart.slice(4).trimStart()
+        const cwd = context?.cwd || '~/code/tui'
+        const current = SIMULATED_FS[cwd] || { dirs: [], files: {} }
+        const files = Object.keys(current.files)
+        if (!rest) {
+            return { completed: input, suggestions: files }
+        }
+        const matches = files.filter((f) => f.startsWith(rest))
+        if (matches.length === 1 && matches[0]) {
+            return { completed: `cat ${matches[0]} ` }
+        }
+        if (matches.length > 1) {
+            return { completed: input, suggestions: matches }
+        }
+        return { completed: input }
+    }
+
+    // git autocompletion
+    if (trimmedStart.startsWith('git ')) {
+        const rest = trimmedStart.slice(4).trimStart()
+        const gitSubs = ['status', 'branch', 'log']
+        if (!rest) {
+            return { completed: input, suggestions: gitSubs }
+        }
+        const matches = gitSubs.filter((s) => s.startsWith(rest))
+        if (matches.length === 1 && matches[0]) {
+            return { completed: `git ${matches[0]} ` }
         }
         if (matches.length > 1) {
             return { completed: input, suggestions: matches }
@@ -348,9 +624,7 @@ export function renderSelectMenu(state: SelectMenuState): string[] {
         const hintStr = item.hint ? ` \x1b[38;2;102;102;102m${item.hint}\x1b[0m` : ''
         lines.push(`  \x1b[38;2;102;102;102m│\x1b[0m  ${glyph} ${labelStr}${hintStr}`)
     })
-    lines.push(
-        '  \x1b[38;2;102;102;102m└────────────────────────────────────────────────┘\x1b[0m'
-    )
+    lines.push('  \x1b[38;2;102;102;102m└────────────────────────────────────────────────┘\x1b[0m')
     if (state.submitted) {
         lines.push(`  \x1b[38;2;74;222;128m✔ Confirmed selection: ${state.submitted}\x1b[0m`)
     }
@@ -582,4 +856,3 @@ export function renderInputBar(state: InputBarState): string[] {
     }
     return lines
 }
-

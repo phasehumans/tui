@@ -5,7 +5,7 @@ import { Terminal } from '@xterm/xterm'
 import React, { useEffect, useRef } from 'react'
 
 import {
-    PROMPT_STRING,
+    getPrompt,
     executeCommand,
     autocomplete,
     createSelectMenuState,
@@ -97,6 +97,7 @@ export function TerminalInner({
 
         let isCancelled = false
         let currentLine = ''
+        let cwd = '~/code/tui'
         const history: string[] = []
         let historyIndex = -1
         let shellActive = false
@@ -951,7 +952,7 @@ export function TerminalInner({
             shellActive = false
             currentLine = ''
             term.writeln('')
-            term.writeln(`${PROMPT_STRING}tui preview ${comp}`)
+            term.writeln(`${getPrompt(cwd)}tui preview ${comp}`)
             term.writeln('')
 
             const handled = startComponentMode(comp)
@@ -959,7 +960,7 @@ export function TerminalInner({
                 await runSpecificSimulation(comp)
                 if (!isCancelled) {
                     term.writeln('')
-                    term.write(PROMPT_STRING)
+                    term.write(getPrompt(cwd))
                     shellActive = true
                 }
             }
@@ -975,7 +976,7 @@ export function TerminalInner({
                         term.writeln('')
                         term.writeln('  \x1b[38;2;102;102;102m[exited component mode]\x1b[0m')
                         term.writeln('')
-                        term.write(PROMPT_STRING)
+                        term.write(getPrompt(cwd))
                         shellActive = true
                         currentLine = ''
                         return
@@ -1043,7 +1044,7 @@ export function TerminalInner({
                     if (data === '\x03' || data === '\r') {
                         isCancelled = true
                         term.writeln('')
-                        term.write(PROMPT_STRING)
+                        term.write(getPrompt(cwd))
                         shellActive = true
                         currentLine = ''
                     }
@@ -1057,10 +1058,17 @@ export function TerminalInner({
                     if (trimmed) {
                         history.push(trimmed)
                         historyIndex = history.length
-                        const res = executeCommand(trimmed)
+                        const res = executeCommand(trimmed, { cwd })
                         if (res.type === 'clear') {
                             term.clear()
-                            term.write(PROMPT_STRING)
+                            term.write(getPrompt(cwd))
+                        } else if (res.type === 'cd') {
+                            cwd = res.newCwd
+                            if (res.output) {
+                                term.writeln(res.output)
+                                term.writeln('')
+                            }
+                            term.write(getPrompt(cwd))
                         } else if (res.type === 'preview') {
                             launchPreview(res.component)
                         } else if (res.type === 'replay') {
@@ -1072,10 +1080,10 @@ export function TerminalInner({
                         ) {
                             term.writeln(res.output)
                             term.writeln('')
-                            term.write(PROMPT_STRING)
+                            term.write(getPrompt(cwd))
                         }
                     } else {
-                        term.write(PROMPT_STRING)
+                        term.write(getPrompt(cwd))
                     }
                     currentLine = ''
                 } else if (data === '\x7f' || data === '\b') {
@@ -1084,18 +1092,16 @@ export function TerminalInner({
                         term.write('\b \b')
                     }
                 } else if (data === '\t') {
-                    const res = autocomplete(currentLine)
+                    const res = autocomplete(currentLine, { cwd })
                     if (res.completed !== currentLine) {
                         const backspaces = '\b \b'.repeat(currentLine.length)
                         term.write(backspaces + res.completed)
                         currentLine = res.completed
                     } else if (res.suggestions && res.suggestions.length > 0) {
                         term.writeln(
-                            '\r\n  \x1b[38;2;170;170;170m' +
-                                res.suggestions.join('   ') +
-                                '\x1b[0m'
+                            '\r\n  \x1b[38;2;170;170;170m' + res.suggestions.join('   ') + '\x1b[0m'
                         )
-                        term.write(PROMPT_STRING + currentLine)
+                        term.write(getPrompt(cwd) + currentLine)
                     }
                 } else if (data === '\x1b[A') {
                     if (history.length > 0) {
@@ -1122,12 +1128,12 @@ export function TerminalInner({
                         }
                     }
                 } else if (data === '\x03') {
-                    term.write('^C\r\n' + PROMPT_STRING)
+                    term.write('^C\r\n' + getPrompt(cwd))
                     currentLine = ''
                     historyIndex = history.length
                 } else if (data === '\x0c') {
                     term.clear()
-                    term.write(PROMPT_STRING + currentLine)
+                    term.write(getPrompt(cwd) + currentLine)
                 } else if (data.length === 1 && data >= ' ' && data <= '~') {
                     currentLine += data
                     term.write(data)
@@ -1147,7 +1153,7 @@ export function TerminalInner({
             }
 
             const initialCmd = mode === 'december' ? 'december' : `tui preview ${mode}`
-            term.writeln(`${PROMPT_STRING}${initialCmd}`)
+            term.writeln(`${getPrompt(cwd)}${initialCmd}`)
             term.writeln('')
 
             const handled = startComponentMode(mode)
@@ -1155,7 +1161,7 @@ export function TerminalInner({
                 await runSpecificSimulation(mode)
                 if (!isCancelled) {
                     term.writeln('')
-                    term.write(PROMPT_STRING)
+                    term.write(getPrompt(cwd))
                     shellActive = true
                 }
             }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test'
 import {
     PROMPT_STRING,
+    getPrompt,
     parseCommand,
     executeCommand,
     autocomplete,
@@ -120,6 +121,127 @@ describe('terminal-shell execution', () => {
     })
 })
 
+describe('terminal-shell basic commands (ls, cd, pwd, cat, echo, etc.)', () => {
+    it('should execute ls listing directories and files', () => {
+        const result = executeCommand('ls')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toContain('apps')
+            expect(result.output).toContain('packages')
+            expect(result.output).toContain('package.json')
+            expect(result.output).toContain('tui.json')
+        }
+    })
+
+    it('should execute ls -la with permission bits and sizes', () => {
+        const result = executeCommand('ls -la')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toContain('drwxr-xr-x')
+            expect(result.output).toContain('package.json')
+        }
+    })
+
+    it('should execute pwd returning current directory', () => {
+        const result = executeCommand('pwd', { cwd: '~/code/tui' })
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toBe('/home/user/code/tui')
+        }
+    })
+
+    it('should execute cd into child directory', () => {
+        const result = executeCommand('cd packages', { cwd: '~/code/tui' })
+        expect(result.type).toBe('cd')
+        if (result.type === 'cd') {
+            expect(result.newCwd).toBe('~/code/tui/packages')
+        }
+    })
+
+    it('should execute cd .. going up one directory', () => {
+        const result = executeCommand('cd ..', { cwd: '~/code/tui/packages' })
+        expect(result.type).toBe('cd')
+        if (result.type === 'cd') {
+            expect(result.newCwd).toBe('~/code/tui')
+        }
+    })
+
+    it('should execute cd ~ going to home directory', () => {
+        const result = executeCommand('cd ~', { cwd: '~/code/tui/packages' })
+        expect(result.type).toBe('cd')
+        if (result.type === 'cd') {
+            expect(result.newCwd).toBe('~')
+        }
+    })
+
+    it('should error when cd into non-existent directory', () => {
+        const result = executeCommand('cd nonexistent', { cwd: '~/code/tui' })
+        expect(result.type).toBe('error')
+        if (result.type === 'error') {
+            expect(result.output).toContain('no such file or directory: nonexistent')
+        }
+    })
+
+    it('should execute cat package.json displaying file contents', () => {
+        const result = executeCommand('cat package.json')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toContain('@trydecember/tui')
+            expect(result.output).toContain('workspaces')
+        }
+    })
+
+    it('should error when cat non-existent file', () => {
+        const result = executeCommand('cat missing.txt')
+        expect(result.type).toBe('error')
+        if (result.type === 'error') {
+            expect(result.output).toContain('no such file: missing.txt')
+        }
+    })
+
+    it('should execute echo returning passed text', () => {
+        const result = executeCommand('echo hello world')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toBe('hello world')
+        }
+    })
+
+    it('should execute whoami returning username', () => {
+        const result = executeCommand('whoami')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toBe('user')
+        }
+    })
+
+    it('should execute uname returning system architecture', () => {
+        const result = executeCommand('uname -a')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toContain('Linux')
+            expect(result.output).toContain('x86_64')
+        }
+    })
+
+    it('should execute git status showing clean branch', () => {
+        const result = executeCommand('git status')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toContain('On branch main')
+            expect(result.output).toContain('working tree clean')
+        }
+    })
+
+    it('should execute date returning date string', () => {
+        const result = executeCommand('date')
+        expect(result.type).toBe('output')
+        if (result.type === 'output') {
+            expect(result.output).toContain('202')
+        }
+    })
+})
+
 describe('terminal-shell autocomplete', () => {
     it('should suggest tui subcommands when typing tui', () => {
         const res = autocomplete('tui ')
@@ -142,6 +264,40 @@ describe('terminal-shell autocomplete', () => {
     it('should autocomplete help command', () => {
         const res = autocomplete('hel')
         expect(res.completed).toBe('help ')
+    })
+
+    it('should suggest directories for cd', () => {
+        const res = autocomplete('cd ')
+        expect(res.suggestions).toContain('apps')
+        expect(res.suggestions).toContain('packages')
+    })
+
+    it('should autocomplete cd ap to cd apps', () => {
+        const res = autocomplete('cd ap')
+        expect(res.completed).toBe('cd apps ')
+    })
+
+    it('should suggest files for cat', () => {
+        const res = autocomplete('cat ')
+        expect(res.suggestions).toContain('package.json')
+        expect(res.suggestions).toContain('README.md')
+    })
+
+    it('should autocomplete cat pack to cat package.json', () => {
+        const res = autocomplete('cat pack')
+        expect(res.completed).toBe('cat package.json ')
+    })
+
+    it('should suggest git subcommands', () => {
+        const res = autocomplete('git ')
+        expect(res.suggestions).toContain('status')
+        expect(res.suggestions).toContain('branch')
+        expect(res.suggestions).toContain('log')
+    })
+
+    it('should autocomplete git st to git status', () => {
+        const res = autocomplete('git st')
+        expect(res.completed).toBe('git status ')
     })
 })
 
@@ -293,4 +449,3 @@ describe('interactive component state - InputBar', () => {
         expect(state.text).toBe('h')
     })
 })
-
