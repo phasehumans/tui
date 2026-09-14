@@ -368,6 +368,22 @@ describe('interactive component state - Switch', () => {
         const onState = createSwitchState({ label: 'Feature flag', checked: true })
         const onLines = renderSwitch(onState)
         expect(onLines.join('\n')).toContain('─● ON')
+
+        const badgeOffState = createSwitchState({
+            label: 'Stream tokens',
+            checked: false,
+            variant: 'badge',
+        })
+        const badgeOffLines = renderSwitch(badgeOffState)
+        expect(badgeOffLines.join('\n')).toContain('[ OFF ]')
+
+        const badgeOnState = createSwitchState({
+            label: 'Stream tokens',
+            checked: true,
+            variant: 'badge',
+        })
+        const badgeOnLines = renderSwitch(badgeOnState)
+        expect(badgeOnLines.join('\n')).toContain('[ ON ]')
     })
 })
 

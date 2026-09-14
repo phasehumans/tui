@@ -635,12 +635,18 @@ export function renderSelectMenu(state: SelectMenuState): string[] {
 export interface SwitchState {
     label: string
     checked: boolean
+    variant?: 'glyph' | 'badge'
 }
 
-export function createSwitchState(opts?: { label?: string; checked?: boolean }): SwitchState {
+export function createSwitchState(opts?: {
+    label?: string
+    checked?: boolean
+    variant?: 'glyph' | 'badge'
+}): SwitchState {
     return {
         label: opts?.label || 'Automatic token streaming',
-        checked: opts?.checked ?? false,
+        checked: opts?.checked ?? true,
+        variant: opts?.variant || 'glyph',
     }
 }
 
@@ -652,15 +658,20 @@ export function handleSwitchKey(state: SwitchState, key: string): SwitchState {
 }
 
 export function renderSwitch(state: SwitchState): string[] {
-    const glyph = state.checked
-        ? '\x1b[38;2;74;222;128m─● ON \x1b[0m'
-        : '\x1b[38;2;102;102;102m●─ OFF\x1b[0m'
+    const isBadge = state.variant === 'badge'
+    const glyph = isBadge
+        ? state.checked
+            ? '\x1b[1;38;2;74;222;128m[ ON ]\x1b[0m'
+            : '\x1b[38;2;92;92;92m[ OFF ]\x1b[0m'
+        : state.checked
+          ? '\x1b[38;2;74;222;128m─● ON \x1b[0m'
+          : '\x1b[38;2;102;102;102m●─ OFF\x1b[0m'
     const statusText = state.checked
         ? '\x1b[38;2;74;222;128mactive\x1b[0m'
         : '\x1b[38;2;102;102;102mdisabled\x1b[0m'
     return [
         `  ${glyph}  \x1b[1;38;2;255;255;255m${state.label}\x1b[0m  (${statusText})`,
-        '  \x1b[38;2;102;102;102m[Press Space to toggle]\x1b[0m',
+        '  \x1b[38;2;102;102;102m[Press Space to toggle, q to exit to shell]\x1b[0m',
     ]
 }
 
@@ -825,8 +836,8 @@ export interface InputBarState {
     submitted?: string
 }
 
-export function createInputBarState(): InputBarState {
-    return { text: '' }
+export function createInputBarState(initialText = ''): InputBarState {
+    return { text: initialText }
 }
 
 export function handleInputBarKey(state: InputBarState, key: string): InputBarState {

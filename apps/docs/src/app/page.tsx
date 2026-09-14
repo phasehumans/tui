@@ -554,10 +554,14 @@ export default function DocsPage() {
                                                     </div>
                                                     <div className="rounded-[4px] bg-[#0a0a0a] p-3 sm:p-4 border border-[#1e1e1e]">
                                                         <TerminalPreview
-                                                            mode={variation.terminalMode}
+                                                            mode={
+                                                                variation.terminalMode ||
+                                                                variation.id
+                                                            }
                                                             lines={variation.terminalLines}
                                                             promptCmd={promptCommand}
                                                             replayKey={vReplayKey}
+                                                            interactive={true}
                                                             heightClass={
                                                                 variation.terminalLines &&
                                                                 variation.terminalLines.length <= 4

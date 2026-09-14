@@ -47,7 +47,7 @@ export function TerminalInner({
     promptCmd,
     replayKey = 0,
     heightClass = 'h-64 sm:h-72',
-    interactive = !lines,
+    interactive = true,
 }: TerminalInnerProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const termRef = useRef<Terminal | null>(null)
@@ -168,17 +168,37 @@ export function TerminalInner({
             if (
                 targetMode === 'select-menu' ||
                 targetMode === 'command-menu' ||
-                targetMode === 'shortcuts-menu'
+                targetMode === 'shortcuts-menu' ||
+                targetMode === 'select-models' ||
+                targetMode === 'select-branches'
             ) {
-                const items =
-                    targetMode === 'shortcuts-menu'
-                        ? [
-                              { label: 'ctrl+c  Kill active task', value: 'kill' },
-                              { label: 'ctrl+b  Background task', value: 'background' },
-                              { label: 'ctrl+o  Toggle diff fold', value: 'diff' },
-                              { label: '?       Show shortcuts', value: 'help' },
-                          ]
-                        : undefined
+                let items: { label: string; value: string; hint?: string }[] | undefined
+                if (targetMode === 'shortcuts-menu') {
+                    items = [
+                        { label: 'ctrl+c  Kill active task', value: 'kill' },
+                        { label: 'ctrl+b  Background task', value: 'background' },
+                        { label: 'ctrl+o  Toggle diff fold', value: 'diff' },
+                        { label: '?       Show shortcuts', value: 'help' },
+                    ]
+                } else if (targetMode === 'select-models') {
+                    items = [
+                        { label: 'gemini-2.5-pro', value: 'gemini-2.5-pro', hint: '(recommended)' },
+                        {
+                            label: 'claude-3.7-sonnet',
+                            value: 'claude-3.7-sonnet',
+                            hint: '(hybrid reasoning)',
+                        },
+                        { label: 'gpt-4o', value: 'gpt-4o', hint: '(multimodal)' },
+                        { label: 'deepseek-r1', value: 'deepseek-r1', hint: '(distilled math)' },
+                    ]
+                } else if (targetMode === 'select-branches') {
+                    items = [
+                        { label: 'main', value: 'main', hint: '(default branch)' },
+                        { label: 'feature/auth', value: 'feature/auth', hint: '(2 commits ahead)' },
+                        { label: 'fix/stream-overflow', value: 'fix/stream-overflow' },
+                        { label: 'chore/deps', value: 'chore/deps' },
+                    ]
+                }
                 interactiveState = {
                     type: 'select-menu',
                     state: createSelectMenuState(items),
@@ -188,37 +208,77 @@ export function TerminalInner({
                 renderInteractive(false)
                 return true
             }
-            if (targetMode === 'switch') {
+            if (
+                targetMode === 'switch' ||
+                targetMode === 'glyph-toggle' ||
+                targetMode === 'badge-variant'
+            ) {
+                const isBadge = targetMode === 'badge-variant'
+                const label = isBadge ? 'Stream reasoning' : 'Auto-run tools'
                 interactiveState = {
                     type: 'switch',
-                    state: createSwitchState(),
+                    state: createSwitchState({
+                        label,
+                        checked: true,
+                        variant: isBadge ? 'badge' : 'glyph',
+                    }),
                     lineCount: 0,
                 }
                 shellActive = false
                 renderInteractive(false)
                 return true
             }
-            if (targetMode === 'tabs') {
+            if (
+                targetMode === 'tabs' ||
+                targetMode === 'tabs-default' ||
+                targetMode === 'tabs-pill'
+            ) {
+                const tabs =
+                    targetMode === 'tabs-pill'
+                        ? ['Unified', 'Split', 'Tree']
+                        : ['Overview', 'Changes', 'Terminal', 'Metrics']
                 interactiveState = {
                     type: 'tabs',
-                    state: createTabsState(),
+                    state: createTabsState(tabs),
                     lineCount: 0,
                 }
                 shellActive = false
                 renderInteractive(false)
                 return true
             }
-            if (targetMode === 'checkbox' || targetMode === 'radio-group') {
+            if (
+                targetMode === 'checkbox' ||
+                targetMode === 'radio-group' ||
+                targetMode === 'checkbox-default' ||
+                targetMode === 'checkbox-minimal'
+            ) {
+                const items =
+                    targetMode === 'checkbox-minimal'
+                        ? [
+                              { label: 'Dry run mode', checked: true },
+                              { label: 'Verbose ANSI logging', checked: false },
+                              { label: 'Send telemetry diagnostics', checked: false },
+                          ]
+                        : [
+                              { label: 'Include unit tests', checked: true },
+                              { label: 'Auto-format before commit', checked: true },
+                              { label: 'Generate changelog entry', checked: false },
+                          ]
                 interactiveState = {
                     type: 'checkbox',
-                    state: createCheckboxState(),
+                    state: createCheckboxState(items),
                     lineCount: 0,
                 }
                 shellActive = false
                 renderInteractive(false)
                 return true
             }
-            if (targetMode === 'dialog' || targetMode === 'plan-approve-menu') {
+            if (
+                targetMode === 'dialog' ||
+                targetMode === 'plan-approve-menu' ||
+                targetMode === 'plan-auto' ||
+                targetMode === 'plan-custom'
+            ) {
                 interactiveState = {
                     type: 'plan-approve',
                     state: createPlanApproveState(),
@@ -228,10 +288,18 @@ export function TerminalInner({
                 renderInteractive(false)
                 return true
             }
-            if (targetMode === 'input-bar') {
+            if (
+                targetMode === 'input-bar' ||
+                targetMode === 'input-command' ||
+                targetMode === 'input-multiline'
+            ) {
                 interactiveState = {
                     type: 'input-bar',
-                    state: createInputBarState(),
+                    state: createInputBarState(
+                        targetMode === 'input-command'
+                            ? 'git commit -m "fix: resolve token stream issue"'
+                            : ''
+                    ),
                     lineCount: 0,
                 }
                 shellActive = false
@@ -1147,29 +1215,39 @@ export function TerminalInner({
             if (!term) return
             term.clear()
 
-            if (lines && lines.length > 0) {
-                if (promptCmd) {
-                    term.writeln(`${getPrompt(cwd)}${promptCmd}`)
-                    term.writeln('')
-                }
-                for (const line of lines) {
-                    term.writeln(line)
-                }
+            if (promptCmd) {
+                term.writeln(`${getPrompt(cwd)}${promptCmd}`)
+                term.writeln('')
+            }
+
+            const handled = startComponentMode(mode)
+            if (handled) {
                 return
             }
 
-            const initialCmd = mode === 'december' ? 'december' : `tui preview ${mode}`
-            term.writeln(`${getPrompt(cwd)}${initialCmd}`)
-            term.writeln('')
-
-            const handled = startComponentMode(mode)
-            if (!handled) {
-                await runSpecificSimulation(mode)
-                if (!isCancelled) {
+            if (lines && lines.length > 0) {
+                for (const line of lines) {
+                    term.writeln(line)
+                }
+                if (interactive && !isCancelled) {
                     term.writeln('')
                     term.write(getPrompt(cwd))
                     shellActive = true
                 }
+                return
+            }
+
+            if (!promptCmd) {
+                const initialCmd = mode === 'december' ? 'december' : `tui preview ${mode}`
+                term.writeln(`${getPrompt(cwd)}${initialCmd}`)
+                term.writeln('')
+            }
+
+            await runSpecificSimulation(mode)
+            if (!isCancelled) {
+                term.writeln('')
+                term.write(getPrompt(cwd))
+                shellActive = true
             }
         }
 

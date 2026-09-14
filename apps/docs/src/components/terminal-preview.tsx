@@ -29,7 +29,7 @@ export function TerminalPreview({
     promptCmd,
     replayKey = 0,
     heightClass = 'h-64 sm:h-72',
-    interactive,
+    interactive = true,
 }: TerminalPreviewProps) {
     return (
         <TerminalInner
