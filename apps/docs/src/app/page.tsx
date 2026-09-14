@@ -333,14 +333,24 @@ export default function DocsPage() {
                     className="flex-1 h-full min-h-0 overflow-y-auto no-scrollbar touch-scroll py-2 px-4 sm:px-8 flex flex-col gap-6 sm:gap-8"
                 >
                     {/* Overview Header */}
-                    <section id="overview" className="flex flex-col gap-2">
+                    <section id="overview" className="flex flex-col gap-3">
                         <h1 className="text-xl sm:text-2xl font-bold text-white tracking-[-0.01em]">
                             {cleanTitle(activeItem.title)}
                         </h1>
 
-                        <p className="text-[0.88rem] text-[#8c8c8c] leading-[1.6] max-w-2xl">
+                        <p className="text-[0.92rem] text-[#d4d4d4] leading-[1.65] max-w-3xl">
                             {activeItem.description}
                         </p>
+
+                        {activeItem.details && activeItem.details.length > 0 && (
+                            <div className="flex flex-col gap-2.5 max-w-3xl pt-0.5">
+                                {activeItem.details.map((detail, idx) => (
+                                    <p key={idx} className="text-[0.88rem] text-[#a3a3a3] leading-[1.65]">
+                                        {detail}
+                                    </p>
+                                ))}
+                            </div>
+                        )}
                     </section>
 
                     {/* Installation Block */}
@@ -477,7 +487,7 @@ export default function DocsPage() {
                                             className="flex flex-col gap-6"
                                         >
                                             {/* 1. Variant Heading */}
-                                            <div className="flex items-center justify-between">
+                                            <div className="flex flex-col gap-2">
                                                 <div className="flex items-center gap-2.5">
                                                     <span className="text-[0.82rem] font-mono text-[#fb923c]">
                                                         0{vIdx + 1}
@@ -486,6 +496,11 @@ export default function DocsPage() {
                                                         {variation.title}
                                                     </h3>
                                                 </div>
+                                                {variation.description && (
+                                                    <p className="text-[0.88rem] text-[#a3a3a3] leading-relaxed max-w-3xl">
+                                                        {variation.description}
+                                                    </p>
+                                                )}
                                             </div>
 
                                             {/* 2. Terminal Preview */}
@@ -549,7 +564,7 @@ export default function DocsPage() {
                                                             <>
                                                                 <Check className="h-3.5 w-3.5 text-[#fb923c]" />
                                                                 <span className="text-[#fb923c]">
-                                                                    copied
+                                                                  copied
                                                                 </span>
                                                             </>
                                                         ) : (
@@ -567,18 +582,6 @@ export default function DocsPage() {
                                                     />
                                                 </div>
                                             </div>
-
-                                            {/* 4. Other Info */}
-                                            {variation.description && (
-                                                <div className="flex flex-col gap-1 rounded-[4px] bg-[#141414] p-3 sm:p-3.5 border border-[#222222]">
-                                                    <span className="text-[0.75rem] font-mono uppercase tracking-wider text-[#8c8c8c]">
-                                                        info
-                                                    </span>
-                                                    <p className="text-[0.85rem] text-[#cccccc] leading-relaxed">
-                                                        {variation.description}
-                                                    </p>
-                                                </div>
-                                            )}
                                         </div>
                                     )
                                 })}
@@ -749,7 +752,7 @@ export default function DocsPage() {
                     {activeItem.props && activeItem.props.length > 0 && (
                         <section id="props" className="flex flex-col gap-2.5">
                             <span className="text-[1.05rem] font-semibold text-white tracking-[-0.01em]">
-                                api reference
+                                props
                             </span>
                             <div className="w-full overflow-x-auto code-scroll rounded-[4px] border border-[#222222]">
                                 <table className="w-full min-w-[500px] text-left text-[0.84rem]">

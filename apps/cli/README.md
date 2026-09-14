@@ -22,7 +22,7 @@ npx @trydecember/tui init
 2. Add components to your project:
 
 ```bash
-npx @trydecember/tui add streaming-text
+npx @trydecember/tui add diff-viewer
 ```
 
 ### Feedback & Bugs
