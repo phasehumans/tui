@@ -6,6 +6,7 @@ export interface ComponentVariation {
     terminalLines?: string[]
     codeSnippet: string
     installCmd?: string
+    terminalHeight?: string
 }
 
 export const COMPONENT_VARIATIONS: Record<string, ComponentVariation[]> = {

@@ -24,6 +24,11 @@
     min-width: 0;
 }
 
+button:focus,
+button:focus-visible {
+    outline: none !important;
+}
+
 html,
 body {
     height: 100%;

@@ -86,6 +86,9 @@ export default function DocsPage() {
         if (mainRef.current) {
             mainRef.current.scrollTo({ top: 0, behavior: 'auto' })
         }
+        if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur()
+        }
     }, [])
 
     const activeItem: DocItem =
@@ -274,7 +277,7 @@ export default function DocsPage() {
                                         key={item.id}
                                         onClick={() => selectDocItem(item.id)}
                                         className={`
-                                            flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer min-h-[38px] sm:min-h-0
+                                            flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer min-h-[38px] sm:min-h-0 focus:outline-none focus-visible:outline-none
                                             ${isActive ? 'bg-white/[0.06] text-white font-semibold' : 'text-[#8c8c8c] hover:text-white hover:bg-white/[0.02]'}
                                         `}
                                     >
@@ -298,7 +301,7 @@ export default function DocsPage() {
                                         key={item.id}
                                         onClick={() => selectDocItem(item.id)}
                                         className={`
-                                            flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer min-h-[38px] sm:min-h-0
+                                            flex items-center justify-between px-2.5 py-2 sm:py-1.5 rounded-[3px] text-left text-[0.92rem] transition-colors cursor-pointer min-h-[38px] sm:min-h-0 focus:outline-none focus-visible:outline-none
                                             ${isActive ? 'bg-white/[0.06] text-white font-semibold' : 'text-[#8c8c8c] hover:text-white hover:bg-white/[0.02]'}
                                         `}
                                     >
@@ -354,7 +357,7 @@ export default function DocsPage() {
                                         <button
                                             key={t.id}
                                             onClick={() => scrollToSection(t.id)}
-                                            className={`shrink-0 px-2.5 py-1 text-[12px] rounded border transition-colors cursor-pointer min-h-[30px] flex items-center ${
+                                            className={`shrink-0 px-2.5 py-1 text-[12px] rounded border transition-colors cursor-pointer min-h-[30px] flex items-center focus:outline-none focus-visible:outline-none ${
                                                 activeTocId === t.id
                                                     ? 'bg-[#222222] border-[#fb923c]/50 text-[#fb923c] font-medium'
                                                     : 'bg-[#181818] border-[#222222] text-[#8c8c8c] hover:text-white'
@@ -615,10 +618,19 @@ export default function DocsPage() {
                                                             replayKey={vReplayKey}
                                                             interactive={true}
                                                             heightClass={
-                                                                variation.terminalLines &&
-                                                                variation.terminalLines.length <= 4
-                                                                    ? 'h-24 sm:h-28'
-                                                                    : 'h-36 sm:h-44'
+                                                                variation.terminalHeight ||
+                                                                (variation.terminalLines
+                                                                    ? variation.terminalLines
+                                                                          .length <= 2
+                                                                        ? 'h-28 sm:h-32'
+                                                                        : variation.terminalLines
+                                                                                .length <= 5
+                                                                          ? 'h-40 sm:h-48'
+                                                                          : variation.terminalLines
+                                                                                  .length <= 8
+                                                                            ? 'h-52 sm:h-60'
+                                                                            : 'h-64 sm:h-72'
+                                                                    : 'h-56 sm:h-64')
                                                             }
                                                         />
                                                     </div>
@@ -890,7 +902,7 @@ export default function DocsPage() {
                         {prevItem ? (
                             <button
                                 onClick={() => selectDocItem(prevItem.id)}
-                                className="flex flex-col items-start gap-0.5 p-2 rounded hover:bg-white/[0.04] text-left transition-colors min-h-[44px] justify-center"
+                                className="flex flex-col items-start gap-0.5 p-2 rounded hover:bg-white/[0.04] text-left transition-colors min-h-[44px] justify-center focus:outline-none focus-visible:outline-none"
                             >
                                 <span className="text-[#5c5c5c] text-[0.75rem]">← previous</span>
                                 <span className="text-[#8c8c8c] hover:text-white">
@@ -904,7 +916,7 @@ export default function DocsPage() {
                         {nextItem && (
                             <button
                                 onClick={() => selectDocItem(nextItem.id)}
-                                className="flex flex-col items-end gap-0.5 p-2 rounded hover:bg-white/[0.04] text-right transition-colors min-h-[44px] justify-center"
+                                className="flex flex-col items-end gap-0.5 p-2 rounded hover:bg-white/[0.04] text-right transition-colors min-h-[44px] justify-center focus:outline-none focus-visible:outline-none"
                             >
                                 <span className="text-[#5c5c5c] text-[0.75rem]">next →</span>
                                 <span className="text-[#8c8c8c] hover:text-white">
@@ -932,7 +944,7 @@ export default function DocsPage() {
                                         key={item.id}
                                         onClick={() => scrollToSection(item.id)}
                                         className={`
-                                            text-left transition-colors cursor-pointer truncate
+                                            text-left transition-colors cursor-pointer truncate focus:outline-none focus-visible:outline-none
                                             ${isSubItem ? 'pl-2.5 text-[0.80rem] py-0.5' : 'text-[0.88rem] py-1'}
                                             ${
                                                 isActive

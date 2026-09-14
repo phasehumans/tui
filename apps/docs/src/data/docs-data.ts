@@ -587,6 +587,7 @@ export function AgentHeader({ model, tokensUsed, totalCost }: AgentHeaderProps) 
         badge: 'display',
         description: 'shows git diffs with file names and expandable lines.',
         terminalMode: 'diff-viewer',
+        terminalHeight: 'h-80 sm:h-96',
         installCmd: 'npx @trydecember/tui add diff-viewer',
         codeSnippet: `import { DiffViewer } from '@/components/tui/diff-viewer'
 import { Box, render } from 'ink'
@@ -703,6 +704,7 @@ render(<App stream="review complete." isGenerating={false} />)`,
         badge: 'container',
         description: 'collapsible block for agent thinking, duration, and token counts.',
         terminalMode: 'collapsible-reasoning',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add collapsible-reasoning',
         codeSnippet: `import { CollapsibleReasoning } from '@/components/tui/collapsible-reasoning'
 import { Box, render } from 'ink'
@@ -770,6 +772,7 @@ render(<App />)`,
         badge: 'status',
         description: 'card showing tool name, status, duration, and output.',
         terminalMode: 'tool-call-card',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add tool-call-card',
         codeSnippet: `import { ToolCallCard } from '@/components/tui/tool-call-card'
 import { Box, render } from 'ink'
@@ -1188,6 +1191,7 @@ render(<App />)`,
         badge: 'diagram',
         description: 'renders flowcharts and diagrams in unicode.',
         terminalMode: 'mermaid',
+        terminalHeight: 'h-80 sm:h-96',
         installCmd: 'npx @trydecember/tui add mermaid',
         codeSnippet: `import { Mermaid } from '@/components/tui/mermaid'
 import { Box, render } from 'ink'
@@ -1230,6 +1234,7 @@ render(<App />)`,
         badge: 'content',
         description: 'renders markdown with formatting, tables, lists, and code blocks.',
         terminalMode: 'markdown',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add markdown',
         codeSnippet: `import { Markdown } from '@/components/tui/markdown'
 import { Box, render } from 'ink'
@@ -1371,6 +1376,7 @@ render(<App />)`,
         badge: 'menu',
         description: 'list menu for selecting an item with arrow keys.',
         terminalMode: 'select-menu',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add select-menu',
         codeSnippet: `import { SelectMenu } from '@/components/tui/select-menu'
 import { Box, render } from 'ink'
@@ -1444,6 +1450,7 @@ render(<App />)`,
         badge: 'palette',
         description: 'slash command menu with filtering and key navigation.',
         terminalMode: 'command-menu',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add command-menu',
         codeSnippet: `import { CommandMenu } from '@/components/tui/command-menu'
 import { Box, render } from 'ink'
@@ -1510,6 +1517,7 @@ render(<App />)`,
         badge: 'dialog',
         description: 'menu showing available keyboard shortcuts.',
         terminalMode: 'shortcuts-menu',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add shortcuts-menu',
         codeSnippet: `import { ShortcutsMenu } from '@/components/tui/shortcuts-menu'
 import { Box, render } from 'ink'
@@ -1560,6 +1568,7 @@ render(<App />)`,
         badge: 'action',
         description: 'menu for reviewing and approving agent plans.',
         terminalMode: 'plan-approve-menu',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add plan-approve-menu',
         codeSnippet: `import { PlanApproveMenu } from '@/components/tui/plan-approve-menu'
 import { Box, render } from 'ink'
@@ -1926,6 +1935,7 @@ render(<App />)`,
         badge: 'primitive',
         description: 'dialog box asking for confirmation.',
         terminalMode: 'dialog',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add dialog',
         codeSnippet: `import { Dialog } from '@/components/tui/dialog'
 import { Box, render } from 'ink'
@@ -2314,6 +2324,7 @@ render(<App />)`,
         badge: 'primitive',
         description: 'table with columns and rows for tabular data.',
         terminalMode: 'table',
+        terminalHeight: 'h-72 sm:h-80',
         installCmd: 'npx @trydecember/tui add table',
         codeSnippet: `import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/tui/table'
 import { Box, render } from 'ink'
