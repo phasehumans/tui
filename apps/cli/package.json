@@ -14,7 +14,7 @@
     "module": "src/index.ts",
     "type": "module",
     "private": false,
-    "author": "December <founders@trydecember.com>",
+    "author": "Chaitanya Sonawane <team@trydecember.com>",
     "license": "MIT",
     "keywords": [
         "tui"

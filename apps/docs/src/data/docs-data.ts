@@ -84,21 +84,25 @@ export interface DocItem {
 
 const BASE_DOC_ITEMS: DocItem[] = [
     {
-        id: 'introduction',
+        id: 'installation',
         category: 'getting-started',
-        navLabel: 'introduction',
-        title: 'introduction',
-        badge: 'overview',
-        description: 'a ui library for terminal agents.',
-        terminalMode: 'december',
-        terminalHeight: 'h-[380px] sm:h-[460px]',
+        navLabel: 'installation',
+        title: 'installation',
+        badge: 'setup',
+        description:
+            'a ui library for terminal agents. set up your project, pick a theme, and add components.',
         installCmd: 'npx @trydecember/tui init',
         toc: [
             { id: 'overview', label: 'overview' },
             { id: 'install-cmd', label: 'quickstart' },
-            { id: 'preview', label: 'terminal preview' },
             { id: 'philosophy', label: 'how it works' },
+            { id: 'prerequisites', label: 'prerequisites' },
+            { id: 'cli-options', label: 'options' },
+            { id: 'configuration', label: 'tui.json' },
+            { id: 'adding-components', label: 'adding components' },
             { id: 'turn-architecture', label: 'agent turn' },
+            { id: 'project-structure', label: 'project layout' },
+            { id: 'verification', label: 'quick test' },
         ],
         sections: [
             {
@@ -114,112 +118,6 @@ const BASE_DOC_ITEMS: DocItem[] = [
                     'no lock in: no telemetry or tracking. just plain typescript and ink.',
                 ],
             },
-            {
-                id: 'turn-architecture',
-                title: 'agent turn',
-                description:
-                    'a turn is one round between a user and an agent: user prompt, agent thoughts, tool calls, diffs, and the final reply. here is how components work together in a turn:',
-                codeSnippet: `import React from 'react'
-import { Box } from 'ink'
-import { StreamingText } from '@/components/ui/streaming-text'
-import { CollapsibleReasoning } from '@/components/ui/collapsible-reasoning'
-import { ToolCallCard } from '@/components/ui/tool-call-card'
-import { DiffViewer } from '@/components/ui/diff-viewer'
-import { TokenGauge } from '@/components/ui/token-gauge'
-
-interface ToolCall {
-  name: string
-  status: 'pending' | 'running' | 'completed' | 'failed'
-  durationMs?: number
-  argsSnippet?: string
-}
-
-interface AgentTurnProps {
-  thought?: string
-  isThinking?: boolean
-  responseText?: string
-  isStreaming?: boolean
-  toolCalls?: ToolCall[]
-  diff?: string
-  tokensUsed?: number
-  tokenLimit?: number
-}
-
-export function AgentTurn({
-  thought,
-  isThinking = false,
-  responseText,
-  isStreaming = false,
-  toolCalls = [],
-  diff,
-  tokensUsed = 4120,
-  tokenLimit = 128000,
-}: AgentTurnProps) {
-  return (
-    <Box flexDirection="column" gap={1}>
-      {/* 1. agent thinking block */}
-      {thought && (
-        <CollapsibleReasoning
-          thought={thought}
-          isStreaming={isThinking}
-          defaultCollapsed={!isThinking}
-        />
-      )}
-
-      {/* 2. tool calls (file edits, commands, searches) */}
-      {toolCalls.map((call, idx) => (
-        <ToolCallCard
-          key={idx}
-          toolName={call.name}
-          status={call.status}
-          durationMs={call.durationMs}
-          argsSnippet={call.argsSnippet}
-        />
-      ))}
-
-      {/* 3. code diff view */}
-      {diff && <DiffViewer diff={diff} />}
-
-      {/* 4. streaming text reply */}
-      {responseText && (
-        <StreamingText
-          text={responseText}
-          isComplete={!isStreaming}
-        />
-      )}
-
-      {/* 5. token gauge */}
-      <TokenGauge
-        used={tokensUsed}
-        total={tokenLimit}
-        label="Context Window"
-      />
-    </Box>
-  )
-}`,
-                language: 'tsx',
-            },
-        ],
-    },
-    {
-        id: 'installation',
-        category: 'getting-started',
-        navLabel: 'installation',
-        title: 'installation',
-        badge: 'setup',
-        description: 'set up your project, pick a theme, and add components.',
-        installCmd: 'npx @trydecember/tui init',
-        toc: [
-            { id: 'overview', label: 'overview' },
-            { id: 'install-cmd', label: 'quickstart' },
-            { id: 'prerequisites', label: 'prerequisites' },
-            { id: 'cli-options', label: 'options' },
-            { id: 'configuration', label: 'tui.json' },
-            { id: 'adding-components', label: 'adding components' },
-            { id: 'project-structure', label: 'project layout' },
-            { id: 'verification', label: 'quick test' },
-        ],
-        sections: [
             {
                 id: 'prerequisites',
                 title: 'prerequisites',
@@ -324,6 +222,91 @@ npx @trydecember/tui add diff-viewer --overwrite`,
                 ],
             },
             {
+                id: 'turn-architecture',
+                title: 'agent turn',
+                description:
+                    'a turn is one round between a user and an agent: user prompt, agent thoughts, tool calls, diffs, and the final reply. here is how components work together in a turn:',
+                codeSnippet: `import React from 'react'
+import { Box } from 'ink'
+import { StreamingText } from '@/components/ui/streaming-text'
+import { CollapsibleReasoning } from '@/components/ui/collapsible-reasoning'
+import { ToolCallCard } from '@/components/ui/tool-call-card'
+import { DiffViewer } from '@/components/ui/diff-viewer'
+import { TokenGauge } from '@/components/ui/token-gauge'
+
+interface ToolCall {
+  name: string
+  status: 'pending' | 'running' | 'completed' | 'failed'
+  durationMs?: number
+  argsSnippet?: string
+}
+
+interface AgentTurnProps {
+  thought?: string
+  isThinking?: boolean
+  responseText?: string
+  isStreaming?: boolean
+  toolCalls?: ToolCall[]
+  diff?: string
+  tokensUsed?: number
+  tokenLimit?: number
+}
+
+export function AgentTurn({
+  thought,
+  isThinking = false,
+  responseText,
+  isStreaming = false,
+  toolCalls = [],
+  diff,
+  tokensUsed = 4120,
+  tokenLimit = 128000,
+}: AgentTurnProps) {
+  return (
+    <Box flexDirection="column" gap={1}>
+      {/* 1. agent thinking block */}
+      {thought && (
+        <CollapsibleReasoning
+          thought={thought}
+          isStreaming={isThinking}
+          defaultCollapsed={!isThinking}
+        />
+      )}
+
+      {/* 2. tool calls (file edits, commands, searches) */}
+      {toolCalls.map((call, idx) => (
+        <ToolCallCard
+          key={idx}
+          toolName={call.name}
+          status={call.status}
+          durationMs={call.durationMs}
+          argsSnippet={call.argsSnippet}
+        />
+      ))}
+
+      {/* 3. code diff view */}
+      {diff && <DiffViewer diff={diff} />}
+
+      {/* 4. streaming text reply */}
+      {responseText && (
+        <StreamingText
+          text={responseText}
+          isComplete={!isStreaming}
+        />
+      )}
+
+      {/* 5. token gauge */}
+      <TokenGauge
+        used={tokensUsed}
+        total={tokenLimit}
+        label="Context Window"
+      />
+    </Box>
+  )
+}`,
+                language: 'tsx',
+            },
+            {
                 id: 'project-structure',
                 title: 'project layout',
                 description:
@@ -381,16 +364,15 @@ render(<App />)`,
         ],
     },
     {
-        id: 'theming',
+        id: 'themes',
         category: 'getting-started',
-        navLabel: 'theming',
-        title: 'theming',
+        navLabel: 'themes',
+        title: 'themes',
         badge: 'tokens',
         description: 'colors, symbols, and spacing for terminal components.',
         toc: [
             { id: 'overview', label: 'overview' },
             { id: 'token-contract', label: 'theme file' },
-            { id: 'presets', label: 'color themes' },
             { id: 'glyphs', label: 'symbols' },
             { id: 'customization', label: 'customizing' },
         ],
@@ -449,50 +431,6 @@ export interface ThemeDefinition {
   glyphs: ThemeGlyphs
 }`,
                 language: 'typescript',
-            },
-            {
-                id: 'presets',
-                title: 'color themes',
-                description: 'tui includes 7 built-in themes that work across terminal emulators:',
-                items: [
-                    {
-                        title: 'amber',
-                        description:
-                            'warm orange accents with dark gray backgrounds. good default for agents.',
-                        codeSnippet: `brand: '#FB923C', text: 'white', muted: '#FDBA74', dim: '#7C2D12', border: '#431407'`,
-                        language: 'typescript',
-                    },
-                    {
-                        title: 'emerald',
-                        description: 'green accents with dark green borders.',
-                        codeSnippet: `brand: '#10B981', text: 'white', muted: '#6EE7B7', dim: '#065F46', border: '#064E3B'`,
-                        language: 'typescript',
-                    },
-                    {
-                        title: 'cyan',
-                        description: 'bright cyan accents with dark blue borders.',
-                        codeSnippet: `brand: '#06B6D4', text: 'white', muted: '#67E8F9', dim: '#155E75', border: '#164E63'`,
-                        language: 'typescript',
-                    },
-                    {
-                        title: 'default',
-                        description: 'soft blue with neutral gray borders.',
-                        codeSnippet: `brand: '#89B4F8', text: 'white', muted: '#AAAAAA', dim: '#666666', border: '#333333'`,
-                        language: 'typescript',
-                    },
-                    {
-                        title: 'monochrome',
-                        description: 'pure black and white. works in every terminal.',
-                        codeSnippet: `brand: '#FFFFFF', text: '#FFFFFF', muted: '#A3A3A3', dim: '#525252', border: '#404040'`,
-                        language: 'typescript',
-                    },
-                    {
-                        title: 'zinc and slate',
-                        description: 'neutral grays for a clean dark look.',
-                        codeSnippet: `brand: '#A1A1AA', text: '#FAFAFA', muted: '#71717A', dim: '#3F3F46', border: '#27272A'`,
-                        language: 'typescript',
-                    },
-                ],
             },
             {
                 id: 'glyphs',

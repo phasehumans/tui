@@ -12,7 +12,7 @@ type PackageManager = 'bun' | 'pnpm' | 'npm'
 const cleanTitle = (name: string) => name.replace(/^<|(\s*\/?>)$/g, '').trim()
 
 export default function DocsPage() {
-    const [activeId, setActiveId] = useState<string>('introduction')
+    const [activeId, setActiveId] = useState<string>('installation')
     const [replayKey, setReplayKey] = useState<number>(0)
     const [variantReplayKeys, setVariantReplayKeys] = useState<Record<string, number>>({})
     const [copiedKey, setCopiedKey] = useState<string | null>(null)
@@ -41,7 +41,11 @@ export default function DocsPage() {
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash.replace('#', '')
-            if (hash && DOC_ITEMS.some((item) => item.id === hash)) {
+            if (hash === 'introduction') {
+                setActiveId('installation')
+            } else if (hash === 'theming') {
+                setActiveId('themes')
+            } else if (hash && DOC_ITEMS.some((item) => item.id === hash)) {
                 setActiveId(hash)
             }
         }
@@ -181,23 +185,23 @@ export default function DocsPage() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-                        className="lg:hidden -ml-2 p-2.5 rounded text-[#8c8c8c] hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
+                        className="lg:hidden -ml-1.5 p-1.5 rounded text-[#8c8c8c] hover:text-white hover:bg-white/[0.04] transition-colors flex items-center justify-center min-w-[36px] min-h-[36px] focus:outline-none focus-visible:outline-none"
                         aria-label="Toggle navigation"
                         aria-expanded={mobileSidebarOpen}
                         aria-controls="sidebar-nav"
                     >
                         {mobileSidebarOpen ? (
-                            <X className="h-5 w-5" />
+                            <X className="h-4 w-4" />
                         ) : (
-                            <Menu className="h-5 w-5" />
+                            <Menu className="h-4 w-4" />
                         )}
                     </button>
 
                     <a
-                        href="#introduction"
+                        href="#installation"
                         onClick={(e) => {
                             e.preventDefault()
-                            selectDocItem('introduction')
+                            selectDocItem('installation')
                         }}
                         className="flex items-center gap-2 py-1"
                     >
@@ -518,21 +522,7 @@ export default function DocsPage() {
                                                             promptCmd={promptCommand}
                                                             replayKey={vReplayKey}
                                                             interactive={true}
-                                                            heightClass={
-                                                                variation.terminalHeight ||
-                                                                (variation.terminalLines
-                                                                    ? variation.terminalLines
-                                                                          .length <= 2
-                                                                        ? 'h-28 sm:h-32'
-                                                                        : variation.terminalLines
-                                                                                .length <= 5
-                                                                          ? 'h-40 sm:h-48'
-                                                                          : variation.terminalLines
-                                                                                  .length <= 8
-                                                                            ? 'h-52 sm:h-60'
-                                                                            : 'h-64 sm:h-72'
-                                                                    : 'h-56 sm:h-64')
-                                                            }
+                                                            heightClass={activeItem.terminalHeight}
                                                         />
                                                     </div>
                                                 </div>
